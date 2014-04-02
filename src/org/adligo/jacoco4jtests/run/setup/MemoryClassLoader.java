@@ -22,6 +22,10 @@ public class MemoryClassLoader extends ClassLoader {
 	public boolean hasDefinition(final String name) {
 		return definitions.containsKey(name);
 	}
+	
+	public Class<?> getClass(final String name) {
+		return super.findLoadedClass(name);
+	}
 	@Override
 	protected Class<?> loadClass(final String name, final boolean resolve)
 			throws ClassNotFoundException {
