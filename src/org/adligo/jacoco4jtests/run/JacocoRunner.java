@@ -19,7 +19,7 @@ import org.adligo.jtests.models.shared.results.TrialResult;
 import org.adligo.jtests.models.shared.results.TrialRunResult;
 import org.adligo.jtests.models.shared.system.I_TrialResultsProcessor;
 import org.adligo.jtests.models.shared.system.I_TrialRunListener;
-import org.adligo.jtests.models.shared.system.RunParameters;
+import org.adligo.jtests.models.shared.system.JTestParameters;
 import org.adligo.jtests.run.I_JTests;
 import org.adligo.jtests.run.JTests;
 import org.jacoco.core.instr.Instrumenter;
@@ -36,16 +36,16 @@ public class JacocoRunner implements I_TrialRunListener, I_JTests {
 		
 	}
 	
-	public void run(RunParameters pParams) {
+	public void run(JTestParameters pParams) {
 		runInternal(pParams, this);
 	}
 	
-	public void run(RunParameters pParams, I_TrialRunListener pProcessor) {
+	public void run(JTestParameters pParams, I_TrialRunListener pProcessor) {
 		runInternal(pParams, pProcessor);
 	}
 	
 	
-	private void runInternal(RunParameters pParams, I_TrialRunListener pProcessor) {
+	private void runInternal(JTestParameters pParams, I_TrialRunListener pProcessor) {
 		trialRunListener = pProcessor;
 		pParams.setCoverageRecorder(recorder);
 		Instrumenter instr = recorder.getInstrumenter();
@@ -53,13 +53,13 @@ public class JacocoRunner implements I_TrialRunListener, I_JTests {
 		
 		// In this tutorial we use a special class loader to directly load the
 		// instrumented class definition from a byte[] instances.
-		RunParameters newParams = recorder.loadClasses(packages, pParams);
+		JTestParameters newParams = recorder.loadClasses(packages, pParams);
 		JTests jt = new JTests();
 		jt.run(newParams, this);
 	}
 
 	
-	private PackageSet getPackages(RunParameters pParams) {
+	private PackageSet getPackages(JTestParameters pParams) {
 		PackageSet packages = new PackageSet();
 		//ok find what may show up in the coverage
 		List<Class<? extends I_AbstractTrial>> trials = pParams.getTrials();

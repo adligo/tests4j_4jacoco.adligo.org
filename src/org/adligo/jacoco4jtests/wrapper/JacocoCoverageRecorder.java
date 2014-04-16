@@ -3,9 +3,8 @@ package org.adligo.jacoco4jtests.wrapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.adligo.jacoco4jtests.run.setup.ClassDiscovery;
@@ -14,12 +13,13 @@ import org.adligo.jacoco4jtests.run.setup.PackageSet;
 import org.adligo.jtests.models.shared.I_AbstractTrial;
 import org.adligo.jtests.models.shared.coverage.I_PackageCoverage;
 import org.adligo.jtests.models.shared.system.I_CoverageRecorder;
-import org.adligo.jtests.models.shared.system.RunParameters;
-import org.adligo.jtests.run.JTests;
+import org.adligo.jtests.models.shared.system.JTestParameters;
 import org.jacoco.core.analysis.Analyzer;
 import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.analysis.IClassCoverage;
 import org.jacoco.core.analysis.ICounter;
+import org.jacoco.core.analysis.ILine;
+import org.jacoco.core.analysis.ISourceFileCoverage;
 import org.jacoco.core.data.ExecutionDataStore;
 import org.jacoco.core.data.SessionInfoStore;
 import org.jacoco.core.instr.Instrumenter;
@@ -37,8 +37,10 @@ public class JacocoCoverageRecorder implements I_CoverageRecorder {
 	// that contains additional probes for execution data recording:
 	final Instrumenter instr = new Instrumenter(runtime);
 	final RuntimeData data = new RuntimeData();
-	final Map<String, Class<? extends I_AbstractTrial>> trialDelegates = new
-			HashMap<String, Class<? extends I_AbstractTrial>>();
+	
+	IRuntime trialRuntime;
+	Instrumenter trialInstr;
+	RuntimeData trialData;
 	final MemoryClassLoader memoryClassLoader = new MemoryClassLoader();
 	
 	public JacocoCoverageRecorder() {
@@ -55,24 +57,11 @@ public class JacocoCoverageRecorder implements I_CoverageRecorder {
 
 	@Override
 	public I_PackageCoverage getCoverage(String packageName) {
-		return null;
-		
-	}
-	
-	public IRuntime getRuntime() {
-		return runtime;
-	}
-	public Instrumenter getInstrumenter() {
-		return instr;
-	}
-	@Override
-	public List<I_PackageCoverage> getCoverage() {
-		
 		try {
 			final ExecutionDataStore executionData = new ExecutionDataStore();
 			final SessionInfoStore sessionInfos = new SessionInfoStore();
-			data.collect(executionData, sessionInfos, false);
-			runtime.shutdown();
+			trialData.collect(executionData, sessionInfos, false);
+			trialRuntime.shutdown();
 	
 			final CoverageBuilder coverageBuilder = new CoverageBuilder();
 			final Analyzer analyzer = new Analyzer(executionData, coverageBuilder);
@@ -97,23 +86,68 @@ public class JacocoCoverageRecorder implements I_CoverageRecorder {
 		} catch (Exception x) {
 			x.printStackTrace();
 		}
+		return null;
+	}
+	
+	public IRuntime getRuntime() {
+		return runtime;
+	}
+	public Instrumenter getInstrumenter() {
+		return instr;
+	}
+	@Override
+	public List<I_PackageCoverage> getCoverage() {
+		
+		
+		final ExecutionDataStore executionData = new ExecutionDataStore();
+		final SessionInfoStore sessionInfos = new SessionInfoStore();
+		data.collect(executionData, sessionInfos, false);
+		runtime.shutdown();
+		try {
+			
+			final CoverageBuilder coverageBuilder = new CoverageBuilder();
+			final Analyzer analyzer = new Analyzer(executionData, coverageBuilder);
+			String targetName = "org.adligo.jtests.models.shared.AbstractTrial";
+			analyzer.analyzeClass(getTargetClass(targetName), targetName);
+	
+			Collection<ISourceFileCoverage> sourceCoverages = coverageBuilder.getSourceFiles();
+			// Let's dump some metrics and line coverage information:
+			for (final ISourceFileCoverage cc : sourceCoverages) {
+				System.out.printf("Coverage of class %s%n", cc.getName());
+	
+				printCounter("instructions", cc.getInstructionCounter());
+				printCounter("branches", cc.getBranchCounter());
+				printCounter("lines", cc.getLineCounter());
+				printCounter("methods", cc.getMethodCounter());
+				printCounter("complexity", cc.getComplexityCounter());
+	
+				for (int i = cc.getFirstLine(); i <= cc.getLastLine(); i++) {
+					ILine line = cc.getLine(i);
+					System.out.println("Line " + i + " instructions " + 
+							line.getInstructionCounter().getCoveredCount() +
+							"/" +
+							line.getInstructionCounter().getTotalCount() + 
+							" instructions " + 
+							line.getBranchCounter().getCoveredCount() +
+							"/" +
+							line.getBranchCounter().getTotalCount() + 
+							" branches ");
+				}
+			}
+						
+		} catch (Exception x) {
+			x.printStackTrace();
+		}
 		List<I_PackageCoverage> toRet = new ArrayList<I_PackageCoverage>();
 		return toRet;
 	}
-	@Override
-	public Class<? extends I_AbstractTrial> getDelegateClass(String name) {
-		return trialDelegates.get(name);
-	}
 	
-	public void putDelegateClass(Class<? extends I_AbstractTrial> delegate) {
-		trialDelegates.put(delegate.getName(), delegate);
-	}
 	public RuntimeData getData() {
 		return data;
 	}
 	
-	public RunParameters loadClasses(PackageSet packages, RunParameters pParams) {
-		RunParameters newParams = new RunParameters();
+	public JTestParameters loadClasses(PackageSet packages, JTestParameters pParams) {
+		JTestParameters newParams = new JTestParameters();
 		newParams.setCheckMins(pParams.isCheckMins());
 		newParams.setFailFast(pParams.isFailFast());
 		newParams.setMinAsserts(pParams.getMinAsserts());
@@ -221,5 +255,19 @@ public class JacocoCoverageRecorder implements I_CoverageRecorder {
 			return "green";
 		}
 		return "";
+	}
+	@Override
+	public void startTrialRecording() {
+		IRuntime trialRuntime = new LoggerRuntime();
+
+		// The Instrumenter creates a modified version of our test target class
+		// that contains additional probes for execution data recording:
+		Instrumenter trialInstr = new Instrumenter(runtime);
+		RuntimeData trialData = new RuntimeData();
+		try {
+			trialRuntime.startup(trialData);
+		} catch (Exception x) {
+			throw new RuntimeException(x);
+		}
 	}
 }
