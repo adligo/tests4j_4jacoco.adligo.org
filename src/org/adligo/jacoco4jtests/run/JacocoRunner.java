@@ -5,8 +5,8 @@ import java.util.List;
 import org.adligo.jacoco4jtests.run.setup.PackageSet;
 import org.adligo.jacoco4jtests.wrapper.JacocoCoverageRecorder;
 import org.adligo.jtests.models.shared.API_Trial;
-import org.adligo.jtests.models.shared.ClassScope;
-import org.adligo.jtests.models.shared.ClassTrial;
+import org.adligo.jtests.models.shared.SourceFileScope;
+import org.adligo.jtests.models.shared.SourceFileTrial;
 import org.adligo.jtests.models.shared.I_AbstractTrial;
 import org.adligo.jtests.models.shared.JTrialType;
 import org.adligo.jtests.models.shared.PackageScope;
@@ -69,7 +69,7 @@ public class JacocoRunner implements I_TrialRunListener, I_JTests {
 				String pkg = ps.packageName();
 				packages.add(pkg);
 			} else {
-				ClassScope cs = trial.getAnnotation(ClassScope.class);
+				SourceFileScope cs = trial.getAnnotation(SourceFileScope.class);
 				String pkg = cs.testedClass().getPackage().getName();
 				packages.add(pkg);
 			}
