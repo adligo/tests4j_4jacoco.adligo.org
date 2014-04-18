@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.runtime;
+package org.adligo.tests4j_4jacoco.plugin.runtime.simple;
 
 import java.lang.reflect.Field;
 import java.util.Random;
@@ -6,9 +6,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
+import org.adligo.tests4j_4jacoco.plugin.runtime.I_JacocoRuntime;
+import org.adligo.tests4j_4jacoco.plugin.runtime.I_JacocoRuntimeData;
 import org.jacoco.core.internal.instr.InstrSupport;
 
-public abstract class JacocoAbstractRuntime implements I_JacocoRuntime {
+public abstract class JacocoSimpleAbstractRuntime implements I_JacocoRuntime {
 
 	/**
 	 * keep track of what is getting recorded
@@ -16,9 +18,7 @@ public abstract class JacocoAbstractRuntime implements I_JacocoRuntime {
 	protected CopyOnWriteArraySet<String> currentScopes = new CopyOnWriteArraySet<String>();
 	
 	/** access to the runtime data */
-	protected ConcurrentHashMap<String, I_JacocoRuntimeData> data =
-			new ConcurrentHashMap<String, I_JacocoRuntimeData>();
-	private I_JacocoRuntimeData rootData = new JacocoRuntimeData();
+	protected I_JacocoRuntimeData data = new JacocoSimpleRuntimeData();
 	
 	public void disconnect(final Class<?> type) throws Exception {
 		if (!type.isInterface()) {
@@ -30,23 +30,8 @@ public abstract class JacocoAbstractRuntime implements I_JacocoRuntime {
 	}
 
 	public void startup() {
-		data.put(I_CoverageRecorder.TRIAL_RUN, rootData);
-		startRecording(I_CoverageRecorder.TRIAL_RUN);
-	}
-	/**
-	 * Subclasses must call this method when overwriting it.
-	 */
-	public void startRecording(final String pScope) {
-		if (!data.contains(pScope)) {
-			data.put(pScope, new JacocoRuntimeData());
-		}
-		currentScopes.add(pScope);
 	}
 
-	public I_JacocoRuntimeData stopRecording(final String pScope) {
-		currentScopes.remove(pScope);
-		return data.get(pScope);
-	}
 	private static final Random RANDOM = new Random();
 
 	/**

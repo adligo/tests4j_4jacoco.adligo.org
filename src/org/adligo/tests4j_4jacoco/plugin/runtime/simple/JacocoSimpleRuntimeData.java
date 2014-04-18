@@ -1,19 +1,18 @@
-package org.adligo.tests4j_4jacoco.plugin.runtime;
+package org.adligo.tests4j_4jacoco.plugin.runtime.simple;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-
+import org.adligo.tests4j_4jacoco.plugin.data.I_ExecutionDataStore;
+import org.adligo.tests4j_4jacoco.plugin.data.wrappers.WrappedDataStore;
+import org.adligo.tests4j_4jacoco.plugin.runtime.I_JacocoRuntimeData;
 import org.jacoco.core.data.ExecutionData;
 import org.jacoco.core.data.ExecutionDataStore;
 import org.jacoco.core.data.IExecutionDataVisitor;
 import org.jacoco.core.data.ISessionInfoVisitor;
 import org.jacoco.core.data.SessionInfo;
 import org.jacoco.core.internal.instr.InstrSupport;
-import org.jacoco.core.runtime.RuntimeData;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class JacocoRuntimeData implements I_JacocoRuntimeData {
+public class JacocoSimpleRuntimeData implements I_JacocoRuntimeData {
 	/** store for execution data */
 	protected final ExecutionDataStore store;
 	
@@ -24,7 +23,7 @@ public class JacocoRuntimeData implements I_JacocoRuntimeData {
 	/**
 	 * Creates a new runtime.
 	 */
-	public JacocoRuntimeData() {
+	public JacocoSimpleRuntimeData() {
 		store = new ExecutionDataStore();
 		sessionId = "<none>";
 		startTimeStamp = System.currentTimeMillis();
@@ -79,6 +78,9 @@ public class JacocoRuntimeData implements I_JacocoRuntimeData {
 		}
 	}
 
+	public I_ExecutionDataStore getDataStore() {
+		return new WrappedDataStore(store);
+	}
 	/**
 	 * Resets all coverage information.
 	 */
@@ -150,5 +152,54 @@ public class JacocoRuntimeData implements I_JacocoRuntimeData {
 			getProbes((Object[]) args);
 		}
 		return super.equals(args);
+	}
+	
+	/**
+	 * Generates code that creates the argument array for the
+	 * {@link #getProbes(Object[])} method. The array instance is left on the
+	 * operand stack. The generated code requires a stack size of 5.
+	 * 
+	 * @param classid
+	 *            class identifier
+	 * @param classname
+	 *            VM class name
+	 * @param probecount
+	 *            probe count for this class
+	 * @param mv
+	 *            visitor to emit generated code
+	 */
+	public static void generateArgumentArray(final long classid,
+			final String classname, final int probecount, final String scope, 
+			final MethodVisitor mv) {
+		mv.visitInsn(Opcodes.ICONST_4);
+		mv.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/Object");
+
+		// Class Id:
+		mv.visitInsn(Opcodes.DUP);
+		mv.visitInsn(Opcodes.ICONST_0);
+		mv.visitLdcInsn(Long.valueOf(classid));
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf",
+				"(J)Ljava/lang/Long;");
+		mv.visitInsn(Opcodes.AASTORE);
+
+		// Class Name:
+		mv.visitInsn(Opcodes.DUP);
+		mv.visitInsn(Opcodes.ICONST_1);
+		mv.visitLdcInsn(classname);
+		mv.visitInsn(Opcodes.AASTORE);
+
+		// Probe Count:
+		mv.visitInsn(Opcodes.DUP);
+		mv.visitInsn(Opcodes.ICONST_2);
+		InstrSupport.push(mv, probecount);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer",
+				"valueOf", "(I)Ljava/lang/Integer;");
+		mv.visitInsn(Opcodes.AASTORE);
+		
+		// Coverage Scope Name:
+		mv.visitInsn(Opcodes.DUP);
+		mv.visitInsn(Opcodes.ICONST_3);
+		mv.visitLdcInsn(scope);
+		mv.visitInsn(Opcodes.AASTORE);
 	}
 }

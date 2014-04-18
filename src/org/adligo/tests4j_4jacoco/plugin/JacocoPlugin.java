@@ -1,7 +1,8 @@
 package org.adligo.tests4j_4jacoco.plugin;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -13,11 +14,11 @@ import org.adligo.tests4j.models.shared.system.I_CoveragePlugin;
 import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Logger;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Params;
-import org.adligo.tests4j_4jacoco.plugin.instrumenation.ClassDiscovery;
-import org.adligo.tests4j_4jacoco.plugin.instrumenation.ClassNameToInputStream;
-import org.adligo.tests4j_4jacoco.plugin.instrumenation.MemoryClassLoader;
-import org.adligo.tests4j_4jacoco.plugin.instrumenation.PackageSet;
-import org.jacoco.core.instr.Instrumenter;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassDiscovery;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassNameToInputStream;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.JacocoInstrumenter;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.MemoryClassLoader;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.PackageSet;
 
 public class JacocoPlugin implements I_CoveragePlugin {
 	private final JacocoMemory memory = new JacocoMemory();
@@ -101,10 +102,13 @@ public class JacocoPlugin implements I_CoveragePlugin {
 			log.log("loading class " + clazzName);
 		}
 		MemoryClassLoader memoryClassLoader = memory.getMemoryClassLoader();
-		Instrumenter instr = memory.getInstrumenter();
+		JacocoInstrumenter instr = memory.getInstrumenter();
 		
 		final byte[] instrumented = instr.instrument(
 				ClassNameToInputStream.getTargetClass(clazzName), clazzName);
+		FileOutputStream fos = new FileOutputStream(new File("./" + clazzName + ".class"));
+		fos.write(instrumented);
+		fos.close();
 		memoryClassLoader.addDefinition(clazzName, instrumented);
 		return memoryClassLoader.loadClass(clazzName);
 	}

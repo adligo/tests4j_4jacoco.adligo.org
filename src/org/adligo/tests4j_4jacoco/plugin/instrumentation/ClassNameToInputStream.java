@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.instrumenation;
+package org.adligo.tests4j_4jacoco.plugin.instrumentation;
 
 import java.io.InputStream;
 
