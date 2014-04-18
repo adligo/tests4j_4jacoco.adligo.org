@@ -13,31 +13,22 @@ import org.adligo.tests4j.models.shared.system.I_CoveragePlugin;
 import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Logger;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Params;
-import org.adligo.tests4j.models.shared.system.I_TrialList;
-import org.adligo.tests4j.models.shared.system.Tests4J_Params;
 import org.adligo.tests4j_4jacoco.plugin.instrumenation.ClassDiscovery;
+import org.adligo.tests4j_4jacoco.plugin.instrumenation.ClassNameToInputStream;
 import org.adligo.tests4j_4jacoco.plugin.instrumenation.MemoryClassLoader;
 import org.adligo.tests4j_4jacoco.plugin.instrumenation.PackageSet;
 import org.jacoco.core.instr.Instrumenter;
-import org.jacoco.core.runtime.IRuntime;
-import org.jacoco.core.runtime.LoggerRuntime;
 
 public class JacocoPlugin implements I_CoveragePlugin {
-	private final MemoryClassLoader memoryClassLoader = new MemoryClassLoader();
-	// For instrumentation and runtime we need a IRuntime instance
-	// to collect execution data:
-	final IRuntime runtime = new LoggerRuntime();
-
-	// The Instrumenter creates a modified version of our test target class
-	// that contains additional probes for execution data recording:
-	final Instrumenter instr = new Instrumenter(runtime);
+	private final JacocoMemory memory = new JacocoMemory();
 	private I_Tests4J_Logger log;
 	
 	@Override
-	public void instrumentClasses(I_Tests4J_Params pParams) {
+	public List<Class<? extends I_AbstractTrial>> instrumentClasses(I_Tests4J_Params pParams) {
 		log = pParams.getLog();
 		PackageSet packages = getPackages(pParams);
-		
+		memory.setPackages(packages);
+		return loadClasses(packages, pParams);
 	}
 	
 	private PackageSet getPackages(I_Tests4J_Params pParams) {
@@ -58,24 +49,17 @@ public class JacocoPlugin implements I_CoveragePlugin {
 		return packages;
 	}
 	
-	public Tests4J_Params loadClasses(PackageSet packages, Tests4J_Params pParams) {
-		Tests4J_Params newParams = new Tests4J_Params();
-		newParams.setCheckMins(pParams.isCheckMins());
-		newParams.setFailFast(pParams.isFailFast());
-		newParams.setMinAsserts(pParams.getMinAsserts());
-		newParams.setMinTests(pParams.getMinTests());
-		newParams.setMinUniqueAssertions(pParams.getMinUniqueAssertions());
+	public List<Class<? extends I_AbstractTrial>>  loadClasses(PackageSet packages, I_Tests4J_Params pParams) {
+		List<Class<? extends I_AbstractTrial>> newTrials = new ArrayList<Class<? extends I_AbstractTrial>>();
 		
 		Set<String> testedPackages = packages.get();
 		try {
 			//load the classes to be tesed in the memory class loader
 			for (String pkg: testedPackages) {
-				loadTestedClasses(instr, memoryClassLoader, pkg);
+				loadTestedClasses(pkg);
 			}
 	
 			List<Class<? extends I_AbstractTrial>> trials = pParams.getTrials();
-			List<Class<? extends I_AbstractTrial>> newTrials = new 
-					ArrayList<Class<? extends I_AbstractTrial>>();
 			//load the trials in the memory class loader
 			for (Class<? extends I_AbstractTrial> trialClazz: trials) {
 				String trialClassName = trialClazz.getName();
@@ -86,25 +70,22 @@ public class JacocoPlugin implements I_CoveragePlugin {
 						loadClass(trialClassName);
 				newTrials.add(customClassLoadedClazz);
 			}
-			newParams.setTrials(newTrials);
 		} catch (Exception x) {
 			throw new RuntimeException(x);
 		}
-		return newParams;
+		return newTrials;
 	}
 	
 	private Class<?> loadClass(String clazzName) throws IOException,
 			ClassNotFoundException {
 		
-		
+		MemoryClassLoader memoryClassLoader = memory.getMemoryClassLoader();
 		if (memoryClassLoader.getClass(clazzName) == null) {
-			if (!clazzName.contains("org.adligo.jtests")) {
+			if (!clazzName.contains("org.adligo.tests4j")) {
 				return loadClassInternal(clazzName);
 			} else {
 				Class<?> clz = Class.forName(clazzName);
-				if (clz.isAnnotation() || clz.isInterface() || clz.isEnum()
-						 || clazzName.contains("org.adligo.jtests.models.shared.asserts")
-						 || clazzName.contains("org.adligo.jtests.models.shared.results")) {
+				if (clz.isAnnotation() || clz.isInterface() || clz.isEnum()) {
 					//skip use the parent classloader for def
 				} else {
 					return loadClassInternal(clazzName);
@@ -119,26 +100,24 @@ public class JacocoPlugin implements I_CoveragePlugin {
 		if (log.isEnabled()) {
 			log.log("loading class " + clazzName);
 		}
+		MemoryClassLoader memoryClassLoader = memory.getMemoryClassLoader();
+		Instrumenter instr = memory.getInstrumenter();
+		
 		final byte[] instrumented = instr.instrument(
-				getTargetClass(clazzName), clazzName);
+				ClassNameToInputStream.getTargetClass(clazzName), clazzName);
 		memoryClassLoader.addDefinition(clazzName, instrumented);
 		return memoryClassLoader.loadClass(clazzName);
 	}
 
-	private InputStream getTargetClass(final String name) {
-		final String resource = '/' + name.replace('.', '/') + ".class";
-		return getClass().getResourceAsStream(resource);
-	}
-	private void loadTestedClasses(Instrumenter instr,
-			final MemoryClassLoader memoryClassLoader, String pkg)
+	
+	private void loadTestedClasses(String pkg)
 			throws ClassNotFoundException, IOException {
 		ClassDiscovery cd = new ClassDiscovery(pkg);
-		loadTestedClasses(instr, memoryClassLoader, cd);
+		loadTestedClasses(cd);
 			
 	}
 
-	private void loadTestedClasses(Instrumenter instr,
-			final MemoryClassLoader memoryClassLoader, ClassDiscovery cd)
+	private void loadTestedClasses(ClassDiscovery cd)
 			throws IOException, ClassNotFoundException {
 		List<String> classNames = cd.getClassNames();
 		for (String clazz: classNames) {
@@ -146,13 +125,17 @@ public class JacocoPlugin implements I_CoveragePlugin {
 		}
 		List<ClassDiscovery> subCds = cd.getSubPackages();
 		for (ClassDiscovery subCd: subCds) {
-			loadTestedClasses(instr, memoryClassLoader, subCd);
+			loadTestedClasses(subCd);
 		}
 	}
 	
 	@Override
 	public I_CoverageRecorder createRecorder(String scope) {
-		return new JacocoRecorder(scope, log);
+		JacocoRecorder rec = new JacocoRecorder(scope, memory, log);
+		if (I_CoverageRecorder.TRIAL_RUN.equals(scope)) {
+			rec.setRoot(true);
+		}
+		return rec;
 	}
 
 }

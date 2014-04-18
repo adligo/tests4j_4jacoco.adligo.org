@@ -2,10 +2,11 @@ package org.adligo.tests4j_4jacoco.plugin.instrumenation;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MemoryClassLoader extends ClassLoader {
 
-	private final Map<String, byte[]> definitions = new HashMap<String, byte[]>();
+	private final ConcurrentHashMap<String, byte[]> definitions = new ConcurrentHashMap<String, byte[]>();
 
 	/**
 	 * Add a in-memory representation of a class.
