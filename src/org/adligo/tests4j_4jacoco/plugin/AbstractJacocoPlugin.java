@@ -16,12 +16,12 @@ import org.adligo.tests4j.models.shared.system.I_Tests4J_Logger;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Params;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassDiscovery;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassNameToInputStream;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.JacocoInstrumenter;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.MemoryClassLoader;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.PackageSet;
+import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 
-public class JacocoPlugin implements I_CoveragePlugin {
-	private final JacocoMemory memory = new JacocoMemory();
+public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
+	protected JacocoMemory memory;
 	private I_Tests4J_Logger log;
 	
 	@Override
@@ -102,7 +102,7 @@ public class JacocoPlugin implements I_CoveragePlugin {
 			log.log("loading class " + clazzName);
 		}
 		MemoryClassLoader memoryClassLoader = memory.getMemoryClassLoader();
-		JacocoInstrumenter instr = memory.getInstrumenter();
+		I_Instrumenter instr = memory.getInstrumenter();
 		
 		final byte[] instrumented = instr.instrument(
 				ClassNameToInputStream.getTargetClass(clazzName), clazzName);

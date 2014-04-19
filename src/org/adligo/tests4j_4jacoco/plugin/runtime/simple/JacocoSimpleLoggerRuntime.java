@@ -10,6 +10,7 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
+import org.adligo.tests4j_4jacoco.plugin.asm.ClassCoverageDataParamFactory;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_JacocoRuntimeData;
 import org.jacoco.core.internal.instr.InstrSupport;
 import org.jacoco.core.runtime.IRuntime;
@@ -75,8 +76,8 @@ public class JacocoSimpleLoggerRuntime extends JacocoSimpleAbstractRuntime {
 		// DUP and SWAP operations on the operand stack.
 
 		// 1. Create parameter array:
-
-		generateArgumentArray(classid, classname, probecount, mv);
+		ClassCoverageDataParamFactory paramFactory = new ClassCoverageDataParamFactory(mv);
+		paramFactory.create(classid, classname, probecount);
 
 		// Stack[0]: [Ljava/lang/Object;
 
@@ -191,46 +192,5 @@ public class JacocoSimpleLoggerRuntime extends JacocoSimpleAbstractRuntime {
 		}
 	}
 	
-	/**
-	 * Generates code that creates the argument array for the
-	 * {@link #getProbes(Object[])} method. The array instance is left on the
-	 * operand stack. The generated code requires a stack size of 5.
-	 * 
-	 * @param classid
-	 *            class identifier
-	 * @param classname
-	 *            VM class name
-	 * @param probecount
-	 *            probe count for this class
-	 * @param mv
-	 *            visitor to emit generated code
-	 */
-	public static void generateArgumentArray(final long classid,
-			final String classname, final int probecount, final MethodVisitor mv) {
-		mv.visitInsn(Opcodes.ICONST_3);
-		mv.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/Object");
-
-		// Class Id:
-		mv.visitInsn(Opcodes.DUP);
-		mv.visitInsn(Opcodes.ICONST_0);
-		mv.visitLdcInsn(Long.valueOf(classid));
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf",
-				"(J)Ljava/lang/Long;");
-		mv.visitInsn(Opcodes.AASTORE);
-
-		// Class Name:
-		mv.visitInsn(Opcodes.DUP);
-		mv.visitInsn(Opcodes.ICONST_1);
-		mv.visitLdcInsn(classname);
-		mv.visitInsn(Opcodes.AASTORE);
-
-		// Probe Count:
-		mv.visitInsn(Opcodes.DUP);
-		mv.visitInsn(Opcodes.ICONST_2);
-		InstrSupport.push(mv, probecount);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer",
-				"valueOf", "(I)Ljava/lang/Integer;");
-		mv.visitInsn(Opcodes.AASTORE);
-	}
 }
 

@@ -10,6 +10,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 import org.jacoco.core.internal.ContentTypeDetector;
 import org.jacoco.core.internal.Pack200Streams;
 import org.jacoco.core.internal.data.CRC64;
@@ -23,7 +24,7 @@ import org.objectweb.asm.ClassWriter;
 /**
  * Several APIs to instrument Java class definitions for coverage tracing.
  */
-public class JacocoInstrumenter {
+public class MapDataInstrumenter implements I_Instrumenter {
 
 		private final IExecutionDataAccessorGenerator accessGenerator;
 
@@ -35,20 +36,15 @@ public class JacocoInstrumenter {
 		 * @param runtime
 		 *            runtime used by the instrumented classes
 		 */
-		public JacocoInstrumenter(final IExecutionDataAccessorGenerator runtime) {
+		public MapDataInstrumenter(final IExecutionDataAccessorGenerator runtime) {
 			this.accessGenerator = runtime;
 			this.signatureRemover = new SignatureRemover();
 		}
 
-		/**
-		 * Determines whether signatures should be removed from JAR files. This is
-		 * typically necessary as instrumentation modifies the class files and
-		 * therefore invalidates existing JAR signatures. Default is
-		 * <code>true</code>.
-		 * 
-		 * @param flag
-		 *            <code>true</code> if signatures should be removed
+		/* (non-Javadoc)
+		 * @see org.adligo.tests4j_4jacoco.plugin.instrumentation.I_I#setRemoveSignatures(boolean)
 		 */
+		@Override
 		public void setRemoveSignatures(final boolean flag) {
 			signatureRemover.setActive(flag);
 		}
@@ -68,14 +64,10 @@ public class JacocoInstrumenter {
 					accessGenerator, cv), true);
 		}
 
-		/**
-		 * Creates a instrumented version of the given class if possible.
-		 * 
-		 * @param reader
-		 *            definition of the class as ASM reader
-		 * @return instrumented definition
-		 * 
+		/* (non-Javadoc)
+		 * @see org.adligo.tests4j_4jacoco.plugin.instrumentation.I_I#instrument(org.objectweb.asm.ClassReader)
 		 */
+		@Override
 		public byte[] instrument(final ClassReader reader) {
 			final ClassWriter writer = new ClassWriter(reader, 0);
 			final ClassVisitor visitor = createInstrumentingVisitor(
@@ -84,17 +76,10 @@ public class JacocoInstrumenter {
 			return writer.toByteArray();
 		}
 
-		/**
-		 * Creates a instrumented version of the given class if possible.
-		 * 
-		 * @param buffer
-		 *            definition of the class
-		 * @param name
-		 *            a name used for exception messages
-		 * @return instrumented definition
-		 * @throws IOException
-		 *             if the class can't be analyzed
+		/* (non-Javadoc)
+		 * @see org.adligo.tests4j_4jacoco.plugin.instrumentation.I_I#instrument(byte[], java.lang.String)
 		 */
+		@Override
 		public byte[] instrument(final byte[] buffer, final String name)
 				throws IOException {
 			try {
@@ -104,18 +89,10 @@ public class JacocoInstrumenter {
 			}
 		}
 
-		/**
-		 * Creates a instrumented version of the given class if possible.
-		 * 
-		 * @param input
-		 *            stream to read class definition from
-		 * @param name
-		 *            a name used for exception messages
-		 * @return instrumented definition
-		 * @throws IOException
-		 *             if reading data from the stream fails or the class can't be
-		 *             instrumented
+		/* (non-Javadoc)
+		 * @see org.adligo.tests4j_4jacoco.plugin.instrumentation.I_I#instrument(java.io.InputStream, java.lang.String)
 		 */
+		@Override
 		public byte[] instrument(final InputStream input, final String name)
 				throws IOException {
 			try {
@@ -125,19 +102,10 @@ public class JacocoInstrumenter {
 			}
 		}
 
-		/**
-		 * Creates a instrumented version of the given class file.
-		 * 
-		 * @param input
-		 *            stream to read class definition from
-		 * @param output
-		 *            stream to write the instrumented version of the class to
-		 * @param name
-		 *            a name used for exception messages
-		 * @throws IOException
-		 *             if reading data from the stream fails or the class can't be
-		 *             instrumented
+		/* (non-Javadoc)
+		 * @see org.adligo.tests4j_4jacoco.plugin.instrumentation.I_I#instrument(java.io.InputStream, java.io.OutputStream, java.lang.String)
 		 */
+		@Override
 		public void instrument(final InputStream input, final OutputStream output,
 				final String name) throws IOException {
 			try {
@@ -155,22 +123,10 @@ public class JacocoInstrumenter {
 			return ex;
 		}
 
-		/**
-		 * Creates a instrumented version of the given resource depending on its
-		 * type. Class files and the content of archive files are instrumented. All
-		 * other files are copied without modification.
-		 * 
-		 * @param input
-		 *            stream to contents from
-		 * @param output
-		 *            stream to write the instrumented version of the contents
-		 * @param name
-		 *            a name used for exception messages
-		 * @return number of instrumented classes
-		 * @throws IOException
-		 *             if reading data from the stream fails or a class can't be
-		 *             instrumented
+		/* (non-Javadoc)
+		 * @see org.adligo.tests4j_4jacoco.plugin.instrumentation.I_I#instrumentAll(java.io.InputStream, java.io.OutputStream, java.lang.String)
 		 */
+		@Override
 		public int instrumentAll(final InputStream input,
 				final OutputStream output, final String name) throws IOException {
 			final ContentTypeDetector detector = new ContentTypeDetector(input);
