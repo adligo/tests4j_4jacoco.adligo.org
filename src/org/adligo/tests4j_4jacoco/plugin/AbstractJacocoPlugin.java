@@ -1,13 +1,12 @@
 package org.adligo.tests4j_4jacoco.plugin;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.adligo.tests4j.models.shared.AbstractTrial;
+import org.adligo.tests4j.models.shared.I_AbstractTrial;
 import org.adligo.tests4j.models.shared.PackageScope;
 import org.adligo.tests4j.models.shared.SourceFileScope;
 import org.adligo.tests4j.models.shared.system.I_CoveragePlugin;
@@ -25,7 +24,7 @@ public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 	private I_Tests4J_Logger log;
 	
 	@Override
-	public List<Class<? extends AbstractTrial>> instrumentClasses(I_Tests4J_Params pParams) {
+	public List<Class<? extends I_AbstractTrial>> instrumentClasses(I_Tests4J_Params pParams) {
 		log = pParams.getLog();
 		PackageSet packages = getPackages(pParams);
 		memory.setPackages(packages);
@@ -35,8 +34,8 @@ public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 	private PackageSet getPackages(I_Tests4J_Params pParams) {
 		PackageSet packages = new PackageSet();
 		//ok find what may show up in the coverage
-		List<Class<? extends AbstractTrial>> trials = pParams.getTrials();
-		for (Class<? extends AbstractTrial> trial: trials) {
+		List<Class<? extends I_AbstractTrial>> trials = pParams.getTrials();
+		for (Class<? extends I_AbstractTrial> trial: trials) {
 			PackageScope ps = trial.getAnnotation(PackageScope.class);
 			if (ps != null) {
 				String pkg = ps.packageName();
@@ -50,8 +49,9 @@ public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 		return packages;
 	}
 	
-	public List<Class<? extends AbstractTrial>>  loadClasses(PackageSet packages, I_Tests4J_Params pParams) {
-		List<Class<? extends AbstractTrial>> newTrials = new ArrayList<Class<? extends AbstractTrial>>();
+	public List<Class<? extends I_AbstractTrial>>  loadClasses(PackageSet packages, I_Tests4J_Params pParams) {
+		List<Class<? extends I_AbstractTrial>> newTrials = 
+				new ArrayList<Class<? extends I_AbstractTrial>>();
 		
 		Set<String> testedPackages = packages.get();
 		try {
@@ -60,9 +60,9 @@ public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 				loadTestedClasses(pkg);
 			}
 	
-			List<Class<? extends AbstractTrial>> trials = pParams.getTrials();
+			List<Class<? extends I_AbstractTrial>> trials = pParams.getTrials();
 			//load the trials in the memory class loader
-			for (Class<? extends AbstractTrial> trialClazz: trials) {
+			for (Class<? extends I_AbstractTrial> trialClazz: trials) {
 				String trialClassName = trialClazz.getName();
 				
 				@SuppressWarnings("unchecked")
