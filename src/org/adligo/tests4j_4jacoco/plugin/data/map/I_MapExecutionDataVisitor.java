@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.runtime.multicast;
+package org.adligo.tests4j_4jacoco.plugin.data.map;
 
 
 /**
@@ -6,7 +6,7 @@ package org.adligo.tests4j_4jacoco.plugin.runtime.multicast;
  * meant to be implemented by parties that want to retrieve data from the
  * coverage runtime.
  */
-public interface I_MulticastExecutionDataVisitor {
+public interface I_MapExecutionDataVisitor {
 
 	/**
 	 * Provides execution data for a class.
@@ -14,6 +14,6 @@ public interface I_MulticastExecutionDataVisitor {
 	 * @param data
 	 *            execution data for a class
 	 */
-	public void visitClassExecution(MulticastExecutionData data);
+	public void visitClassExecution(MapExecutionData data);
 
 }

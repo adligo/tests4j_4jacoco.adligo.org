@@ -1,6 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation;
 
 import org.adligo.tests4j.run.Tests4J_UncaughtExceptionHandler;
+import org.adligo.tests4j_4jacoco.plugin.asm.AsmMapHelper;
 import org.jacoco.core.JaCoCo;
 import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.Label;
@@ -57,10 +58,13 @@ public class JacocoProbeInserter extends MethodVisitor implements I_JacocoProbeI
 		// to true.
 		mv.visitVarInsn(Opcodes.ALOAD, variable);
 		
-		AsmHelper.callMapPut(probeIndex, true, mv);
+		// Stack[0]:Map
+		
+		AsmMapHelper.callMapPut(probeIndex, true, mv);
 		// Stack[0]:Map
 
 		mv.visitVarInsn(Opcodes.ASTORE, variable);
+		//stack is nill
 		
 	}
 
@@ -89,11 +93,11 @@ public class JacocoProbeInserter extends MethodVisitor implements I_JacocoProbeI
 
 	@Override
 	public void visitMaxs(final int maxStack, final int maxLocals) {
-		// Max stack size of the probe code is 3 which can add to the
+		// Max stack size of the probe code is 4 which can add to the
 		// original stack size depending on the probe locations. The accessor
 		// stack size is an absolute maximum, as the accessor code is inserted
 		// at the very beginning of each method when the stack size is empty.
-		final int increasedStack = Math.max(maxStack + 3, accessorStackSize);
+		final int increasedStack = Math.max(maxStack + 4, accessorStackSize);
 		mv.visitMaxs(increasedStack, maxLocals + 1);
 	}
 
@@ -121,7 +125,7 @@ public class JacocoProbeInserter extends MethodVisitor implements I_JacocoProbeI
 		while (idx < nLocal || pos <= variable) {
 			if (pos == variable) {
 				//newLocal[newIdx++] = InstrSupport.DATAFIELD_DESC;
-				newLocal[newIdx++] = JacocoInstrConstants.DATAFIELD_DESC;
+				newLocal[newIdx++] = MapInstrConstants.DATAFIELD_DESC;
 				pos++;
 			} else {
 				if (idx < nLocal) {

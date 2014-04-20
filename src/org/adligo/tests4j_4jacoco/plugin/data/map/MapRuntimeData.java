@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.runtime.multicast;
+package org.adligo.tests4j_4jacoco.plugin.data.map;
 
 import org.adligo.tests4j_4jacoco.plugin.data.I_ExecutionDataStore;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_JacocoRuntimeData;
@@ -9,9 +9,9 @@ import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class MulticastRuntimeData implements I_JacocoRuntimeData {
+public class MapRuntimeData implements I_JacocoRuntimeData {
 	/** store for execution data */
-	protected final MulticastDataStore store;
+	protected final MapDataStore store;
 	
 	private long startTimeStamp;
 
@@ -20,8 +20,8 @@ public class MulticastRuntimeData implements I_JacocoRuntimeData {
 	/**
 	 * Creates a new runtime.
 	 */
-	public MulticastRuntimeData() {
-		store = new MulticastDataStore();
+	public MapRuntimeData() {
+		store = new MapDataStore();
 		sessionId = "<none>";
 		startTimeStamp = System.currentTimeMillis();
 	}
@@ -74,7 +74,7 @@ public class MulticastRuntimeData implements I_JacocoRuntimeData {
 	 *            probe data length
 	 * @return execution data
 	 */
-	public MulticastExecutionData getExecutionData(final Long id, final String name,
+	public MapExecutionData getExecutionData(final Long id, final String name,
 			final int probecount) {
 		synchronized (store) {
 			return store.get(id, name, probecount);

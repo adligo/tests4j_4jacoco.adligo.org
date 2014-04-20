@@ -4,6 +4,13 @@ import org.adligo.tests4j_4jacoco.plugin.instrumentation.JacocoMethodInstrumente
 import org.objectweb.asm.Type;
 import org.objectweb.asm.util.ASMifier;
 
+/**
+ * run this to have the ASMifier veify your ASM code if your 
+ * working on this project.
+ * 
+ * @author scott
+ *
+ */
 public class AsmVerifier {
 
 	public static void main(String [] args) {

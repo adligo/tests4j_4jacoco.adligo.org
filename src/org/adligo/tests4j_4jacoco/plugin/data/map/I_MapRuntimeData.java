@@ -1,9 +1,9 @@
-package org.adligo.tests4j_4jacoco.plugin.runtime.multicast;
+package org.adligo.tests4j_4jacoco.plugin.data.map;
 
 import org.jacoco.core.data.IExecutionDataVisitor;
 import org.jacoco.core.data.ISessionInfoVisitor;
 
-public interface I_MulticastRuntimeData {
+public interface I_MapRuntimeData {
 	
 	/**
 	 * Sets a session identifier for this runtime. The identifier is used when
@@ -37,7 +37,7 @@ public interface I_MulticastRuntimeData {
 	 *            if <code>true</code> the current coverage information is also
 	 *            cleared
 	 */
-	public void collect(final I_MulticastExecutionDataVisitor executionDataVisitor,
+	public void collect(final I_MapExecutionDataVisitor executionDataVisitor,
 			final ISessionInfoVisitor sessionInfoVisitor, final boolean reset);
 
 	/**
@@ -58,7 +58,7 @@ public interface I_MulticastRuntimeData {
 	 *            probe data length
 	 * @return execution data
 	 */
-	public MulticastExecutionData getExecutionData(final Long id, final String name,
+	public MapExecutionData getExecutionData(final Long id, final String name,
 			final int probecount);
 
 	/**

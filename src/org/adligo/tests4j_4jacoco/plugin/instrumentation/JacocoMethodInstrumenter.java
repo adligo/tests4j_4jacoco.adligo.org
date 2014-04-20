@@ -1,6 +1,5 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation;
 
-import org.adligo.tests4j.run.Tests4J_UncaughtExceptionHandler;
 import org.jacoco.core.internal.flow.IFrame;
 import org.jacoco.core.internal.flow.LabelInfo;
 import org.jacoco.core.internal.flow.MethodProbesVisitor;
@@ -10,181 +9,166 @@ import org.objectweb.asm.Opcodes;
 
 public class JacocoMethodInstrumenter extends MethodProbesVisitor {
 
-		private final I_JacocoProbeInserter probeInserter;
+	private final I_JacocoProbeInserter probeInserter;
 
-		/**
-		 * Create a new instrumenter instance for the given method.
-		 * 
-		 * @param mv
-		 *            next method visitor in the chain
-		 * @param probeInserter
-		 *            call-back to insert probes where required
-		 */
-		public JacocoMethodInstrumenter(final MethodVisitor mv,
-				final I_JacocoProbeInserter probeInserter) {
-			super(mv);
-			this.probeInserter = probeInserter;
-		}
+	/**
+	 * Create a new instrumenter instance for the given method.
+	 * 
+	 * @param mv
+	 *            next method visitor in the chain
+	 * @param probeInserter
+	 *            call-back to insert probes where required
+	 */
+	public JacocoMethodInstrumenter(final MethodVisitor mv,
+			final I_JacocoProbeInserter probeInserter) {
+		super(mv);
+		this.probeInserter = probeInserter;
+	}
 
-		// === IMethodProbesVisitor ===
+	// === IMethodProbesVisitor ===
 
-		@Override
-		public void visitProbe(final int probeId) {
-			Tests4J_UncaughtExceptionHandler.OUT.println( this.getClass().getName() + 
-					" scott ...visitProbe ");
-			
+	@Override
+	public void visitProbe(final int probeId) {
+		probeInserter.insertProbe(probeId);
+	}
+
+	@Override
+	public void visitInsnWithProbe(final int opcode, final int probeId) {
+		probeInserter.insertProbe(probeId);
+		mv.visitInsn(opcode);
+	}
+
+	@Override
+	public void visitJumpInsnWithProbe(final int opcode, final Label label,
+			final int probeId, final IFrame frame) {
+		if (opcode == Opcodes.GOTO) {
 			probeInserter.insertProbe(probeId);
-			
-		}
-
-		@Override
-		public void visitInsnWithProbe(final int opcode, final int probeId) {
-			Tests4J_UncaughtExceptionHandler.OUT.println( this.getClass().getName() + 
-					" scott ...visitInsnWithProbe");
-			
+			mv.visitJumpInsn(Opcodes.GOTO, label);
+		} else {
+			final Label intermediate = new Label();
+			mv.visitJumpInsn(getInverted(opcode), intermediate);
 			probeInserter.insertProbe(probeId);
-			mv.visitInsn(opcode);
-			Tests4J_UncaughtExceptionHandler.OUT.println( this.getClass().getName() + 
-					" scott ...visitInsnWithProbe.RETURN");
+			mv.visitJumpInsn(Opcodes.GOTO, label);
+			mv.visitLabel(intermediate);
+			frame.accept(mv);
 		}
+	}
 
-		@Override
-		public void visitJumpInsnWithProbe(final int opcode, final Label label,
-				final int probeId, final IFrame frame) {
+	private int getInverted(final int opcode) {
+		switch (opcode) {
+		case Opcodes.IFEQ:
+			return Opcodes.IFNE;
+		case Opcodes.IFNE:
+			return Opcodes.IFEQ;
+		case Opcodes.IFLT:
+			return Opcodes.IFGE;
+		case Opcodes.IFGE:
+			return Opcodes.IFLT;
+		case Opcodes.IFGT:
+			return Opcodes.IFLE;
+		case Opcodes.IFLE:
+			return Opcodes.IFGT;
+		case Opcodes.IF_ICMPEQ:
+			return Opcodes.IF_ICMPNE;
+		case Opcodes.IF_ICMPNE:
+			return Opcodes.IF_ICMPEQ;
+		case Opcodes.IF_ICMPLT:
+			return Opcodes.IF_ICMPGE;
+		case Opcodes.IF_ICMPGE:
+			return Opcodes.IF_ICMPLT;
+		case Opcodes.IF_ICMPGT:
+			return Opcodes.IF_ICMPLE;
+		case Opcodes.IF_ICMPLE:
+			return Opcodes.IF_ICMPGT;
+		case Opcodes.IF_ACMPEQ:
+			return Opcodes.IF_ACMPNE;
+		case Opcodes.IF_ACMPNE:
+			return Opcodes.IF_ACMPEQ;
+		case Opcodes.IFNULL:
+			return Opcodes.IFNONNULL;
+		case Opcodes.IFNONNULL:
+			return Opcodes.IFNULL;
+		}
+		throw new IllegalArgumentException();
+	}
 
-			Tests4J_UncaughtExceptionHandler.OUT.println( this.getClass().getName() + 
-					" scott ...visitJumpInsnWithProbe");
-			
-			if (opcode == Opcodes.GOTO) {
-				probeInserter.insertProbe(probeId);
-				mv.visitJumpInsn(Opcodes.GOTO, label);
+	@Override
+	public void visitTableSwitchInsnWithProbes(final int min, final int max,
+			final Label dflt, final Label[] labels, final IFrame frame) {
+		// 1. Calculate intermediate labels:
+		LabelInfo.resetDone(dflt);
+		LabelInfo.resetDone(labels);
+		final Label newDflt = createIntermediate(dflt);
+		final Label[] newLabels = createIntermediates(labels);
+		mv.visitTableSwitchInsn(min, max, newDflt, newLabels);
+
+		// 2. Insert probes:
+		insertIntermediateProbes(dflt, labels, frame);
+	}
+
+	@Override
+	public void visitLookupSwitchInsnWithProbes(final Label dflt,
+			final int[] keys, final Label[] labels, final IFrame frame) {
+		// 1. Calculate intermediate labels:
+		LabelInfo.resetDone(dflt);
+		LabelInfo.resetDone(labels);
+		final Label newDflt = createIntermediate(dflt);
+		final Label[] newLabels = createIntermediates(labels);
+		mv.visitLookupSwitchInsn(newDflt, keys, newLabels);
+
+		// 2. Insert probes:
+		insertIntermediateProbes(dflt, labels, frame);
+	}
+
+	private Label[] createIntermediates(final Label[] labels) {
+		final Label[] intermediates = new Label[labels.length];
+		for (int i = 0; i < labels.length; i++) {
+			intermediates[i] = createIntermediate(labels[i]);
+		}
+		return intermediates;
+	}
+
+	private Label createIntermediate(final Label label) {
+		final Label intermediate;
+		if (LabelInfo.getProbeId(label) == LabelInfo.NO_PROBE) {
+			intermediate = label;
+		} else {
+			if (LabelInfo.isDone(label)) {
+				intermediate = LabelInfo.getIntermediateLabel(label);
 			} else {
-				final Label intermediate = new Label();
-				mv.visitJumpInsn(getInverted(opcode), intermediate);
-				probeInserter.insertProbe(probeId);
-				mv.visitJumpInsn(Opcodes.GOTO, label);
-				mv.visitLabel(intermediate);
-				frame.accept(mv);
-			}
-		}
-
-		private int getInverted(final int opcode) {
-			switch (opcode) {
-			case Opcodes.IFEQ:
-				return Opcodes.IFNE;
-			case Opcodes.IFNE:
-				return Opcodes.IFEQ;
-			case Opcodes.IFLT:
-				return Opcodes.IFGE;
-			case Opcodes.IFGE:
-				return Opcodes.IFLT;
-			case Opcodes.IFGT:
-				return Opcodes.IFLE;
-			case Opcodes.IFLE:
-				return Opcodes.IFGT;
-			case Opcodes.IF_ICMPEQ:
-				return Opcodes.IF_ICMPNE;
-			case Opcodes.IF_ICMPNE:
-				return Opcodes.IF_ICMPEQ;
-			case Opcodes.IF_ICMPLT:
-				return Opcodes.IF_ICMPGE;
-			case Opcodes.IF_ICMPGE:
-				return Opcodes.IF_ICMPLT;
-			case Opcodes.IF_ICMPGT:
-				return Opcodes.IF_ICMPLE;
-			case Opcodes.IF_ICMPLE:
-				return Opcodes.IF_ICMPGT;
-			case Opcodes.IF_ACMPEQ:
-				return Opcodes.IF_ACMPNE;
-			case Opcodes.IF_ACMPNE:
-				return Opcodes.IF_ACMPEQ;
-			case Opcodes.IFNULL:
-				return Opcodes.IFNONNULL;
-			case Opcodes.IFNONNULL:
-				return Opcodes.IFNULL;
-			}
-			throw new IllegalArgumentException();
-		}
-
-		@Override
-		public void visitTableSwitchInsnWithProbes(final int min, final int max,
-				final Label dflt, final Label[] labels, final IFrame frame) {
-			
-			Tests4J_UncaughtExceptionHandler.OUT.println( this.getClass().getName() + 
-					" scott ...visitTableSwitchInsnWithProbes");
-			
-			// 1. Calculate intermediate labels:
-			LabelInfo.resetDone(dflt);
-			LabelInfo.resetDone(labels);
-			final Label newDflt = createIntermediate(dflt);
-			final Label[] newLabels = createIntermediates(labels);
-			mv.visitTableSwitchInsn(min, max, newDflt, newLabels);
-
-			// 2. Insert probes:
-			insertIntermediateProbes(dflt, labels, frame);
-		}
-
-		@Override
-		public void visitLookupSwitchInsnWithProbes(final Label dflt,
-				final int[] keys, final Label[] labels, final IFrame frame) {
-			
-			Tests4J_UncaughtExceptionHandler.OUT.println( this.getClass().getName() + 
-					" scott ...visitLookupSwitchInsnWithProbes");
-			
-			// 1. Calculate intermediate labels:
-			LabelInfo.resetDone(dflt);
-			LabelInfo.resetDone(labels);
-			final Label newDflt = createIntermediate(dflt);
-			final Label[] newLabels = createIntermediates(labels);
-			mv.visitLookupSwitchInsn(newDflt, keys, newLabels);
-
-			// 2. Insert probes:
-			insertIntermediateProbes(dflt, labels, frame);
-		}
-
-		private Label[] createIntermediates(final Label[] labels) {
-			final Label[] intermediates = new Label[labels.length];
-			for (int i = 0; i < labels.length; i++) {
-				intermediates[i] = createIntermediate(labels[i]);
-			}
-			return intermediates;
-		}
-
-		private Label createIntermediate(final Label label) {
-			final Label intermediate;
-			if (LabelInfo.getProbeId(label) == LabelInfo.NO_PROBE) {
-				intermediate = label;
-			} else {
-				if (LabelInfo.isDone(label)) {
-					intermediate = LabelInfo.getIntermediateLabel(label);
-				} else {
-					intermediate = new Label();
-					LabelInfo.setIntermediateLabel(label, intermediate);
-					LabelInfo.setDone(label);
-				}
-			}
-			return intermediate;
-		}
-
-		private void insertIntermediateProbe(final Label label, final IFrame frame) {
-			final int probeId = LabelInfo.getProbeId(label);
-			if (probeId != LabelInfo.NO_PROBE && !LabelInfo.isDone(label)) {
-				mv.visitLabel(LabelInfo.getIntermediateLabel(label));
-				frame.accept(mv);
-				probeInserter.insertProbe(probeId);
-				mv.visitJumpInsn(Opcodes.GOTO, label);
+				intermediate = new Label();
+				LabelInfo.setIntermediateLabel(label, intermediate);
 				LabelInfo.setDone(label);
 			}
 		}
-
-		private void insertIntermediateProbes(final Label dflt,
-				final Label[] labels, final IFrame frame) {
-			LabelInfo.resetDone(dflt);
-			LabelInfo.resetDone(labels);
-			insertIntermediateProbe(dflt, frame);
-			for (final Label l : labels) {
-				insertIntermediateProbe(l, frame);
-			}
-		}
-
+		return intermediate;
 	}
+
+	private void insertIntermediateProbe(final Label label, final IFrame frame) {
+		final int probeId = LabelInfo.getProbeId(label);
+		if (probeId != LabelInfo.NO_PROBE && !LabelInfo.isDone(label)) {
+			mv.visitLabel(LabelInfo.getIntermediateLabel(label));
+			frame.accept(mv);
+			probeInserter.insertProbe(probeId);
+			mv.visitJumpInsn(Opcodes.GOTO, label);
+			LabelInfo.setDone(label);
+		}
+	}
+
+	private void insertIntermediateProbes(final Label dflt,
+			final Label[] labels, final IFrame frame) {
+		LabelInfo.resetDone(dflt);
+		LabelInfo.resetDone(labels);
+		insertIntermediateProbe(dflt, frame);
+		for (final Label l : labels) {
+			insertIntermediateProbe(l, frame);
+		}
+	}
+
+	@Override
+	public void visitLineNumber(int line, Label start) {
+		// TODO Auto-generated method stub
+		super.visitLineNumber(line, start);
+	}
+
+}

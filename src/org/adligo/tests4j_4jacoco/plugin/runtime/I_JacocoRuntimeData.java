@@ -46,11 +46,16 @@ public interface I_JacocoRuntimeData {
 	 * <li>args[2]: probe count ({@link Integer})
 	 * </ul>
 	 * 
-	 * Return value:
+	 * Return value may be one of:
 	 * 
 	 * <ul>
 	 * <li>args[0]: probe array (<code>boolean[]</code>)
 	 * </ul>
+	 *
+	 *	<ul>
+	 * 	<li>args[0]: Map backed by a custom Map impl so the 
+	 *           mutations to the probes can be filtered for sub recordings.
+	 * 	</ul>
 	 * 
 	 * @param args
 	 *            parameter array of length 3

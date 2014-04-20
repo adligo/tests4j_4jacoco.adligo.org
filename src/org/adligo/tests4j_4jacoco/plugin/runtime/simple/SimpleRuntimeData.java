@@ -12,7 +12,7 @@ import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class JacocoSimpleRuntimeData implements I_JacocoRuntimeData {
+public class SimpleRuntimeData implements I_JacocoRuntimeData {
 	/** store for execution data */
 	protected final ExecutionDataStore store;
 	
@@ -23,7 +23,7 @@ public class JacocoSimpleRuntimeData implements I_JacocoRuntimeData {
 	/**
 	 * Creates a new runtime.
 	 */
-	public JacocoSimpleRuntimeData() {
+	public SimpleRuntimeData() {
 		store = new ExecutionDataStore();
 		sessionId = "<none>";
 		startTimeStamp = System.currentTimeMillis();
@@ -154,52 +154,4 @@ public class JacocoSimpleRuntimeData implements I_JacocoRuntimeData {
 		return super.equals(args);
 	}
 	
-	/**
-	 * Generates code that creates the argument array for the
-	 * {@link #getProbes(Object[])} method. The array instance is left on the
-	 * operand stack. The generated code requires a stack size of 5.
-	 * 
-	 * @param classid
-	 *            class identifier
-	 * @param classname
-	 *            VM class name
-	 * @param probecount
-	 *            probe count for this class
-	 * @param mv
-	 *            visitor to emit generated code
-	 */
-	public static void generateArgumentArray(final long classid,
-			final String classname, final int probecount, final String scope, 
-			final MethodVisitor mv) {
-		mv.visitInsn(Opcodes.ICONST_4);
-		mv.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/Object");
-
-		// Class Id:
-		mv.visitInsn(Opcodes.DUP);
-		mv.visitInsn(Opcodes.ICONST_0);
-		mv.visitLdcInsn(Long.valueOf(classid));
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf",
-				"(J)Ljava/lang/Long;");
-		mv.visitInsn(Opcodes.AASTORE);
-
-		// Class Name:
-		mv.visitInsn(Opcodes.DUP);
-		mv.visitInsn(Opcodes.ICONST_1);
-		mv.visitLdcInsn(classname);
-		mv.visitInsn(Opcodes.AASTORE);
-
-		// Probe Count:
-		mv.visitInsn(Opcodes.DUP);
-		mv.visitInsn(Opcodes.ICONST_2);
-		InstrSupport.push(mv, probecount);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer",
-				"valueOf", "(I)Ljava/lang/Integer;");
-		mv.visitInsn(Opcodes.AASTORE);
-		
-		// Coverage Scope Name:
-		mv.visitInsn(Opcodes.DUP);
-		mv.visitInsn(Opcodes.ICONST_3);
-		mv.visitLdcInsn(scope);
-		mv.visitInsn(Opcodes.AASTORE);
-	}
 }

@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.runtime.multicast;
+package org.adligo.tests4j_4jacoco.plugin.data.map;
 
 import static java.lang.String.format;
 
@@ -14,7 +14,7 @@ import org.jacoco.core.data.ExecutionData;
  * has to be taken about the probe data array of type <code>boolean[]</code>
  * which can be modified.
  */
-public final class MulticastExecutionData implements I_ExecutionClassData {
+public final class MapExecutionData implements I_ExecutionClassData {
 
 		private final long id;
 
@@ -32,7 +32,7 @@ public final class MulticastExecutionData implements I_ExecutionClassData {
 		 * @param probes
 		 *            probe data
 		 */
-		public MulticastExecutionData(final long id, final String name,
+		public MapExecutionData(final long id, final String name,
 				final boolean[] probes) {
 			this.id = id;
 			this.name = name;
@@ -50,7 +50,7 @@ public final class MulticastExecutionData implements I_ExecutionClassData {
 		 * @param probeCount
 		 *            probe count
 		 */
-		public MulticastExecutionData(final long id, final String name, final int probeCount) {
+		public MapExecutionData(final long id, final String name, final int probeCount) {
 			this.id = id;
 			this.name = name;
 			this.probes = new boolean[probeCount];
@@ -110,7 +110,7 @@ public final class MulticastExecutionData implements I_ExecutionClassData {
 		 * @param other
 		 *            execution data to merge
 		 */
-		public void merge(final MulticastExecutionData other) {
+		public void merge(final MapExecutionData other) {
 			merge(other, true);
 		}
 
@@ -137,7 +137,7 @@ public final class MulticastExecutionData implements I_ExecutionClassData {
 		 * @param flag
 		 *            merge mode
 		 */
-		public void merge(final MulticastExecutionData other, final boolean flag) {
+		public void merge(final MapExecutionData other, final boolean flag) {
 			assertCompatibility(other.getId(), other.getName(),
 					other.getProbesArray().length);
 			final boolean[] otherData = other.getProbesArray();

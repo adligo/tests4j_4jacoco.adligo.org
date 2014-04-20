@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.runtime.multicast;
+package org.adligo.tests4j_4jacoco.plugin.data.map;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,9 +18,9 @@ import org.jacoco.core.data.IExecutionDataVisitor;
  * coverage date from multiple runs. A instance of this class is not thread
  * safe.
  */
-public final class MulticastDataStore implements I_MulticastExecutionDataVisitor, I_ExecutionDataStore {
+public final class MapDataStore implements I_MapExecutionDataVisitor, I_ExecutionDataStore {
 
-		private final Map<Long, MulticastExecutionData> entries = new HashMap<Long, MulticastExecutionData>();
+		private final Map<Long, MapExecutionData> entries = new HashMap<Long, MapExecutionData>();
 
 		private final Set<String> names = new HashSet<String>();
 
@@ -36,9 +36,9 @@ public final class MulticastDataStore implements I_MulticastExecutionDataVisitor
 		 *             to a corresponding one, that is already contained
 		 * @see ExecutionData#assertCompatibility(long, String, int)
 		 */
-		public void put(final MulticastExecutionData data) throws IllegalStateException {
+		public void put(final MapExecutionData data) throws IllegalStateException {
 			final Long id = Long.valueOf(data.getId());
-			final MulticastExecutionData entry = entries.get(id);
+			final MapExecutionData entry = entries.get(id);
 			if (entry == null) {
 				entries.put(id, data);
 				names.add(data.getName());
@@ -60,9 +60,9 @@ public final class MulticastDataStore implements I_MulticastExecutionDataVisitor
 		 *             to a corresponding one, that is already contained
 		 * @see ExecutionData#assertCompatibility(long, String, int)
 		 */
-		public void subtract(final MulticastExecutionData data) throws IllegalStateException {
+		public void subtract(final MapExecutionData data) throws IllegalStateException {
 			final Long id = Long.valueOf(data.getId());
-			final MulticastExecutionData entry = entries.get(id);
+			final MapExecutionData entry = entries.get(id);
 			if (entry != null) {
 				entry.merge(data, false);
 			}
@@ -75,8 +75,8 @@ public final class MulticastDataStore implements I_MulticastExecutionDataVisitor
 		 *            execution data store to subtract
 		 * @see #subtract(ExecutionData)
 		 */
-		public void subtract(final MulticastDataStore store) {
-			for (final MulticastExecutionData data : store.getContents()) {
+		public void subtract(final MapDataStore store) {
+			for (final MapExecutionData data : store.getContents()) {
 				subtract(data);
 			}
 		}
@@ -89,7 +89,7 @@ public final class MulticastDataStore implements I_MulticastExecutionDataVisitor
 		 *            class id
 		 * @return execution data or <code>null</code>
 		 */
-		public MulticastExecutionData get(final long id) {
+		public MapExecutionData get(final long id) {
 			return entries.get(Long.valueOf(id));
 		}
 
@@ -118,11 +118,11 @@ public final class MulticastDataStore implements I_MulticastExecutionDataVisitor
 		 *            probe data length
 		 * @return execution data
 		 */
-		public MulticastExecutionData get(final Long id, final String name,
+		public MapExecutionData get(final Long id, final String name,
 				final int probecount) {
-			MulticastExecutionData entry = entries.get(id);
+			MapExecutionData entry = entries.get(id);
 			if (entry == null) {
-				entry = new MulticastExecutionData(id.longValue(), name, probecount);
+				entry = new MapExecutionData(id.longValue(), name, probecount);
 				entries.put(id, entry);
 				names.add(name);
 			} else {
@@ -136,7 +136,7 @@ public final class MulticastDataStore implements I_MulticastExecutionDataVisitor
 		 * execution data objects itself are not removed.
 		 */
 		public void reset() {
-			for (final MulticastExecutionData executionData : this.entries.values()) {
+			for (final MapExecutionData executionData : this.entries.values()) {
 				executionData.reset();
 			}
 		}
@@ -146,7 +146,7 @@ public final class MulticastDataStore implements I_MulticastExecutionDataVisitor
 		 * 
 		 * @return current contents
 		 */
-		public Collection<MulticastExecutionData> getContents() {
+		public Collection<MapExecutionData> getContents() {
 			return entries.values();
 		}
 
@@ -156,15 +156,15 @@ public final class MulticastDataStore implements I_MulticastExecutionDataVisitor
 		 * @param visitor
 		 *            interface to write content to
 		 */
-		public void accept(final I_MulticastExecutionDataVisitor visitor) {
-			for (final MulticastExecutionData data : entries.values()) {
+		public void accept(final I_MapExecutionDataVisitor visitor) {
+			for (final MapExecutionData data : entries.values()) {
 				visitor.visitClassExecution(data);
 			}
 		}
 
 		// === IExecutionDataVisitor ===
 
-		public void visitClassExecution(final MulticastExecutionData data) {
+		public void visitClassExecution(final MapExecutionData data) {
 			put(data);
 		}
 	}

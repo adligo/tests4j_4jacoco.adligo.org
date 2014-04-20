@@ -1,5 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation;
 
+import org.adligo.tests4j_4jacoco.plugin.asm.AsmMapHelper;
+import org.adligo.tests4j_4jacoco.plugin.data.map.LineNumberMapMutant;
 import org.jacoco.core.internal.flow.ClassProbesVisitor;
 import org.jacoco.core.internal.flow.MethodProbesVisitor;
 import org.jacoco.core.internal.instr.InstrSupport;
@@ -27,6 +29,7 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 
 		private int probeCount;
 
+		private LineNumberMapMutant lineNumberMap;
 		/**
 		 * Emits a instrumented version of this class to the given class visitor.
 		 * 
@@ -102,10 +105,16 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 		private class ClassTypeStrategy implements I_JacocoProbeArrayStrategy {
 
 			
+			/**
+			 * note I tried adding a boolean false and true
+			 * to this depricated method, but it seems to only work
+			 * when using the old logic
+			 */
+			@SuppressWarnings("deprecation")
 			public int storeInstance(final MethodVisitor mv, final int variable) {
 				mv.visitMethodInsn(Opcodes.INVOKESTATIC, className,
 						//InstrSupport.INITMETHOD_NAME, InstrSupport.INITMETHOD_DESC);
-						InstrSupport.INITMETHOD_NAME, JacocoInstrConstants.INIT_METHOD_DESC);
+						InstrSupport.INITMETHOD_NAME, MapInstrConstants.INIT_METHOD_DESC);
 				mv.visitVarInsn(Opcodes.ASTORE, variable);
 				return 1;
 			}
@@ -118,7 +127,7 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 			private void createDataField() {
 				cv.visitField(InstrSupport.DATAFIELD_ACC,
 						//InstrSupport.DATAFIELD_NAME, InstrSupport.DATAFIELD_DESC,
-						InstrSupport.DATAFIELD_NAME, JacocoInstrConstants.DATAFIELD_CLAZZ,
+						InstrSupport.DATAFIELD_NAME, MapInstrConstants.DATAFIELD_CLAZZ,
 						null, null);
 			}
 
@@ -126,41 +135,33 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 				final MethodVisitor mv = cv.visitMethod(
 						InstrSupport.INITMETHOD_ACC, InstrSupport.INITMETHOD_NAME,
 						//InstrSupport.INITMETHOD_DESC, null, null);
-						JacocoInstrConstants.INIT_METHOD_DESC, null, null);
+						MapInstrConstants.INIT_METHOD_DESC, null, null);
 				
 				mv.visitCode();
 
 				// Load the value of the static data field:
-				AsmHelper.moveMapToStack(mv, className);
-				
+				AsmMapHelper.moveMapToStack(mv, className);
+				mv.visitInsn(Opcodes.DUP);
+
+				// Stack[1]: Map
 				// Stack[0]: Map
 
-				
-				// Skip initialization when we already have a Map:
+				// Skip initialization when we already have a data array:
 				final Label alreadyInitialized = new Label();
 				mv.visitJumpInsn(Opcodes.IFNONNULL, alreadyInitialized);
 
 				// Stack[0]: Map
 
+				mv.visitInsn(Opcodes.POP);
 				final int size = genInitializeDataField(mv, probeCount);
 
-				// Stack[0]: [Z
-
-				// Return the class' Map:
-				if (withFrames) {
-					mv.visitFrame(Opcodes.F_NEW, 0, NO_LOCALS, 1, JacocoInstrConstants.DATAFIELD_INSTANCE);
-				}
-				
-				AsmHelper.moveMapToField(mv, className);
-				//stack nill
-				
-				mv.visitLabel(alreadyInitialized);
-				mv.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
-				
-				AsmHelper.moveMapToStack(mv, className);
-
-				
 				// Stack[0]: Map
+
+				// Return the class' probe Map:
+				if (withFrames) {
+					mv.visitFrame(Opcodes.F_NEW, 0, NO_LOCALS, 1, MapInstrConstants.DATAFIELD_INSTANCE);
+				}
+				mv.visitLabel(alreadyInitialized);
 				mv.visitInsn(Opcodes.ARETURN);
 
 				mv.visitMaxs(Math.max(size, 2), 0); // Maximum local stack size is 2
@@ -171,7 +172,7 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 			 * Generates the byte code to initialize the static coverage data field
 			 * within this class.
 			 * 
-			 * The code will push the Map on the operand stack.
+			 * The code will push the [Z data array on the operand stack.
 			 * 
 			 * @param mv
 			 *            generator to emit code to
@@ -181,25 +182,21 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 				final int size = accessorGenerator.generateDataAccessor(id,
 						className, probeCount, mv);
 
-				// Stack[0]: Object []
+				// Stack[0]: Map
 
-				AsmHelper.createMap(mv);
-				mv.visitInsn(Opcodes.DUP);
-
-				// Stack[1]: 
-				// Stack[0]: Object []
-
-				// ok now loop through the probes and 
-				// set everything to false.
 				for (int i = 0; i < probeCount; i++) {
-					AsmHelper.callMapPut(i, false, mv);
+					AsmMapHelper.callMapPut(i, false, mv);
 				}
 				
-				AsmHelper.moveMapToField(mv, className);
-				// Stack[0]: [Z
+				// Stack[0]: Map
+				AsmMapHelper.moveMapToField(mv, className);
 
-				return Math.max(size, 2); // Maximum local stack size is 2
+				// Stack[0]: Map
+
+				return Math.max(size, 4); //callMapPut has a max stack size of 4
 			}
+
+			
 		}
 
 		private class InterfaceTypeStrategy implements I_JacocoProbeArrayStrategy {
@@ -215,6 +212,14 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 				// nothing to do
 			}
 
+		}
+
+		public LineNumberMapMutant getLineNumberMap() {
+			return lineNumberMap;
+		}
+
+		public void setLineNumberMap(LineNumberMapMutant lineNumberMap) {
+			this.lineNumberMap = lineNumberMap;
 		}
 
 	}
