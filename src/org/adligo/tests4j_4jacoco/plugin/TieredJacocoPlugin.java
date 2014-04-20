@@ -5,13 +5,11 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import org.adligo.tests4j_4jacoco.plugin.asm.LoggingDataAccessorFactory;
-import org.adligo.tests4j_4jacoco.plugin.data.map.I_LineNumberMap;
 import org.adligo.tests4j_4jacoco.plugin.data.map.MapRuntimeData;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.MapDataInstrumenter;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.MapInstrConstants;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_JacocoRuntimeData;
 import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleLoggerRuntime;
-import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleRuntimeData;
 
 public class TieredJacocoPlugin extends AbstractJacocoPlugin {
 	private final SimpleLoggerRuntime runtime;
@@ -69,12 +67,4 @@ public class TieredJacocoPlugin extends AbstractJacocoPlugin {
 		}
 	}
 	
-	/**
-	 * TODO this would need to be updated in jacoco itself as well
-	 */
-	@Override
-	public Integer getSourceFileLine(StackTraceElement p) {
-		I_LineNumberMap map = mapDataInstrumenter.getLineNumberMap();
-		return map.get(p.getClassName(), p.getLineNumber());
-	}
 }

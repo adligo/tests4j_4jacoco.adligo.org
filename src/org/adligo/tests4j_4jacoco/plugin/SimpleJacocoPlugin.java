@@ -70,11 +70,4 @@ public class SimpleJacocoPlugin extends AbstractJacocoPlugin {
 		}
 	}
 
-	/**
-	 * TODO this would need to be updated in jacoco itself as well
-	 */
-	@Override
-	public Integer getSourceFileLine(StackTraceElement p) {
-		return p.getLineNumber();
-	}
 }

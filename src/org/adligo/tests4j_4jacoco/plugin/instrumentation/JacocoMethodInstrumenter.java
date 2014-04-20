@@ -9,6 +9,9 @@ import org.objectweb.asm.Opcodes;
 
 public class JacocoMethodInstrumenter extends MethodProbesVisitor {
 
+	private int currentSourceLineNumber;
+	private int currentLineNumber;
+	private String className;
 	private final I_JacocoProbeInserter probeInserter;
 
 	/**
@@ -167,8 +170,16 @@ public class JacocoMethodInstrumenter extends MethodProbesVisitor {
 
 	@Override
 	public void visitLineNumber(int line, Label start) {
-		// TODO Auto-generated method stub
 		super.visitLineNumber(line, start);
+		currentSourceLineNumber = line;
+	}
+
+	public String getClassName() {
+		return className;
+	}
+
+	public void setClassName(String className) {
+		this.className = className;
 	}
 
 }

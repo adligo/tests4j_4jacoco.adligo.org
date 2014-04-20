@@ -1,7 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation;
 
 import org.adligo.tests4j_4jacoco.plugin.asm.AsmMapHelper;
-import org.adligo.tests4j_4jacoco.plugin.data.map.LineNumberMapMutant;
 import org.jacoco.core.internal.flow.ClassProbesVisitor;
 import org.jacoco.core.internal.flow.MethodProbesVisitor;
 import org.jacoco.core.internal.instr.InstrSupport;
@@ -29,7 +28,6 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 
 		private int probeCount;
 
-		private LineNumberMapMutant lineNumberMap;
 		/**
 		 * Emits a instrumented version of this class to the given class visitor.
 		 * 
@@ -85,8 +83,10 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 			final MethodVisitor frameEliminator = new JacocoDuplicateFrameEliminator(mv);
 			final JacocoProbeInserter probeVariableInserter = new JacocoProbeInserter(access,
 					desc, frameEliminator, probeArrayStrategy);
-			return new JacocoMethodInstrumenter(probeVariableInserter,
+			JacocoMethodInstrumenter mi = new JacocoMethodInstrumenter(probeVariableInserter,
 					probeVariableInserter);
+			mi.setClassName(className);
+			return mi;
 		}
 
 		@Override
@@ -212,14 +212,6 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 				// nothing to do
 			}
 
-		}
-
-		public LineNumberMapMutant getLineNumberMap() {
-			return lineNumberMap;
-		}
-
-		public void setLineNumberMap(LineNumberMapMutant lineNumberMap) {
-			this.lineNumberMap = lineNumberMap;
 		}
 
 	}

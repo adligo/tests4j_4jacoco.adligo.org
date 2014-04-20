@@ -10,9 +10,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.adligo.tests4j_4jacoco.plugin.data.map.I_LineNumberMap;
-import org.adligo.tests4j_4jacoco.plugin.data.map.LineNumberMap;
-import org.adligo.tests4j_4jacoco.plugin.data.map.LineNumberMapMutant;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 import org.jacoco.core.internal.ContentTypeDetector;
 import org.jacoco.core.internal.Pack200Streams;
@@ -31,7 +28,6 @@ public class MapDataInstrumenter implements I_Instrumenter {
 	private final IExecutionDataAccessorGenerator accessGenerator;
 
 	private final SignatureRemover signatureRemover;
-	private LineNumberMapMutant lineNumberMap = new LineNumberMapMutant();
 	
 	/**
 	 * Creates a new instance based on the given runtime.
@@ -65,7 +61,6 @@ public class MapDataInstrumenter implements I_Instrumenter {
 			final ClassVisitor cv) {
 		JacocoClassInstrumenter jci = new JacocoClassInstrumenter(classid,
 				accessGenerator, cv);
-		jci.setLineNumberMap(lineNumberMap);
 		return new ClassProbesAdapter(jci, true);
 	}
 
@@ -199,8 +194,5 @@ public class MapDataInstrumenter implements I_Instrumenter {
 		}
 	}
 
-	public I_LineNumberMap getLineNumberMap() {
-		return new LineNumberMap(lineNumberMap);
-	}
 }
 

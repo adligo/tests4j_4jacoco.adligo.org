@@ -106,9 +106,11 @@ public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 		
 		final byte[] instrumented = instr.instrument(
 				ClassNameToInputStream.getTargetClass(clazzName), clazzName);
+		/*
 		FileOutputStream fos = new FileOutputStream(new File("./" + clazzName + ".class"));
 		fos.write(instrumented);
 		fos.close();
+		*/
 		memoryClassLoader.addDefinition(clazzName, instrumented);
 		return memoryClassLoader.loadClass(clazzName);
 	}
