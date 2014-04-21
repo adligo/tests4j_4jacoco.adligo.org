@@ -105,16 +105,11 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 		private class ClassTypeStrategy implements I_JacocoProbeArrayStrategy {
 
 			
-			/**
-			 * note I tried adding a boolean false and true
-			 * to this depricated method, but it seems to only work
-			 * when using the old logic
-			 */
-			@SuppressWarnings("deprecation")
 			public int storeInstance(final MethodVisitor mv, final int variable) {
 				mv.visitMethodInsn(Opcodes.INVOKESTATIC, className,
 						//InstrSupport.INITMETHOD_NAME, InstrSupport.INITMETHOD_DESC);
-						InstrSupport.INITMETHOD_NAME, MapInstrConstants.INIT_METHOD_DESC);
+						InstrSupport.INITMETHOD_NAME, MapInstrConstants.INIT_METHOD_DESC,
+						false);
 				mv.visitVarInsn(Opcodes.ASTORE, variable);
 				return 1;
 			}
@@ -184,8 +179,9 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 
 				// Stack[0]: Map
 
+				int maxPut = 0;
 				for (int i = 0; i < probeCount; i++) {
-					AsmMapHelper.callMapPut(i, false, mv);
+					 maxPut =AsmMapHelper.callMapPut(i, false, mv);
 				}
 				
 				// Stack[0]: Map
@@ -193,7 +189,7 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 
 				// Stack[0]: Map
 
-				return Math.max(size, 4); //callMapPut has a max stack size of 4
+				return Math.max(size, maxPut); 
 			}
 
 			

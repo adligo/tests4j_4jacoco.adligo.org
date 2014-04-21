@@ -1,14 +1,11 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation;
 
-import org.adligo.tests4j.run.Tests4J_UncaughtExceptionHandler;
 import org.adligo.tests4j_4jacoco.plugin.asm.AsmMapHelper;
 import org.jacoco.core.JaCoCo;
-import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class JacocoProbeInserter extends MethodVisitor implements I_JacocoProbeInserter {
 
@@ -64,8 +61,8 @@ public class JacocoProbeInserter extends MethodVisitor implements I_JacocoProbeI
 		// Stack[0]:Map
 
 		mv.visitVarInsn(Opcodes.ASTORE, variable);
-		//stack is nill
 		
+		//nothing on the stack at this scope
 	}
 
 	@Override

@@ -66,7 +66,7 @@ public class ClassCoverageDataParamFactory {
 		//put a int for the probecount on the stack
 		InstrSupport.push(methodVisitor, probecount);
 		methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer",
-				"valueOf", "(I)Ljava/lang/Integer;");
+				"valueOf", "(I)Ljava/lang/Integer;", false);
 		
 		//Stack[3] is a Integer for the probecount 
 		//Stack[2] is a int 2
@@ -121,7 +121,7 @@ public class ClassCoverageDataParamFactory {
 		//put a Long for the class id on the stack
 		methodVisitor.visitLdcInsn(Long.valueOf(classid));
 		methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf",
-				"(J)Ljava/lang/Long;");
+				"(J)Ljava/lang/Long;", false);
 		
 		//Stack[3] is a Long for the classid 
 		//Stack[2] is a int 0

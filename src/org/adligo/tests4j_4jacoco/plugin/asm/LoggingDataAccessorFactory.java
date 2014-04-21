@@ -72,7 +72,7 @@ public class LoggingDataAccessorFactory implements I_LoggerDataAccessorFactory, 
 
 		mv.visitLdcInsn(CHANNEL);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/util/logging/Logger",
-				"getLogger", "(Ljava/lang/String;)Ljava/util/logging/Logger;");
+				"getLogger", "(Ljava/lang/String;)Ljava/util/logging/Logger;", false);
 
 		// Stack[2]: Ljava/util/logging/Logger;
 		// Stack[1]: [Ljava/lang/Object;
@@ -117,7 +117,8 @@ public class LoggingDataAccessorFactory implements I_LoggerDataAccessorFactory, 
 
 		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/util/logging/Logger",
 				"log",
-				"(Ljava/util/logging/Level;Ljava/lang/String;[Ljava/lang/Object;)V");
+				"(Ljava/util/logging/Level;Ljava/lang/String;[Ljava/lang/Object;)V",
+				false);
 
 		// Stack[0]: [Ljava/lang/Object;
 

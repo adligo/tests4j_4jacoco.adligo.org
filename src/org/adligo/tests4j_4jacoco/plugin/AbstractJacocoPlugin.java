@@ -1,5 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +24,7 @@ import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 	protected JacocoMemory memory;
 	private I_Tests4J_Logger log;
-	
+	private boolean writeOutInstrumentedClassFiles = false;
 	@Override
 	public List<Class<? extends I_AbstractTrial>> instrumentClasses(I_Tests4J_Params pParams) {
 		log = pParams.getLog();
@@ -106,11 +108,11 @@ public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 		
 		final byte[] instrumented = instr.instrument(
 				ClassNameToInputStream.getTargetClass(clazzName), clazzName);
-		/*
-		FileOutputStream fos = new FileOutputStream(new File("./" + clazzName + ".class"));
-		fos.write(instrumented);
-		fos.close();
-		*/
+		if (writeOutInstrumentedClassFiles) {
+			FileOutputStream fos = new FileOutputStream(new File("./" + clazzName + ".class"));
+			fos.write(instrumented);
+			fos.close();
+		}
 		memoryClassLoader.addDefinition(clazzName, instrumented);
 		return memoryClassLoader.loadClass(clazzName);
 	}
@@ -142,6 +144,31 @@ public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 			rec.setRoot(true);
 		}
 		return rec;
+	}
+
+	public JacocoMemory getMemory() {
+		return memory;
+	}
+
+	public I_Tests4J_Logger getLog() {
+		return log;
+	}
+
+	public boolean isWriteOutInstrumentedClassFiles() {
+		return writeOutInstrumentedClassFiles;
+	}
+
+	public void setMemory(JacocoMemory memory) {
+		this.memory = memory;
+	}
+
+	public void setLog(I_Tests4J_Logger log) {
+		this.log = log;
+	}
+
+	public void setWriteOutInstrumentedClassFiles(
+			boolean writeOutInstrumentedClassFiles) {
+		this.writeOutInstrumentedClassFiles = writeOutInstrumentedClassFiles;
 	}
 
 }

@@ -58,7 +58,7 @@ public class JacocoDuplicateFrameEliminator extends MethodVisitor {
 		public void visitMethodInsn(final int opcode, final String owner,
 				final String name, final String desc) {
 			instruction = true;
-			mv.visitMethodInsn(opcode, owner, name, desc);
+			mv.visitMethodInsn(opcode, owner, name, desc, false);
 		}
 
 		@Override
