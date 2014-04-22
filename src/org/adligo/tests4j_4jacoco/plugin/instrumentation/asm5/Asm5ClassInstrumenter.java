@@ -7,18 +7,14 @@ import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_ClassProbesVisitor;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_JacocoProbeArrayStrategy;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_MethodProbesVisitor;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.MapInstrConstants;
-import org.jacoco.core.JaCoCo;
-import org.jacoco.core.internal.flow.ClassProbesVisitor;
-import org.jacoco.core.internal.flow.MethodProbesVisitor;
+import org.adligo.tests4j_4jacoco.plugin.runtime.I_DataAccessorFactory;
 import org.jacoco.core.internal.instr.InstrSupport;
-import org.jacoco.core.runtime.IExecutionDataAccessorGenerator;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AnalyzerAdapter;
-import org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class Asm5ClassInstrumenter extends ClassVisitor
 	implements I_ClassProbesVisitor {
@@ -28,7 +24,7 @@ public class Asm5ClassInstrumenter extends ClassVisitor
 
 		private final long id;
 
-		private final IExecutionDataAccessorGenerator accessorGenerator;
+		private final I_DataAccessorFactory accessorGenerator;
 
 		private I_JacocoProbeArrayStrategy probeArrayStrategy;
 
@@ -50,7 +46,7 @@ public class Asm5ClassInstrumenter extends ClassVisitor
 		 *            instrumented class
 		 */
 		public Asm5ClassInstrumenter(final long id,
-				final IExecutionDataAccessorGenerator accessorGenerator,
+				final I_DataAccessorFactory accessorGenerator,
 				final ClassVisitor cv) {
 			super(AsmApiVersion.VERSION, cv);
 			this.id = id;
@@ -194,7 +190,7 @@ public class Asm5ClassInstrumenter extends ClassVisitor
 			 */
 			private int genInitializeDataField(final MethodVisitor mv,
 					final int probeCount) {
-				final int size = accessorGenerator.generateDataAccessor(id,
+				final int size = accessorGenerator.create(id,
 						className, probeCount, mv);
 
 				// Stack[0]: Map
@@ -218,7 +214,7 @@ public class Asm5ClassInstrumenter extends ClassVisitor
 		private class InterfaceTypeStrategy implements I_JacocoProbeArrayStrategy {
 
 			public int storeInstance(final MethodVisitor mv, final int variable) {
-				final int maxStack = accessorGenerator.generateDataAccessor(id,
+				final int maxStack = accessorGenerator.create(id,
 						className, probeCount, mv);
 				mv.visitVarInsn(Opcodes.ASTORE, variable);
 				return maxStack;

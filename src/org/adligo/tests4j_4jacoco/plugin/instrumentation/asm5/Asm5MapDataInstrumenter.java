@@ -10,14 +10,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.asm5.Asm5ClassInstrumenter;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.asm5.Asm5ClassProbesAdapter;
+import org.adligo.tests4j_4jacoco.plugin.runtime.I_DataAccessorFactory;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 import org.jacoco.core.internal.ContentTypeDetector;
 import org.jacoco.core.internal.Pack200Streams;
 import org.jacoco.core.internal.data.CRC64;
 import org.jacoco.core.internal.instr.SignatureRemover;
-import org.jacoco.core.runtime.IExecutionDataAccessorGenerator;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -26,7 +24,7 @@ import org.objectweb.asm.ClassWriter;
  */
 public class Asm5MapDataInstrumenter implements I_Instrumenter {
 
-	private final IExecutionDataAccessorGenerator accessGenerator;
+	private final I_DataAccessorFactory accessGenerator;
 
 	private final SignatureRemover signatureRemover;
 	
@@ -36,8 +34,8 @@ public class Asm5MapDataInstrumenter implements I_Instrumenter {
 	 * @param runtime
 	 *            runtime used by the instrumented classes
 	 */
-	public Asm5MapDataInstrumenter(final IExecutionDataAccessorGenerator runtime) {
-		this.accessGenerator = runtime;
+	public Asm5MapDataInstrumenter(final I_DataAccessorFactory dataAccessorFactory) {
+		this.accessGenerator = dataAccessorFactory;
 		this.signatureRemover = new SignatureRemover();
 	}
 

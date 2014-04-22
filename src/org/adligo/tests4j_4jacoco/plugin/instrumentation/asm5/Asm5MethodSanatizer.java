@@ -1,6 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation.asm5;
 
-import org.jacoco.core.JaCoCo;
+import org.adligo.tests4j_4jacoco.plugin.asm.AsmApiVersion;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
@@ -22,7 +22,7 @@ public class Asm5MethodSanatizer extends JSRInlinerAdapter {
 	public Asm5MethodSanatizer(final MethodVisitor mv, final int access,
 			final String name, final String desc, final String signature,
 			final String[] exceptions) {
-		super(JaCoCo.ASM_API_VERSION, mv, access, name, desc, signature, exceptions);
+		super(AsmApiVersion.VERSION, mv, access, name, desc, signature, exceptions);
 	}
 
 	@Override

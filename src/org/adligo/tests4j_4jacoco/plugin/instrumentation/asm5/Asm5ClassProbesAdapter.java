@@ -4,7 +4,7 @@ import org.adligo.tests4j_4jacoco.plugin.asm.AsmApiVersion;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_ClassProbesVisitor;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_MethodProbesVisitor;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_ProbeIdGenerator;
-import org.jacoco.core.JaCoCo;
+
 import org.jacoco.core.internal.flow.IFrame;
 import org.jacoco.core.internal.flow.LabelFlowAnalyzer;
 import org.objectweb.asm.ClassVisitor;
@@ -94,7 +94,7 @@ public class Asm5ClassProbesAdapter extends ClassVisitor implements
 	 */
 	public Asm5ClassProbesAdapter(final I_ClassProbesVisitor cv,
 			final boolean trackFrames) {
-		super(JaCoCo.ASM_API_VERSION, cv.getThis());
+		super(AsmApiVersion.VERSION, cv.getThis());
 		this.cv = cv;
 		this.trackFrames = trackFrames;
 	}
