@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.instrumentation;
+package org.adligo.tests4j_4jacoco.plugin.instrumentation.asm5;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,12 +10,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.asm5.Asm5ClassInstrumenter;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.asm5.Asm5ClassProbesAdapter;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 import org.jacoco.core.internal.ContentTypeDetector;
 import org.jacoco.core.internal.Pack200Streams;
 import org.jacoco.core.internal.data.CRC64;
-import org.jacoco.core.internal.flow.ClassProbesAdapter;
-import org.jacoco.core.internal.instr.ClassInstrumenter;
 import org.jacoco.core.internal.instr.SignatureRemover;
 import org.jacoco.core.runtime.IExecutionDataAccessorGenerator;
 import org.objectweb.asm.ClassReader;
@@ -24,7 +24,7 @@ import org.objectweb.asm.ClassWriter;
 /**
  * Several APIs to instrument Java class definitions for coverage tracing.
  */
-public class MapDataInstrumenter implements I_Instrumenter {
+public class Asm5MapDataInstrumenter implements I_Instrumenter {
 
 	private final IExecutionDataAccessorGenerator accessGenerator;
 
@@ -36,7 +36,7 @@ public class MapDataInstrumenter implements I_Instrumenter {
 	 * @param runtime
 	 *            runtime used by the instrumented classes
 	 */
-	public MapDataInstrumenter(final IExecutionDataAccessorGenerator runtime) {
+	public Asm5MapDataInstrumenter(final IExecutionDataAccessorGenerator runtime) {
 		this.accessGenerator = runtime;
 		this.signatureRemover = new SignatureRemover();
 	}
@@ -60,9 +60,9 @@ public class MapDataInstrumenter implements I_Instrumenter {
 	 */
 	private ClassVisitor createInstrumentingVisitor(final long classid,
 			final ClassVisitor cv) {
-		JacocoClassInstrumenter jci = new JacocoClassInstrumenter(classid,
+		Asm5ClassInstrumenter jci = new Asm5ClassInstrumenter(classid,
 				accessGenerator, cv);
-		return new ClassProbesAdapter(jci, true);
+		return new Asm5ClassProbesAdapter(jci, true);
 	}
 
 	/* (non-Javadoc)

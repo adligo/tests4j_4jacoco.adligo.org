@@ -1,6 +1,10 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation;
 
+import org.adligo.tests4j.run.Tests4J_UncaughtExceptionHandler;
 import org.adligo.tests4j_4jacoco.plugin.asm.AsmMapHelper;
+import org.adligo.tests4j_4jacoco.plugin.data.FrameInfo;
+import org.adligo.tests4j_4jacoco.plugin.data.FrameInfoMutant;
+import org.adligo.tests4j_4jacoco.plugin.data.I_FrameInfo;
 import org.jacoco.core.JaCoCo;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -18,7 +22,8 @@ public class JacocoProbeInserter extends MethodVisitor implements I_JacocoProbeI
 
 	/** Maximum stack usage of the code to access the probe array. */
 	private int accessorStackSize;
-
+	private I_FrameInfo frameInfo;
+	
 	/**
 	 * Creates a new {@link ProbeInserter}.
 	 * 
@@ -51,6 +56,7 @@ public class JacocoProbeInserter extends MethodVisitor implements I_JacocoProbeI
 	 * need to call put on the map
 	 */
 	public void insertProbe(final int probeIndex) {
+		Tests4J_UncaughtExceptionHandler.OUT.println(" ... adding probe");
 		// For a probe we set the corresponding position in the Map
 		// to true.
 		mv.visitVarInsn(Opcodes.ALOAD, variable);
@@ -114,7 +120,8 @@ public class JacocoProbeInserter extends MethodVisitor implements I_JacocoProbeI
 			throw new IllegalArgumentException(
 					"ClassReader.accept() should be called with EXPAND_FRAMES flag");
 		}
-
+		Tests4J_UncaughtExceptionHandler.OUT.println(" ... manipulating locals in visitFrame");
+		
 		final Object[] newLocal = new Object[Math.max(nLocal, variable) + 1];
 		int idx = 0; // Arrays index for existing locals
 		int newIdx = 0; // Array index for new locals
@@ -139,7 +146,19 @@ public class JacocoProbeInserter extends MethodVisitor implements I_JacocoProbeI
 				}
 			}
 		}
+		FrameInfoMutant fim = new FrameInfoMutant();
+		fim.setType(type);
+		fim.setLocalSize(newIdx);
+		fim.setLocal(newLocal);
+		fim.setStackSize(nStack);
+		fim.setStack(stack);
+		frameInfo = new FrameInfo(fim);
+		
 		mv.visitFrame(type, newIdx, newLocal, nStack, stack);
+	}
+
+	public I_FrameInfo getFrameInfo() {
+		return frameInfo;
 	}
 
 }

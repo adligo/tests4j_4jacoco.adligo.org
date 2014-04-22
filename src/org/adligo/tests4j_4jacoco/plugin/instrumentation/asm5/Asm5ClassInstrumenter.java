@@ -1,7 +1,13 @@
-package org.adligo.tests4j_4jacoco.plugin.instrumentation;
+package org.adligo.tests4j_4jacoco.plugin.instrumentation.asm5;
 
 import org.adligo.tests4j.run.Tests4J_UncaughtExceptionHandler;
+import org.adligo.tests4j_4jacoco.plugin.asm.AsmApiVersion;
 import org.adligo.tests4j_4jacoco.plugin.asm.AsmMapHelper;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_ClassProbesVisitor;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_JacocoProbeArrayStrategy;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_MethodProbesVisitor;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.MapInstrConstants;
+import org.jacoco.core.JaCoCo;
 import org.jacoco.core.internal.flow.ClassProbesVisitor;
 import org.jacoco.core.internal.flow.MethodProbesVisitor;
 import org.jacoco.core.internal.instr.InstrSupport;
@@ -11,8 +17,11 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.AnalyzerAdapter;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 
-public class JacocoClassInstrumenter extends ClassProbesVisitor {
+public class Asm5ClassInstrumenter extends ClassVisitor
+	implements I_ClassProbesVisitor {
 
 
 		private static final Object[] NO_LOCALS = new Object[0];
@@ -40,10 +49,10 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 		 *            next delegate in the visitor chain will receive the
 		 *            instrumented class
 		 */
-		public JacocoClassInstrumenter(final long id,
+		public Asm5ClassInstrumenter(final long id,
 				final IExecutionDataAccessorGenerator accessorGenerator,
 				final ClassVisitor cv) {
-			super(cv);
+			super(AsmApiVersion.VERSION, cv);
 			this.id = id;
 			this.accessorGenerator = accessorGenerator;
 		}
@@ -70,7 +79,15 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 		}
 
 		@Override
-		public MethodProbesVisitor visitMethod(final int access, final String name,
+		public MethodVisitor visitMethod(final int access, final String name,
+				final String desc, final String signature, final String[] exceptions) {
+			return 
+					visitMethodForProbes(access, name, desc, signature, exceptions)
+					.getThis();
+		}
+		
+		@Override
+		public I_MethodProbesVisitor visitMethodForProbes(final int access, final String name,
 				final String desc, final String signature, final String[] exceptions) {
 
 			InstrSupport.assertNotInstrumented(name, className);
@@ -82,12 +99,14 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 			if (mv == null) {
 				return null;
 			}
-			final JacocoProbeInserter probeVariableInserter = new JacocoProbeInserter(access,
-					desc, mv, probeArrayStrategy);
-			JacocoMethodInstrumenter mi = new JacocoMethodInstrumenter(mv,
-					probeVariableInserter);
-			//mi.setClassName(className);
-			return mi;
+			AnalyzerAdapter aa = new AnalyzerAdapter(
+					this.getClass().getName()+
+					"_" + className, access, name, desc, mv);
+			Asm5ProbeInserterSorter lvs = new Asm5ProbeInserterSorter(
+					access, desc, aa, probeArrayStrategy);
+			Asm5MethodInstrumenter toRet = new Asm5MethodInstrumenter(lvs);
+			
+			return toRet;
 		}
 
 		@Override
@@ -209,6 +228,11 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 				// nothing to do
 			}
 
+		}
+
+		@Override
+		public ClassVisitor getThis() {
+			return this;
 		}
 
 	}

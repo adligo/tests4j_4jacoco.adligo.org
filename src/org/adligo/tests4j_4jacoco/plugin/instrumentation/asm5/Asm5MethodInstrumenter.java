@@ -1,17 +1,17 @@
-package org.adligo.tests4j_4jacoco.plugin.instrumentation;
+package org.adligo.tests4j_4jacoco.plugin.instrumentation.asm5;
 
-import org.adligo.tests4j_4jacoco.plugin.data.I_FrameInfo;
+import org.adligo.tests4j_4jacoco.plugin.asm.AsmApiVersion;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_MethodProbesVisitor;
 import org.jacoco.core.internal.flow.IFrame;
 import org.jacoco.core.internal.flow.LabelInfo;
-import org.jacoco.core.internal.flow.MethodProbesVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class JacocoMethodInstrumenter  extends MethodProbesVisitor {
-
-	private final JacocoProbeInserter probeInserter;
-	final MethodVisitor mv;
+public class Asm5MethodInstrumenter extends MethodVisitor
+	implements I_MethodProbesVisitor {
+	
+	private final Asm5ProbeInserterSorter probeInserter;
 	
 	/**
 	 * Create a new instrumenter instance for the given method.
@@ -21,11 +21,9 @@ public class JacocoMethodInstrumenter  extends MethodProbesVisitor {
 	 * @param probeInserter
 	 *            call-back to insert probes where required
 	 */
-	public JacocoMethodInstrumenter(final MethodVisitor pMv,
-			final JacocoProbeInserter probeInserter) {
-		super(probeInserter);
-		this.probeInserter = probeInserter;
-		mv = pMv;
+	public Asm5MethodInstrumenter(final Asm5ProbeInserterSorter lvs) {
+		super(AsmApiVersion.VERSION, lvs);
+		probeInserter = lvs;
 	}
 
 	// === IMethodProbesVisitor ===
@@ -64,6 +62,7 @@ public class JacocoMethodInstrumenter  extends MethodProbesVisitor {
 					*/
 			probeInserter.visitLabel(intermediate);
 			frame.accept(probeInserter);
+			
 		}
 	}
 
@@ -179,5 +178,8 @@ public class JacocoMethodInstrumenter  extends MethodProbesVisitor {
 	}
 
 
-
+	@Override
+	public MethodVisitor getThis() {
+		return this;
+	}
 }

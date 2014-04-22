@@ -1,6 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation;
 
-interface I_JacocoProbeInserter {
+public interface I_JacocoProbeInserter {
 
 		/**
 		 * Inserts the probe with the given id.
