@@ -20,55 +20,26 @@ import org.jacoco.core.internal.instr.InstrSupport;
  *
  */
 public class SimpleJacocoPlugin extends AbstractJacocoPlugin {
-	private final SimpleLoggerRuntime runtime;
 	
 	public SimpleJacocoPlugin() {
 		ProbeDataAccessorByLoggingApiFactory factory = new ProbeDataAccessorByLoggingApiFactory(
 				InstrSupport.DATAFIELD_DESC);
 		BooleanArrayInstrumenterFactory instrFactory = new BooleanArrayInstrumenterFactory(factory);
 		DataInstrumenter cdi = new DataInstrumenter(instrFactory);
-		Handler handler = new RuntimeHandler();
-		runtime = new SimpleLoggerRuntime(factory, handler);
+		SimpleLoggerRuntime runtime = new SimpleLoggerRuntime(factory);
 		runtime.setup(new SimpleRuntimeData());
 		memory = new JacocoMemory(runtime, cdi);
 	}
 
-	@Override
-	public boolean hasSupportForRecorderScope() {
-		return false;
-	}
+
 	
-	private class RuntimeHandler extends Handler {
-		
-		public RuntimeHandler(){}
-		
-		@Override
-		public void publish(final LogRecord record) {
-			String key = runtime.getKey();
-			if (key.equals(record.getMessage())) {
-				Object [] params = record.getParameters();
-				I_JacocoRuntimeData data = runtime.getData();
-				data.getProbes(params);
-			}
-		}
+	
 
-		@Override
-		public void flush() {
-			// nothing to do
-		}
 
-		@Override
-		public void close() throws SecurityException {
-			// The Java logging framework removes and closes all handlers on JVM
-			// shutdown. As soon as our handler has been removed, all classes
-			// that might get instrumented during shutdown (e.g. loaded by other
-			// shutdown hooks) will fail to initialize. Therefore we add ourself
-			// again here. This is a nasty hack that might fail in some Java
-			// implementations.
-			Logger logger = runtime.getLogger();
-			Handler handler = runtime.getHandler();
-			logger.addHandler(handler);
-		}
+
+	@Override
+	public boolean canSubRecord() {
+		return false;
 	}
 
 }

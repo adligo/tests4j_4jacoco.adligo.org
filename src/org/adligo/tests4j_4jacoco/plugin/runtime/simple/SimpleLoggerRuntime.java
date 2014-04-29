@@ -24,12 +24,12 @@ public class SimpleLoggerRuntime implements I_JacocoRuntime {
 	/**
 	 * Creates a new runtime.
 	 */
-	public SimpleLoggerRuntime(I_LoggerDataAccessorFactory pFactory, Handler pHandler) {
+	public SimpleLoggerRuntime(I_LoggerDataAccessorFactory pFactory) {
 		super();
 		this.factory = pFactory;
 		key = factory.getKey();
 		this.logger = configureLogger();
-		this.handler = pHandler;
+		this.handler = new RuntimeLoggingHandler(this);
 	}
 
 	private Logger configureLogger() {

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.adligo.tests4j.models.shared.AbstractTrial;
 import org.adligo.tests4j.models.shared.I_AbstractTrial;
@@ -25,6 +26,8 @@ public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 	protected JacocoMemory memory;
 	private I_Tests4J_Logger log;
 	private boolean writeOutInstrumentedClassFiles = false;
+	private AtomicBoolean firstRecorder = new AtomicBoolean(false);
+	
 	@Override
 	public List<Class<? extends I_AbstractTrial>> instrumentClasses(I_Tests4J_Params pParams) {
 		log = pParams.getLog();
@@ -138,9 +141,10 @@ public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 	}
 	
 	@Override
-	public I_CoverageRecorder createRecorder(String scope) {
+	public synchronized I_CoverageRecorder createRecorder(String scope) {
 		JacocoRecorder rec = new JacocoRecorder(scope, memory, log);
-		if (I_CoverageRecorder.TRIAL_RUN.equals(scope)) {
+		if (!firstRecorder.get()) {
+			firstRecorder.set(true);
 			rec.setRoot(true);
 		}
 		return rec;
