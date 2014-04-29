@@ -2,8 +2,6 @@ package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
 
 import org.adligo.tests4j.run.Tests4J_UncaughtExceptionHandler;
 import org.adligo.tests4j_4jacoco.plugin.asm.ApiVersion;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_ClassProbesVisitor;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_MethodProbesVisitor;
 import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -11,7 +9,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AnalyzerAdapter;
 
-public class CommonClassInstrumenter extends ClassVisitor
+public class ClassInstrumenter extends ClassVisitor
 	implements I_ClassProbesVisitor, I_ClassInstrumentationInfo {
 
 		private final long id;
@@ -36,7 +34,7 @@ public class CommonClassInstrumenter extends ClassVisitor
 		 *            next delegate in the visitor chain will receive the
 		 *            instrumented class
 		 */
-		public CommonClassInstrumenter(final long id,
+		public ClassInstrumenter(final long id,
 				final I_InstrumenterFactory pInstrumenterFactory,
 				final ClassVisitor cv) {
 			super(ApiVersion.VERSION, cv);
@@ -94,7 +92,7 @@ public class CommonClassInstrumenter extends ClassVisitor
 					"_" + className, access, name, desc, mv);
 			AbstractProbeInserter lvs = instrumenterFactory.createProbeInserter(
 					access, desc, aa, probeArrayStrategy);
-			CommonMethodInstrumenter toRet = new CommonMethodInstrumenter(lvs);
+			MethodInstrumenter toRet = new MethodInstrumenter(lvs);
 			
 			return toRet;
 		}

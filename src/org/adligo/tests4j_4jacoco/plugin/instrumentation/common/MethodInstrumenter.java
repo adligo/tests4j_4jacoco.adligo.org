@@ -3,7 +3,6 @@ package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
 import org.adligo.tests4j_4jacoco.plugin.asm.ApiVersion;
 import org.adligo.tests4j_4jacoco.plugin.asm.BytecodeInjectionDebuger;
 import org.adligo.tests4j_4jacoco.plugin.asm.StackHelper;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_MethodProbesVisitor;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.jacoco.core.internal.flow.IFrame;
 import org.jacoco.core.internal.flow.LabelInfo;
@@ -11,7 +10,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class CommonMethodInstrumenter extends MethodVisitor
+public class MethodInstrumenter extends MethodVisitor
 	implements I_MethodProbesVisitor {
 	
 	private final AbstractProbeInserter probeInserter;
@@ -24,7 +23,7 @@ public class CommonMethodInstrumenter extends MethodVisitor
 	 * @param probeInserter
 	 *            call-back to insert probes where required
 	 */
-	public CommonMethodInstrumenter(final AbstractProbeInserter lvs) {
+	public MethodInstrumenter(final AbstractProbeInserter lvs) {
 		super(ApiVersion.VERSION, lvs);
 		probeInserter = lvs;
 	}

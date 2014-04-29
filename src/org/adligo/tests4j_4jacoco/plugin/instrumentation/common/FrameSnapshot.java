@@ -9,14 +9,14 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AnalyzerAdapter;
 
-public class CommonFrameSnapshot implements IFrame {
+public class FrameSnapshot implements IFrame {
 
-		private static final CommonFrameSnapshot NOP = new CommonFrameSnapshot(null, null);
+		private static final FrameSnapshot NOP = new FrameSnapshot(null, null);
 
 		private final Object[] locals;
 		private final Object[] stack;
 
-		private CommonFrameSnapshot(final Object[] locals, final Object[] stack) {
+		private FrameSnapshot(final Object[] locals, final Object[] stack) {
 			this.locals = locals;
 			this.stack = stack;
 		}
@@ -38,7 +38,7 @@ public class CommonFrameSnapshot implements IFrame {
 			@SuppressWarnings("unchecked")
 			final List<Object> locals = analyzer.locals, stack = analyzer.stack;
 			if (BytecodeInjectionDebuger.isEnabled()) {
-				System.out.println("in create " + CommonFrameSnapshot
+				System.out.println("in create " + FrameSnapshot
 						.class.getName());
 				for (int i = 0; i < locals.size(); i++) {
 					System.out.println("local[" + i + "] is " + locals.get(i));
@@ -47,7 +47,7 @@ public class CommonFrameSnapshot implements IFrame {
 					System.out.println("stack[" + i + "] is " + stack.get(i));
 				}
 			}
-			return new CommonFrameSnapshot(reduce(locals, 0), reduce(stack, popCount));
+			return new FrameSnapshot(reduce(locals, 0), reduce(stack, popCount));
 		}
 
 		/**

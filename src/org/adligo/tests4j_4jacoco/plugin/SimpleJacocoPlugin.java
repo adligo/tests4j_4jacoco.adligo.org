@@ -5,7 +5,7 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.boolean_array.BooleanArrayInstrumenterFactory;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.CommonDataInstrumenter;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.DataInstrumenter;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_JacocoRuntimeData;
 import org.adligo.tests4j_4jacoco.plugin.runtime.simple.ProbeDataAccessorByLoggingApiFactory;
 import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleLoggerRuntime;
@@ -26,7 +26,7 @@ public class SimpleJacocoPlugin extends AbstractJacocoPlugin {
 		ProbeDataAccessorByLoggingApiFactory factory = new ProbeDataAccessorByLoggingApiFactory(
 				InstrSupport.DATAFIELD_DESC);
 		BooleanArrayInstrumenterFactory instrFactory = new BooleanArrayInstrumenterFactory(factory);
-		CommonDataInstrumenter cdi = new CommonDataInstrumenter(instrFactory);
+		DataInstrumenter cdi = new DataInstrumenter(instrFactory);
 		Handler handler = new RuntimeHandler();
 		runtime = new SimpleLoggerRuntime(factory, handler);
 		runtime.setup(new SimpleRuntimeData());

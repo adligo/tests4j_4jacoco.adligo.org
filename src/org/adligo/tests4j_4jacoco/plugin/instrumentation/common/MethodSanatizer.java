@@ -17,9 +17,9 @@ import org.objectweb.asm.commons.JSRInlinerAdapter;
  * labels with ASM class files do not verify any more.</li>
  * </ul>
  */
-public class CommonMethodSanatizer extends JSRInlinerAdapter {
+public class MethodSanatizer extends JSRInlinerAdapter {
 
-	public CommonMethodSanatizer(final MethodVisitor mv, final int access,
+	public MethodSanatizer(final MethodVisitor mv, final int access,
 			final String name, final String desc, final String signature,
 			final String[] exceptions) {
 		super(ApiVersion.VERSION, mv, access, name, desc, signature, exceptions);

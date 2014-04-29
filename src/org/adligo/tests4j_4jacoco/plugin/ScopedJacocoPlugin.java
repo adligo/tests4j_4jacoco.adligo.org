@@ -4,7 +4,7 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.CommonDataInstrumenter;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.DataInstrumenter;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrumenterFactory;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_JacocoRuntimeData;
@@ -26,7 +26,7 @@ public class ScopedJacocoPlugin extends AbstractJacocoPlugin {
 		ProbeDataAccessorByLoggingApiFactory factory = new ProbeDataAccessorByLoggingApiFactory(
 				MapInstrConstants.DATAFIELD_DESC);
 		MapInstrumenterFactory instrFactory = new MapInstrumenterFactory(factory);
-		CommonDataInstrumenter cdi = new CommonDataInstrumenter(instrFactory);
+		DataInstrumenter cdi = new DataInstrumenter(instrFactory);
 		Handler handler = new RuntimeHandler();
 		runtime = new SimpleLoggerRuntime(factory, handler);
 		runtime.setup(new SimpleRuntimeData());

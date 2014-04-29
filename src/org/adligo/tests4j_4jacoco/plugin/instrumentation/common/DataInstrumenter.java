@@ -21,7 +21,7 @@ import org.objectweb.asm.ClassWriter;
 /**
  * Several APIs to instrument Java class definitions for coverage tracing.
  */
-public class CommonDataInstrumenter implements I_Instrumenter {
+public class DataInstrumenter implements I_Instrumenter {
 
 	private final I_InstrumenterFactory instrumenterFactory;
 
@@ -33,7 +33,7 @@ public class CommonDataInstrumenter implements I_Instrumenter {
 	 * @param runtime
 	 *            runtime used by the instrumented classes
 	 */
-	public CommonDataInstrumenter(final I_InstrumenterFactory pInstrumenterFactory) {
+	public DataInstrumenter(final I_InstrumenterFactory pInstrumenterFactory) {
 		instrumenterFactory = pInstrumenterFactory;
 		this.signatureRemover = new SignatureRemover();
 	}
@@ -57,9 +57,9 @@ public class CommonDataInstrumenter implements I_Instrumenter {
 	 */
 	private ClassVisitor createInstrumentingVisitor(final long classid,
 			final ClassVisitor cv) {
-		CommonClassInstrumenter jci = new CommonClassInstrumenter(classid,
+		ClassInstrumenter jci = new ClassInstrumenter(classid,
 				instrumenterFactory, cv);
-		return new CommonClassProbesAdapter(jci, true);
+		return new ClassProbesAdapter(jci, true);
 	}
 
 	/* (non-Javadoc)

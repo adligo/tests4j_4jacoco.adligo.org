@@ -9,7 +9,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 
-public class CommonLabelFlowAnalyzer extends MethodVisitor {
+public class LabelFlowAnalyzer extends MethodVisitor {
 
 		/**
 		 * Marks all labels of the method with control flow information.
@@ -20,7 +20,7 @@ public class CommonLabelFlowAnalyzer extends MethodVisitor {
 		public static void markLabels(final MethodNode method) {
 			// We do not use the accept() method as ASM resets labels after every
 			// call to accept()
-			final MethodVisitor lfa = new CommonLabelFlowAnalyzer();
+			final MethodVisitor lfa = new LabelFlowAnalyzer();
 			for (int i = method.tryCatchBlocks.size(); --i >= 0;) {
 				((TryCatchBlockNode) method.tryCatchBlocks.get(i)).accept(lfa);
 			}
@@ -42,7 +42,7 @@ public class CommonLabelFlowAnalyzer extends MethodVisitor {
 		/**
 		 * Create new instance.
 		 */
-		public CommonLabelFlowAnalyzer() {
+		public LabelFlowAnalyzer() {
 			super(ApiVersion.VERSION);
 		}
 
