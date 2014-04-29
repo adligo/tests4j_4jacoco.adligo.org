@@ -1,8 +1,8 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation.boolean_array;
 
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.MapInstrConstants;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.AbstractProbeInserter;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ObtainProbesStrategy;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;

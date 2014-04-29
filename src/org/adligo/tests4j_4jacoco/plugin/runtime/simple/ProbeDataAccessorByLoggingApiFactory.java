@@ -1,17 +1,18 @@
-package org.adligo.tests4j_4jacoco.plugin.asm;
+package org.adligo.tests4j_4jacoco.plugin.runtime.simple;
 
+import org.adligo.tests4j_4jacoco.plugin.asm.ClassCoverageDataParamFactory;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_ProbeDataAccessorFactory;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_LoggerDataAccessorFactory;
 import org.jacoco.core.runtime.IExecutionDataAccessorGenerator;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class LoggingDataAccessorFactory implements I_LoggerDataAccessorFactory, IExecutionDataAccessorGenerator {
+public class ProbeDataAccessorByLoggingApiFactory implements I_LoggerDataAccessorFactory, IExecutionDataAccessorGenerator {
 	private static final String CHANNEL = "tests4j_4jacoco_channel";
 	private final String key;
 	private String dataTypeDesc;
 	
-	public LoggingDataAccessorFactory(String pDataTypeDesc) {
+	public ProbeDataAccessorByLoggingApiFactory(String pDataTypeDesc) {
 		dataTypeDesc = pDataTypeDesc;
 		
 		this.key = Integer.toHexString(hashCode());

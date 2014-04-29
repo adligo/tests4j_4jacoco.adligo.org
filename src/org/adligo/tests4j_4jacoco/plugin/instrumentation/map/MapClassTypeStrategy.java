@@ -1,9 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation.map;
 
 import org.adligo.tests4j_4jacoco.plugin.asm.BytecodeInjectionDebuger;
-import org.adligo.tests4j_4jacoco.plugin.asm.MapBytecodeHelper;
 import org.adligo.tests4j_4jacoco.plugin.asm.StackHelper;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.MapInstrConstants;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.AbstractObtainProbesStrategy;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassInstrumentationInfo;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ObtainProbesStrategy;

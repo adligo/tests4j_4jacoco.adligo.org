@@ -4,10 +4,10 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import org.adligo.tests4j_4jacoco.plugin.asm.LoggingDataAccessorFactory;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.MapInstrConstants;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.wrappers.JacocoInstrumenterWrapper;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.boolean_array.BooleanArrayInstrumenterFactory;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.CommonDataInstrumenter;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_JacocoRuntimeData;
+import org.adligo.tests4j_4jacoco.plugin.runtime.simple.ProbeDataAccessorByLoggingApiFactory;
 import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleLoggerRuntime;
 import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleRuntimeData;
 import org.jacoco.core.internal.instr.InstrSupport;
@@ -23,13 +23,14 @@ public class SimpleJacocoPlugin extends AbstractJacocoPlugin {
 	private final SimpleLoggerRuntime runtime;
 	
 	public SimpleJacocoPlugin() {
-		LoggingDataAccessorFactory factory = new LoggingDataAccessorFactory(
+		ProbeDataAccessorByLoggingApiFactory factory = new ProbeDataAccessorByLoggingApiFactory(
 				InstrSupport.DATAFIELD_DESC);
-		JacocoInstrumenterWrapper wrapper = new JacocoInstrumenterWrapper(factory);
+		BooleanArrayInstrumenterFactory instrFactory = new BooleanArrayInstrumenterFactory(factory);
+		CommonDataInstrumenter cdi = new CommonDataInstrumenter(instrFactory);
 		Handler handler = new RuntimeHandler();
 		runtime = new SimpleLoggerRuntime(factory, handler);
 		runtime.setup(new SimpleRuntimeData());
-		memory = new JacocoMemory(runtime, wrapper);
+		memory = new JacocoMemory(runtime, cdi);
 	}
 
 	@Override

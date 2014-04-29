@@ -1,6 +1,7 @@
-package org.adligo.tests4j_4jacoco.plugin.asm;
+package org.adligo.tests4j_4jacoco.plugin.instrumentation.map;
 
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.MapInstrConstants;
+import org.adligo.tests4j_4jacoco.plugin.asm.BytecodeInjectionDebuger;
+import org.adligo.tests4j_4jacoco.plugin.asm.StackHelper;
 import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
