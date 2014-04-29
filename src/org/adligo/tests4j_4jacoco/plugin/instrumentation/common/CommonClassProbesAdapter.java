@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.instrumentation.asm5;
+package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
 
 import org.adligo.tests4j_4jacoco.plugin.asm.ApiVersion;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_ClassProbesVisitor;
@@ -17,7 +17,7 @@ import org.objectweb.asm.commons.AnalyzerAdapter;
  * A {@link org.objectweb.asm.ClassVisitor} that calculates probes for every
  * method.
  */
-public class Asm5ClassProbesAdapter extends ClassVisitor implements
+public class CommonClassProbesAdapter extends ClassVisitor implements
 	I_ProbeIdGenerator {
 
 	private static final I_MethodProbesVisitor EMPTY_METHOD_PROBES_VISITOR;
@@ -92,7 +92,7 @@ public class Asm5ClassProbesAdapter extends ClassVisitor implements
 	 * @param trackFrames
 	 *            if <code>true</code> stackmap frames are tracked and provided
 	 */
-	public Asm5ClassProbesAdapter(final I_ClassProbesVisitor cv,
+	public CommonClassProbesAdapter(final I_ClassProbesVisitor cv,
 			final boolean trackFrames) {
 		super(ApiVersion.VERSION, cv.getThis());
 		this.cv = cv;
@@ -121,7 +121,7 @@ public class Asm5ClassProbesAdapter extends ClassVisitor implements
 		} else {
 			methodProbes = mv;
 		}
-		return new Asm5MethodSanatizer(null, access, name, desc, signature,
+		return new CommonMethodSanatizer(null, access, name, desc, signature,
 				exceptions) {
 
 			@Override
@@ -130,7 +130,7 @@ public class Asm5ClassProbesAdapter extends ClassVisitor implements
 				LabelFlowAnalyzer.markLabels(this);
 				if (interfaceType) {
 					final ProbeCounter probeCounter = new ProbeCounter();
-					final Asm5MethodProbesAdapter adapter = new Asm5MethodProbesAdapter(
+					final CommonMethodProbesAdapter adapter = new CommonMethodProbesAdapter(
 							EMPTY_METHOD_PROBES_VISITOR,
 							probeCounter);
 					// We do not use the accept() method as ASM resets labels
@@ -138,11 +138,11 @@ public class Asm5ClassProbesAdapter extends ClassVisitor implements
 					instructions.accept(adapter);
 					cv.visitTotalProbeCount(probeCounter.count);
 				}
-				final Asm5MethodProbesAdapter probesAdapter = new Asm5MethodProbesAdapter(
-						methodProbes, Asm5ClassProbesAdapter.this);
+				final CommonMethodProbesAdapter probesAdapter = new CommonMethodProbesAdapter(
+						methodProbes, CommonClassProbesAdapter.this);
 				if (trackFrames) {
 					final AnalyzerAdapter analyzer = new AnalyzerAdapter(
-							Asm5ClassProbesAdapter.this.name, access, name, desc,
+							CommonClassProbesAdapter.this.name, access, name, desc,
 							probesAdapter);
 					probesAdapter.setAnalyzer(analyzer);
 					this.accept(analyzer);

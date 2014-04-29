@@ -6,7 +6,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 
-public class AsmMapHelper {
+public class MapBytecodeHelper {
 
 	/**
 	 * note the Map must be on top of the current stack
@@ -17,37 +17,44 @@ public class AsmMapHelper {
 	 * @param mv
 	 * @return stack size
 	 */
-	public static int callMapPut(int i, boolean p, MethodVisitor mv) {
-		// Stack[0]: Map
+	public static void callMapPut(final StackHelper sh, final int i, 
+			final boolean p, final MethodVisitor mv) {
+		// Stack[+0]: Map
 		
-		mv.visitInsn(Opcodes.DUP);
-
-		// Stack[1]: Map
-		// Stack[0]: Map
 		
 		mv.visitLdcInsn(i);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf",
 				"(I)Ljava/lang/Integer;", false);
+		if (BytecodeInjectionDebuger.isEnabled()) {
+			BytecodeInjectionDebuger.putInStackDebug("" + i);
+		}
+		sh.incrementStackSize();
 		
-		// Stack[2]: id
-		// Stack[1]: Map
-		// Stack[0]: Map
+		// Stack[+1]: id
+		// Stack[+0]: Map
 		
 		mv.visitLdcInsn("" + p);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean", "valueOf",
 				"(Ljava/lang/String;)Ljava/lang/Boolean;", false);
+		if (BytecodeInjectionDebuger.isEnabled()) {
+			BytecodeInjectionDebuger.putInStackDebug("" + p);
+		}
+		sh.incrementStackSize();
 		
-		// Stack[3]: false
-		// Stack[2]: id
-		// Stack[1]: Map
-		// Stack[0]: Map
-				
+		// Stack[+2]: false
+		// Stack[+1]: id
+		// Stack[+0]: Map
+		if (BytecodeInjectionDebuger.isEnabled()) {
+			BytecodeInjectionDebuger.log(sh, mv, 
+					"putting map value " + i + " " + p);
+		}
 		mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, MapInstrConstants.DATAFIELD_DESC, 
 				"put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", true);
-		
-		// Stack[0]: Map
-		
-		return 4;
+		if (BytecodeInjectionDebuger.isEnabled()) {
+			BytecodeInjectionDebuger.popOffStackDebug(3);
+		}
+		sh.decrementStackSize(3);
+		//stack empty
 	}
 	
 	/**
@@ -55,11 +62,17 @@ public class AsmMapHelper {
 	 * @param mv
 	 * @param className
 	 */
-	public static void moveMapToStack(MethodVisitor mv, String className) {
+	public static void moveMapToStack(final StackHelper sh, MethodVisitor mv, String className) {
 		// Load the value of the static data field:
 		mv.visitFieldInsn(Opcodes.GETSTATIC, className,
 				//InstrSupport.DATAFIELD_NAME, InstrSupport.DATAFIELD_DESC);
 				InstrSupport.DATAFIELD_NAME, MapInstrConstants.DATAFIELD_CLAZZ);
+		if (BytecodeInjectionDebuger.isEnabled()) {
+			BytecodeInjectionDebuger.putInStackDebug(MapInstrConstants.DATAFIELD_CLAZZ);
+		}
+		sh.incrementStackSize();
+		
+		// Stack[0]: Map
 	}
 	
 	/**
@@ -68,11 +81,14 @@ public class AsmMapHelper {
 	 * @param className
 	 * @return the maxium stack size
 	 */
-	public static int moveMapToField(MethodVisitor mv, String className) {
+	public static void moveMapToField(final StackHelper sh, MethodVisitor mv, String className) {
 		// Stack[0]: Map
 
 		mv.visitInsn(Opcodes.DUP);
-
+		if (BytecodeInjectionDebuger.isEnabled()) {
+			BytecodeInjectionDebuger.dupStackDebug();
+		}
+		sh.incrementStackSize();
 		// Stack[1]: Map
 		// Stack[0]: Map
 		
@@ -80,12 +96,11 @@ public class AsmMapHelper {
 		mv.visitFieldInsn(Opcodes.PUTSTATIC, className,
 				//InstrSupport.DATAFIELD_NAME, InstrSupport.DATAFIELD_DESC);
 				InstrSupport.DATAFIELD_NAME, MapInstrConstants.DATAFIELD_CLAZZ);
-		
+		if (BytecodeInjectionDebuger.isEnabled()) {
+			BytecodeInjectionDebuger.popOffStackDebug();
+		}
+		sh.decrementStackSize();
 		// Stack[0]: Map
-		return 2;
 	}
 	
-	public static void createMap(MethodVisitor mv) {
-		mv.visitTypeInsn(Opcodes.NEW, MapInstrConstants.DATAFIELD_DESC);
-	}
 }

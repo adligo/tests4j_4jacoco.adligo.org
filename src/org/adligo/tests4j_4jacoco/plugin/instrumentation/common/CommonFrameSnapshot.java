@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.instrumentation.asm5;
+package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,14 +9,14 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AnalyzerAdapter;
 
-public class Asm5FrameSnapshot implements IFrame {
+public class CommonFrameSnapshot implements IFrame {
 
-		private static final Asm5FrameSnapshot NOP = new Asm5FrameSnapshot(null, null);
+		private static final CommonFrameSnapshot NOP = new CommonFrameSnapshot(null, null);
 
 		private final Object[] locals;
 		private final Object[] stack;
 
-		private Asm5FrameSnapshot(final Object[] locals, final Object[] stack) {
+		private CommonFrameSnapshot(final Object[] locals, final Object[] stack) {
 			this.locals = locals;
 			this.stack = stack;
 		}
@@ -38,7 +38,7 @@ public class Asm5FrameSnapshot implements IFrame {
 			@SuppressWarnings("unchecked")
 			final List<Object> locals = analyzer.locals, stack = analyzer.stack;
 			if (BytecodeInjectionDebuger.isEnabled()) {
-				System.out.println("in create " + Asm5FrameSnapshot
+				System.out.println("in create " + CommonFrameSnapshot
 						.class.getName());
 				for (int i = 0; i < locals.size(); i++) {
 					System.out.println("local[" + i + "] is " + locals.get(i));
@@ -47,7 +47,7 @@ public class Asm5FrameSnapshot implements IFrame {
 					System.out.println("stack[" + i + "] is " + stack.get(i));
 				}
 			}
-			return new Asm5FrameSnapshot(reduce(locals, 0), reduce(stack, popCount));
+			return new CommonFrameSnapshot(reduce(locals, 0), reduce(stack, popCount));
 		}
 
 		/**

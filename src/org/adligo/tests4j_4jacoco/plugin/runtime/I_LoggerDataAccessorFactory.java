@@ -7,7 +7,7 @@ package org.adligo.tests4j_4jacoco.plugin.runtime;
  * @author scott
  *
  */
-public interface I_LoggerDataAccessorFactory extends I_DataAccessorFactory {
+public interface I_LoggerDataAccessorFactory extends I_ProbeDataAccessorFactory {
 
 	/**
 	 * @return the string to put in the 

@@ -1,62 +1,26 @@
-package org.adligo.tests4j_4jacoco.plugin.instrumentation.asm5;
+package org.adligo.tests4j_4jacoco.plugin.instrumentation.map;
 
-import org.adligo.tests4j.run.Tests4J_UncaughtExceptionHandler;
-import org.adligo.tests4j_4jacoco.plugin.asm.ApiVersion;
 import org.adligo.tests4j_4jacoco.plugin.asm.BytecodeInjectionDebuger;
 import org.adligo.tests4j_4jacoco.plugin.asm.MapBytecodeHelper;
 import org.adligo.tests4j_4jacoco.plugin.asm.StackHelper;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_JacocoProbeArrayStrategy;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_JacocoProbeInserter;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.MapInstrConstants;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.AbstractProbeInserter;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ObtainProbesStrategy;
+import org.jacoco.core.internal.instr.InstrSupport;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.LocalVariablesSorter;
 
-public class Asm5ProbeInserterSorter extends LocalVariablesSorter implements I_JacocoProbeInserter {
-
-	private final I_JacocoProbeArrayStrategy arrayStrategy;
-
-	/** Position of the inserted variable. 
-	 *  So this is the Map's local variable location for $jacocoData
-	 */
-	private int variable;
-
-	/** Maximum stack usage of the code to access the probe array. */
-	private int accessorStackSize;
-	
+public class MapProbeInserter extends AbstractProbeInserter {
 	private int insertProbeStackSize;
-	/**
-	 * Creates a new {@link ProbeInserter}.
-	 * 
-	 * @param access
-	 *            access flags of the adapted method.
-	 * @param desc
-	 *            the method's descriptor
-	 * @param mv
-	 *            the method visitor to which this adapter delegates calls
-	 * @param arrayStrategy
-	 *            callback to create the code that retrieves the reference to
-	 *            the probe array
-	 */
-	public Asm5ProbeInserterSorter(final int access, final String desc, final MethodVisitor mv,
-			final I_JacocoProbeArrayStrategy arrayStrategy) {
-		super(ApiVersion.VERSION, access, desc,  mv);
-		this.arrayStrategy = arrayStrategy;
-		int pos = (Opcodes.ACC_STATIC & access) == 0 ? 1 : 0;
-		for (final Type t : Type.getArgumentTypes(desc)) {
-			pos += t.getSize();
-		}
-		variable = pos;
+	
+	public MapProbeInserter(final int access, final String desc, final MethodVisitor mv,
+	final I_ObtainProbesStrategy arrayStrategy) {
+		super(access, desc, mv, arrayStrategy);
 	}
 
-	/**
-	 * probeIndex ok I renamed this from id (id to what)
-	 *     I think it is the probeIndex that we are setting to true;
-	 *     
-	 * TODO ok I think this is where the booleans go
-	 * need to call put on the map
-	 */
+
 	public void insertProbe(final int probeIndex) {
 		StackHelper sh = new StackHelper();
 		
@@ -101,7 +65,7 @@ public class Asm5ProbeInserterSorter extends LocalVariablesSorter implements I_J
 	@Override
 	public void visitCode() {
 		variable = newLocal(Type.getType(MapInstrConstants.DATAFIELD_DESC));
-		accessorStackSize = arrayStrategy.createPutDataInLocal(mv, variable);
+		accessorStackSize = arrayStrategy.createProbeDataAccessorCall(mv, variable);
 		mv.visitCode();
 	}
 
@@ -115,6 +79,5 @@ public class Asm5ProbeInserterSorter extends LocalVariablesSorter implements I_J
 		final int increasedStack = Math.max(maxStack + insertProbeStackSize, accessorStackSize);
 		mv.visitMaxs(increasedStack, maxLocals + 1);
 	}
-
-
+	
 }

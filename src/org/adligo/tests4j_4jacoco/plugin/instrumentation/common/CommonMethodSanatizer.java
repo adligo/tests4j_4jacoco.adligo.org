@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.instrumentation.asm5;
+package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
 
 import org.adligo.tests4j_4jacoco.plugin.asm.ApiVersion;
 import org.objectweb.asm.Label;
@@ -17,9 +17,9 @@ import org.objectweb.asm.commons.JSRInlinerAdapter;
  * labels with ASM class files do not verify any more.</li>
  * </ul>
  */
-public class Asm5MethodSanatizer extends JSRInlinerAdapter {
+public class CommonMethodSanatizer extends JSRInlinerAdapter {
 
-	public Asm5MethodSanatizer(final MethodVisitor mv, final int access,
+	public CommonMethodSanatizer(final MethodVisitor mv, final int access,
 			final String name, final String desc, final String signature,
 			final String[] exceptions) {
 		super(ApiVersion.VERSION, mv, access, name, desc, signature, exceptions);

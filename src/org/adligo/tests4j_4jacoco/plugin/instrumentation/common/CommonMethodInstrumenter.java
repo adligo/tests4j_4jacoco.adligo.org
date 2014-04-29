@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.instrumentation.asm5;
+package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
 
 import org.adligo.tests4j_4jacoco.plugin.asm.ApiVersion;
 import org.adligo.tests4j_4jacoco.plugin.asm.BytecodeInjectionDebuger;
@@ -11,10 +11,10 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class Asm5MethodInstrumenter extends MethodVisitor
+public class CommonMethodInstrumenter extends MethodVisitor
 	implements I_MethodProbesVisitor {
 	
-	private final Asm5ProbeInserterSorter probeInserter;
+	private final AbstractProbeInserter probeInserter;
 	
 	/**
 	 * Create a new instrumenter instance for the given method.
@@ -24,7 +24,7 @@ public class Asm5MethodInstrumenter extends MethodVisitor
 	 * @param probeInserter
 	 *            call-back to insert probes where required
 	 */
-	public Asm5MethodInstrumenter(final Asm5ProbeInserterSorter lvs) {
+	public CommonMethodInstrumenter(final AbstractProbeInserter lvs) {
 		super(ApiVersion.VERSION, lvs);
 		probeInserter = lvs;
 	}

@@ -16,11 +16,14 @@ import org.objectweb.asm.MethodVisitor;
  * @author scott
  *
  */
-public interface I_DataAccessorFactory {
+public interface I_ProbeDataAccessorFactory {
 
 	/**
+	 * 
+	 * a method similar to the following;
 	 * @see IExecutionDataAccessorGenerator#generateDataAccessor(long, String, int, MethodVisitor)
-	 * this can push anything onto the stack
+	 * however this method can push any probe data type onto the stack 
+	 * not exclusively a boolean []
 	 */
 	public int create(final long classid, final String classname,
 			final int probecount, MethodVisitor mv);

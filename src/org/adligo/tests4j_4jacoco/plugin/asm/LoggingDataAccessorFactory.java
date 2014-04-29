@@ -1,6 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.asm;
 
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_DataAccessorFactory;
+import org.adligo.tests4j_4jacoco.plugin.runtime.I_ProbeDataAccessorFactory;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_LoggerDataAccessorFactory;
 import org.jacoco.core.runtime.IExecutionDataAccessorGenerator;
 import org.objectweb.asm.MethodVisitor;
@@ -39,7 +39,7 @@ public class LoggingDataAccessorFactory implements I_LoggerDataAccessorFactory, 
 	/**
 	 * push a insance of the dataTypeDesc onto the 
 	 * stack 
-	 * @see I_DataAccessorFactory#create(long, String, int, MethodVisitor)
+	 * @see I_ProbeDataAccessorFactory#create(long, String, int, MethodVisitor)
 	 */
 	public int create(final long classid, final String classname,
 			final int probecount, final MethodVisitor mv) {
@@ -128,7 +128,7 @@ public class LoggingDataAccessorFactory implements I_LoggerDataAccessorFactory, 
 		mv.visitInsn(Opcodes.AALOAD);
 		mv.visitTypeInsn(Opcodes.CHECKCAST, dataTypeDesc);
 
-		// Stack[0]: [Z
+		// Stack[0]: Map
 
 		return 5; // Maximum local stack size is 5
 	}

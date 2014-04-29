@@ -1,7 +1,8 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation;
 
 import org.adligo.tests4j.run.Tests4J_UncaughtExceptionHandler;
-import org.adligo.tests4j_4jacoco.plugin.asm.AsmMapHelper;
+import org.adligo.tests4j_4jacoco.plugin.asm.MapBytecodeHelper;
+import org.adligo.tests4j_4jacoco.plugin.asm.StackHelper;
 import org.adligo.tests4j_4jacoco.plugin.data.FrameInfo;
 import org.adligo.tests4j_4jacoco.plugin.data.FrameInfoMutant;
 import org.adligo.tests4j_4jacoco.plugin.data.I_FrameInfo;
@@ -62,18 +63,20 @@ public class JacocoProbeInserter extends MethodVisitor implements I_JacocoProbeI
 		mv.visitVarInsn(Opcodes.ALOAD, variable);
 		
 		// Stack[0]:Map
+		StackHelper sh = new StackHelper();
 		
-		AsmMapHelper.callMapPut(probeIndex, true, mv);
+		MapBytecodeHelper.callMapPut(sh, probeIndex, true, mv);
 		// Stack[0]:Map
 
 		mv.visitVarInsn(Opcodes.ASTORE, variable);
+		sh.decrementStackSize();
 		
 		//nothing on the stack at this scope
 	}
 
 	@Override
 	public void visitCode() {
-		accessorStackSize = arrayStrategy.storeInstance(mv, variable);
+		accessorStackSize = arrayStrategy.createPutDataInLocal(mv, variable);
 		mv.visitCode();
 	}
 

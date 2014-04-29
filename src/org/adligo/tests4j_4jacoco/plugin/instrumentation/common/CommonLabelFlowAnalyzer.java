@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.instrumentation.asm5;
+package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
 
 import org.adligo.tests4j_4jacoco.plugin.asm.ApiVersion;
 import org.jacoco.core.internal.flow.LabelInfo;
@@ -9,7 +9,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 
-public class Asm5LabelFlowAnalyzer extends MethodVisitor {
+public class CommonLabelFlowAnalyzer extends MethodVisitor {
 
 		/**
 		 * Marks all labels of the method with control flow information.
@@ -20,7 +20,7 @@ public class Asm5LabelFlowAnalyzer extends MethodVisitor {
 		public static void markLabels(final MethodNode method) {
 			// We do not use the accept() method as ASM resets labels after every
 			// call to accept()
-			final MethodVisitor lfa = new Asm5LabelFlowAnalyzer();
+			final MethodVisitor lfa = new CommonLabelFlowAnalyzer();
 			for (int i = method.tryCatchBlocks.size(); --i >= 0;) {
 				((TryCatchBlockNode) method.tryCatchBlocks.get(i)).accept(lfa);
 			}
@@ -42,7 +42,7 @@ public class Asm5LabelFlowAnalyzer extends MethodVisitor {
 		/**
 		 * Create new instance.
 		 */
-		public Asm5LabelFlowAnalyzer() {
+		public CommonLabelFlowAnalyzer() {
 			super(ApiVersion.VERSION);
 		}
 

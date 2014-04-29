@@ -1,13 +1,15 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation.asm5;
 
 import org.adligo.tests4j.run.Tests4J_UncaughtExceptionHandler;
-import org.adligo.tests4j_4jacoco.plugin.asm.AsmApiVersion;
-import org.adligo.tests4j_4jacoco.plugin.asm.AsmMapHelper;
+import org.adligo.tests4j_4jacoco.plugin.asm.ApiVersion;
+import org.adligo.tests4j_4jacoco.plugin.asm.MapBytecodeHelper;
+import org.adligo.tests4j_4jacoco.plugin.asm.BytecodeInjectionDebuger;
+import org.adligo.tests4j_4jacoco.plugin.asm.StackHelper;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_ClassProbesVisitor;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_JacocoProbeArrayStrategy;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_MethodProbesVisitor;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.MapInstrConstants;
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_DataAccessorFactory;
+import org.adligo.tests4j_4jacoco.plugin.runtime.I_ProbeDataAccessorFactory;
 import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -24,7 +26,7 @@ public class Asm5ClassInstrumenter extends ClassVisitor
 
 		private final long id;
 
-		private final I_DataAccessorFactory accessorGenerator;
+		private final I_ProbeDataAccessorFactory accessorGenerator;
 
 		private I_JacocoProbeArrayStrategy probeArrayStrategy;
 
@@ -46,9 +48,9 @@ public class Asm5ClassInstrumenter extends ClassVisitor
 		 *            instrumented class
 		 */
 		public Asm5ClassInstrumenter(final long id,
-				final I_DataAccessorFactory accessorGenerator,
+				final I_ProbeDataAccessorFactory accessorGenerator,
 				final ClassVisitor cv) {
-			super(AsmApiVersion.VERSION, cv);
+			super(ApiVersion.VERSION, cv);
 			this.id = id;
 			this.accessorGenerator = accessorGenerator;
 		}
@@ -112,7 +114,8 @@ public class Asm5ClassInstrumenter extends ClassVisitor
 
 		@Override
 		public void visitEnd() {
-			probeArrayStrategy.addMembers(cv);
+			probeArrayStrategy.createJacocoData(cv);
+			probeArrayStrategy.createJacocoInit(cv);
 			super.visitEnd();
 		}
 
@@ -121,7 +124,7 @@ public class Asm5ClassInstrumenter extends ClassVisitor
 		private class ClassTypeStrategy implements I_JacocoProbeArrayStrategy {
 
 			
-			public int storeInstance(final MethodVisitor mv, final int variable) {
+			public int createPutDataInLocal(final MethodVisitor mv, final int variable) {
 				mv.visitMethodInsn(Opcodes.INVOKESTATIC, className,
 						//InstrSupport.INITMETHOD_NAME, InstrSupport.INITMETHOD_DESC);
 						InstrSupport.INITMETHOD_NAME, MapInstrConstants.INIT_METHOD_DESC,
@@ -130,8 +133,11 @@ public class Asm5ClassInstrumenter extends ClassVisitor
 				return 1;
 			}
 
-			public void addMembers(final ClassVisitor delegate) {
+			public void createJacocoData(final ClassVisitor delegate) {
 				createDataField();
+			}	
+			
+			public void createJacocoInit(final ClassVisitor delegate) {
 				createInitMethod(probeCount);
 			}
 
@@ -143,39 +149,75 @@ public class Asm5ClassInstrumenter extends ClassVisitor
 			}
 
 			private void createInitMethod(final int probeCount) {
+				
 				final MethodVisitor mv = cv.visitMethod(
 						InstrSupport.INITMETHOD_ACC, InstrSupport.INITMETHOD_NAME,
 						//InstrSupport.INITMETHOD_DESC, null, null);
 						MapInstrConstants.INIT_METHOD_DESC, null, null);
 				
+				
 				mv.visitCode();
 
+				StackHelper sh = new StackHelper();
+				
 				// Load the value of the static data field:
-				AsmMapHelper.moveMapToStack(mv, className);
+				MapBytecodeHelper.moveMapToStack(sh, mv, className);
+				
 				mv.visitInsn(Opcodes.DUP);
-
+				if (BytecodeInjectionDebuger.isEnabled()) {
+					BytecodeInjectionDebuger.dupStackDebug();
+				}
+				sh.incrementStackSize();
+				// Stack[1]: Map
+				// Stack[0]: Map
+				
+				
+				if (BytecodeInjectionDebuger.isEnabled()) {
+					System.out.println("in createInitMethod for " + className + " scott probe count is " + probeCount);
+					BytecodeInjectionDebuger.log(sh, mv, 
+							"in "+ className + ".jacocoInit() scott probe count is " + probeCount);
+					
+				}
 				// Stack[1]: Map
 				// Stack[0]: Map
 
 				// Skip initialization when we already have a data array:
 				final Label alreadyInitialized = new Label();
 				mv.visitJumpInsn(Opcodes.IFNONNULL, alreadyInitialized);
-
+				if (BytecodeInjectionDebuger.isEnabled()) {
+					BytecodeInjectionDebuger.popOffStackDebug();
+				}
+				sh.decrementStackSize();
 				// Stack[0]: Map
-
+				
 				mv.visitInsn(Opcodes.POP);
-				final int size = genInitializeDataField(mv, probeCount);
+				if (BytecodeInjectionDebuger.isEnabled()) {
+					BytecodeInjectionDebuger.popOffStackDebug();
+				}
+				sh.decrementStackSize();
+				
+				genInitializeDataField(sh, mv, probeCount);
 
+				if (BytecodeInjectionDebuger.isEnabled()) {
+					BytecodeInjectionDebuger.log(sh, mv, 
+							"finished genInitializeDataField in " + className + ".jacocoInit() \n" +
+					sh);
+				}
 				// Stack[0]: Map
 
 				// Return the class' probe Map:
 				if (withFrames) {
 					mv.visitFrame(Opcodes.F_NEW, 0, NO_LOCALS, 1, MapInstrConstants.DATAFIELD_INSTANCE);
 				}
+				
+				
 				mv.visitLabel(alreadyInitialized);
 				mv.visitInsn(Opcodes.ARETURN);
 
-				mv.visitMaxs(Math.max(size, 2), 0); // Maximum local stack size is 2
+				if (BytecodeInjectionDebuger.isEnabled()) {
+					BytecodeInjectionDebuger.popOffStackDebug();
+				}
+				mv.visitMaxs(sh.getMaxStackSize(), 1); 
 				mv.visitEnd();
 			}
 
@@ -188,24 +230,54 @@ public class Asm5ClassInstrumenter extends ClassVisitor
 			 * @param mv
 			 *            generator to emit code to
 			 */
-			private int genInitializeDataField(final MethodVisitor mv,
+			private void genInitializeDataField(final StackHelper sh,  final MethodVisitor mv,
 					final int probeCount) {
+				
+				if (BytecodeInjectionDebuger.isEnabled()) {
+					BytecodeInjectionDebuger.log(sh, mv,
+							"before accessorGenerator.create " + className + ".jacocoInit()  " + 
+							"\n" + sh);
+				}
 				final int size = accessorGenerator.create(id,
 						className, probeCount, mv);
-
-				// Stack[0]: Map
-
-				int maxPut = 0;
-				for (int i = 0; i < probeCount; i++) {
-					 maxPut =AsmMapHelper.callMapPut(i, false, mv);
+				if (BytecodeInjectionDebuger.isEnabled()) {
+					BytecodeInjectionDebuger.putInStackDebug(MapInstrConstants.DATAFIELD_CLAZZ);	
+				}
+				sh.incrementStackSize(size);
+				sh.decrementStackSize(size -1);
+				if (BytecodeInjectionDebuger.isEnabled()) {
+					BytecodeInjectionDebuger.log(sh, mv,
+							"after accessorGenerator.create " + className + ".jacocoInit()  "
+							+ "\n" + sh);
 				}
 				
 				// Stack[0]: Map
-				AsmMapHelper.moveMapToField(mv, className);
 
+				for (int i = 0; i < probeCount; i++) {
+					mv.visitInsn(Opcodes.DUP);
+					sh.incrementStackSize();
+					if (BytecodeInjectionDebuger.isEnabled()) {
+						BytecodeInjectionDebuger.dupStackDebug();
+					}
+					
+					// Stack[1]: Map
+					// Stack[0]: Map
+					
+					MapBytecodeHelper.callMapPut(sh, i, false, mv);
+					
+					// Stack[0]: Map
+				}
+				
+				
+				if (BytecodeInjectionDebuger.isEnabled()) {
+					BytecodeInjectionDebuger.log(sh, mv,
+							"putting map back to static field " + className + ".jacocoInit() " + sh);
+				}
+				
 				// Stack[0]: Map
-
-				return Math.max(size, maxPut); 
+				MapBytecodeHelper.moveMapToField(sh, mv, className);
+				
+				// Stack[0]: Map
 			}
 
 			
@@ -213,17 +285,20 @@ public class Asm5ClassInstrumenter extends ClassVisitor
 
 		private class InterfaceTypeStrategy implements I_JacocoProbeArrayStrategy {
 
-			public int storeInstance(final MethodVisitor mv, final int variable) {
+			public int createPutDataInLocal(final MethodVisitor mv, final int variable) {
 				final int maxStack = accessorGenerator.create(id,
 						className, probeCount, mv);
 				mv.visitVarInsn(Opcodes.ASTORE, variable);
 				return maxStack;
 			}
 
-			public void addMembers(final ClassVisitor delegate) {
-				// nothing to do
+			public void createJacocoData(final ClassVisitor delegate) {
+				//do nothing
+			}	
+			
+			public void createJacocoInit(final ClassVisitor delegate) {
+				//do nothing
 			}
-
 		}
 
 		@Override

@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.instrumentation.asm5;
+package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,7 +10,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_ProbeDataAccessorFactory;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 import org.jacoco.core.internal.ContentTypeDetector;
 import org.jacoco.core.internal.Pack200Streams;
@@ -22,9 +21,9 @@ import org.objectweb.asm.ClassWriter;
 /**
  * Several APIs to instrument Java class definitions for coverage tracing.
  */
-public class Asm5MapDataInstrumenter implements I_Instrumenter {
+public class CommonDataInstrumenter implements I_Instrumenter {
 
-	private final I_ProbeDataAccessorFactory accessGenerator;
+	private final I_InstrumenterFactory instrumenterFactory;
 
 	private final SignatureRemover signatureRemover;
 	
@@ -34,8 +33,8 @@ public class Asm5MapDataInstrumenter implements I_Instrumenter {
 	 * @param runtime
 	 *            runtime used by the instrumented classes
 	 */
-	public Asm5MapDataInstrumenter(final I_ProbeDataAccessorFactory dataAccessorFactory) {
-		this.accessGenerator = dataAccessorFactory;
+	public CommonDataInstrumenter(final I_InstrumenterFactory pInstrumenterFactory) {
+		instrumenterFactory = pInstrumenterFactory;
 		this.signatureRemover = new SignatureRemover();
 	}
 
@@ -58,9 +57,9 @@ public class Asm5MapDataInstrumenter implements I_Instrumenter {
 	 */
 	private ClassVisitor createInstrumentingVisitor(final long classid,
 			final ClassVisitor cv) {
-		Asm5ClassInstrumenter jci = new Asm5ClassInstrumenter(classid,
-				accessGenerator, cv);
-		return new Asm5ClassProbesAdapter(jci, true);
+		CommonClassInstrumenter jci = new CommonClassInstrumenter(classid,
+				instrumenterFactory, cv);
+		return new CommonClassProbesAdapter(jci, true);
 	}
 
 	/* (non-Javadoc)

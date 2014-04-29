@@ -1,7 +1,8 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation;
 
 import org.adligo.tests4j.run.Tests4J_UncaughtExceptionHandler;
-import org.adligo.tests4j_4jacoco.plugin.asm.AsmMapHelper;
+import org.adligo.tests4j_4jacoco.plugin.asm.MapBytecodeHelper;
+import org.adligo.tests4j_4jacoco.plugin.asm.StackHelper;
 import org.jacoco.core.internal.flow.ClassProbesVisitor;
 import org.jacoco.core.internal.flow.MethodProbesVisitor;
 import org.jacoco.core.internal.instr.InstrSupport;
@@ -97,7 +98,8 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 
 		@Override
 		public void visitEnd() {
-			probeArrayStrategy.addMembers(cv);
+			probeArrayStrategy.createJacocoData(cv);
+			probeArrayStrategy.createJacocoInit(cv);
 			super.visitEnd();
 		}
 
@@ -106,7 +108,7 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 		private class ClassTypeStrategy implements I_JacocoProbeArrayStrategy {
 
 			
-			public int storeInstance(final MethodVisitor mv, final int variable) {
+			public int createPutDataInLocal(final MethodVisitor mv, final int variable) {
 				mv.visitMethodInsn(Opcodes.INVOKESTATIC, className,
 						//InstrSupport.INITMETHOD_NAME, InstrSupport.INITMETHOD_DESC);
 						InstrSupport.INITMETHOD_NAME, MapInstrConstants.INIT_METHOD_DESC,
@@ -115,8 +117,11 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 				return 1;
 			}
 
-			public void addMembers(final ClassVisitor delegate) {
+			public void createJacocoData(final ClassVisitor delegate) {
 				createDataField();
+			}	
+			
+			public void createJacocoInit(final ClassVisitor delegate) {
 				createInitMethod(probeCount);
 			}
 
@@ -135,21 +140,26 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 				
 				mv.visitCode();
 
+				StackHelper sh = new StackHelper();
 				// Load the value of the static data field:
-				AsmMapHelper.moveMapToStack(mv, className);
+				MapBytecodeHelper.moveMapToStack(sh, mv, className);
+				
 				mv.visitInsn(Opcodes.DUP);
-
+				sh.incrementStackSize();
 				// Stack[1]: Map
 				// Stack[0]: Map
 
 				// Skip initialization when we already have a data array:
 				final Label alreadyInitialized = new Label();
 				mv.visitJumpInsn(Opcodes.IFNONNULL, alreadyInitialized);
-
+				sh.decrementStackSize();
+				
 				// Stack[0]: Map
 
 				mv.visitInsn(Opcodes.POP);
-				final int size = genInitializeDataField(mv, probeCount);
+				sh.decrementStackSize();
+				
+				genInitializeDataField(sh, mv, probeCount);
 
 				// Stack[0]: Map
 
@@ -160,7 +170,7 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 				mv.visitLabel(alreadyInitialized);
 				mv.visitInsn(Opcodes.ARETURN);
 
-				mv.visitMaxs(Math.max(size, 2), 0); // Maximum local stack size is 2
+				mv.visitMaxs(sh.getMaxStackSize(), 0); // Maximum local stack size is 2
 				mv.visitEnd();
 			}
 
@@ -173,24 +183,22 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 			 * @param mv
 			 *            generator to emit code to
 			 */
-			private int genInitializeDataField(final MethodVisitor mv,
+			private void genInitializeDataField(final StackHelper sh, final MethodVisitor mv,
 					final int probeCount) {
 				final int size = accessorGenerator.generateDataAccessor(id,
 						className, probeCount, mv);
-
+				sh.incrementStackSize(size);
+				sh.decrementStackSize(size - 1);
 				// Stack[0]: Map
 
-				int maxPut = 0;
 				for (int i = 0; i < probeCount; i++) {
-					 maxPut =AsmMapHelper.callMapPut(i, false, mv);
+					MapBytecodeHelper.callMapPut(sh, i, false, mv);
 				}
 				
 				// Stack[0]: Map
-				AsmMapHelper.moveMapToField(mv, className);
+				MapBytecodeHelper.moveMapToField(sh, mv, className);
 
 				// Stack[0]: Map
-
-				return Math.max(size, maxPut); 
 			}
 
 			
@@ -198,15 +206,19 @@ public class JacocoClassInstrumenter extends ClassProbesVisitor {
 
 		private class InterfaceTypeStrategy implements I_JacocoProbeArrayStrategy {
 
-			public int storeInstance(final MethodVisitor mv, final int variable) {
+			public int createPutDataInLocal(final MethodVisitor mv, final int variable) {
 				final int maxStack = accessorGenerator.generateDataAccessor(id,
 						className, probeCount, mv);
 				mv.visitVarInsn(Opcodes.ASTORE, variable);
 				return maxStack;
 			}
 
-			public void addMembers(final ClassVisitor delegate) {
-				// nothing to do
+			public void createJacocoData(final ClassVisitor delegate) {
+				//do nothing
+			}	
+			
+			public void createJacocoInit(final ClassVisitor delegate) {
+				//do nothing
 			}
 
 		}

@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.instrumentation.asm5;
+package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
 
 import org.adligo.tests4j_4jacoco.plugin.asm.ApiVersion;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_MethodProbesVisitor;
@@ -10,7 +10,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AnalyzerAdapter;
 
-public class Asm5MethodProbesAdapter extends MethodVisitor {
+public class CommonMethodProbesAdapter extends MethodVisitor {
 
 		private final I_MethodProbesVisitor probesVisitor;
 
@@ -26,7 +26,7 @@ public class Asm5MethodProbesAdapter extends MethodVisitor {
 		 * @param idGenerator
 		 *            generator for unique probe ids
 		 */
-		public Asm5MethodProbesAdapter(final I_MethodProbesVisitor probesVisitor,
+		public CommonMethodProbesAdapter(final I_MethodProbesVisitor probesVisitor,
 				
 				final I_ProbeIdGenerator idGenerator) {
 			super(ApiVersion.VERSION, probesVisitor.getThis());
@@ -140,7 +140,7 @@ public class Asm5MethodProbesAdapter extends MethodVisitor {
 		}
 
 		private IFrame frame(final int popCount) {
-			return Asm5FrameSnapshot.create(analyzer, popCount);
+			return CommonFrameSnapshot.create(analyzer, popCount);
 		}
 
 	}
