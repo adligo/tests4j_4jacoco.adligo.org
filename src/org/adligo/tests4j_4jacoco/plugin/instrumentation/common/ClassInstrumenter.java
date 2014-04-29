@@ -2,6 +2,7 @@ package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
 
 import org.adligo.tests4j.run.Tests4J_UncaughtExceptionHandler;
 import org.adligo.tests4j_4jacoco.plugin.asm.ApiVersion;
+import org.adligo.tests4j_4jacoco.plugin.asm.BytecodeInjectionDebuger;
 import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -82,8 +83,10 @@ public class ClassInstrumenter extends ClassVisitor
 
 			final MethodVisitor mv = cv.visitMethod(access, name, desc, signature,
 					exceptions);
-			Tests4J_UncaughtExceptionHandler.OUT.println("" + this.getClass().getName() +
+			if (BytecodeInjectionDebuger.isEnabled()) {
+				System.out.println("" + this.getClass().getName() +
 					"\n ... visiting " + className + "." + name);
+			}
 			if (mv == null) {
 				return null;
 			}
