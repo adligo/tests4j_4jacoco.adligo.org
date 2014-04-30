@@ -9,7 +9,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AnalyzerAdapter;
 
 public class BytecodeInjectionDebuger {
-	private static boolean enabled = false;
+	private static boolean enabled = true;
 	private static Stack<String> stackDebug = new Stack<String>();
 	
 	public static void log(StackHelper sh, MethodVisitor mv, String p) {

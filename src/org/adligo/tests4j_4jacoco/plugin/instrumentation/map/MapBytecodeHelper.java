@@ -54,6 +54,7 @@ public class MapBytecodeHelper {
 		if (BytecodeInjectionDebuger.isEnabled()) {
 			BytecodeInjectionDebuger.popOffStackDebug(3);
 		}
+		mv.visitInsn(Opcodes.POP);
 		sh.decrementStackSize(3);
 		//stack empty
 	}

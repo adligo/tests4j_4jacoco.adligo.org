@@ -37,27 +37,8 @@ public class MapProbeInserter extends AbstractProbeInserter {
 		
 		// Stack[0]:Map
 		
-		mv.visitInsn(Opcodes.DUP);
-		sh.incrementStackSize();
-		if (BytecodeInjectionDebuger.isEnabled()) {
-			BytecodeInjectionDebuger.dupStackDebug();
-		}
-		
-		// Stack[1]:Map
-		// Stack[0]:Map
-		
 		MapBytecodeHelper.callMapPut(sh, probeIndex, true, mv);
-		// Stack[0]:Map
-
-		mv.visitVarInsn(Opcodes.ASTORE, variable);
-		sh.decrementStackSize();
-		if (BytecodeInjectionDebuger.isEnabled()) {
-			BytecodeInjectionDebuger.popOffStackDebug();
-			BytecodeInjectionDebuger.log(sh, mv, " stackCheck ");
-			
-		}
 		insertProbeStackSize = sh.getMaxStackSize();
-		//nothing on the stack at this scope
 	}
 
 	@Override

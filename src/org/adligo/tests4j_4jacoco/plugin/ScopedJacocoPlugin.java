@@ -2,6 +2,7 @@ package org.adligo.tests4j_4jacoco.plugin;
 
 import java.util.logging.Handler;
 
+import org.adligo.tests4j_4jacoco.plugin.data.map.MapRuntimeData;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.DataInstrumenter;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrumenterFactory;
@@ -25,7 +26,7 @@ public class ScopedJacocoPlugin extends AbstractJacocoPlugin {
 		MapInstrumenterFactory instrFactory = new MapInstrumenterFactory(factory);
 		DataInstrumenter cdi = new DataInstrumenter(instrFactory);
 		SimpleLoggerRuntime runtime = new SimpleLoggerRuntime(factory);
-		runtime.setup(new SimpleRuntimeData());
+		runtime.setup(new MapRuntimeData());
 		memory = new JacocoMemory(runtime, cdi);
 	}
 

@@ -65,7 +65,6 @@ public class MethodInstrumenter extends MethodVisitor
 					*/
 			probeInserter.visitLabel(intermediate);
 			frame.accept(probeInserter);
-			
 		}
 	}
 
