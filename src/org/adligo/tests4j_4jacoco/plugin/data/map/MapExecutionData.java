@@ -20,7 +20,7 @@ public final class MapExecutionData implements I_ExecutionClassData {
 
 		private final String name;
 
-		private final boolean[] probes;
+		private final SimpleProbesMap probes;
 
 		/**
 		 * Creates a new {@link ExecutionData} object with the given probe data.
@@ -32,11 +32,11 @@ public final class MapExecutionData implements I_ExecutionClassData {
 		 * @param probes
 		 *            probe data
 		 */
-		public MapExecutionData(final long id, final String name,
-				final boolean[] probes) {
-			this.id = id;
-			this.name = name;
-			this.probes = probes;
+		public MapExecutionData(final long pId, final String pName,
+				final boolean[] pProbes) {
+			id = pId;
+			name = pName;
+			probes = new SimpleProbesMap(pProbes);
 		}
 
 		/**
@@ -53,7 +53,7 @@ public final class MapExecutionData implements I_ExecutionClassData {
 		public MapExecutionData(final long id, final String name, final int probeCount) {
 			this.id = id;
 			this.name = name;
-			this.probes = new boolean[probeCount];
+			this.probes = new SimpleProbesMap(probeCount);
 		}
 
 		/**
@@ -82,17 +82,17 @@ public final class MapExecutionData implements I_ExecutionClassData {
 		 * @return probe data
 		 */
 		public Map<Integer,Boolean> getProbes() {
-			return SimpleProbes.toArray(probes);
+			return probes;
 		}
 
 		public boolean[] getProbesArray() {
-			return probes;
+			return probes.toArray();
 		}
 		/**
 		 * Sets all probes to <code>false</code>.
 		 */
 		public void reset() {
-			Arrays.fill(probes, false);
+			probes.reset();
 		}
 
 		/**
@@ -141,9 +141,9 @@ public final class MapExecutionData implements I_ExecutionClassData {
 			assertCompatibility(other.getId(), other.getName(),
 					other.getProbesArray().length);
 			final boolean[] otherData = other.getProbesArray();
-			for (int i = 0; i < probes.length; i++) {
+			for (int i = 0; i < probes.size(); i++) {
 				if (otherData[i]) {
-					probes[i] = flag;
+					probes.put(i, flag);
 				}
 			}
 		}
@@ -174,7 +174,7 @@ public final class MapExecutionData implements I_ExecutionClassData {
 						"Different class names %s and %s for id %016x.", this.name,
 						name, Long.valueOf(id)));
 			}
-			if (this.probes.length != probecount) {
+			if (this.probes.size() != probecount) {
 				throw new IllegalStateException(format(
 						"Incompatible execution data for class %s with id %016x.",
 						name, Long.valueOf(id)));

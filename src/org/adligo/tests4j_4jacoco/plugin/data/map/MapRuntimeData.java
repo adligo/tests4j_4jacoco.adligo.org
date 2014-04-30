@@ -4,7 +4,6 @@ import org.adligo.tests4j_4jacoco.plugin.data.I_ExecutionDataStore;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_JacocoRuntimeData;
 import org.jacoco.core.data.IExecutionDataVisitor;
 import org.jacoco.core.data.ISessionInfoVisitor;
-import org.jacoco.core.data.SessionInfo;
 import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -13,7 +12,6 @@ public class MapRuntimeData implements I_JacocoRuntimeData {
 	/** store for execution data */
 	protected final MapDataStore store;
 	
-	private long startTimeStamp;
 
 	private String sessionId;
 
@@ -23,7 +21,6 @@ public class MapRuntimeData implements I_JacocoRuntimeData {
 	public MapRuntimeData() {
 		store = new MapDataStore();
 		sessionId = "<none>";
-		startTimeStamp = System.currentTimeMillis();
 	}
 
 	/**
@@ -57,7 +54,6 @@ public class MapRuntimeData implements I_JacocoRuntimeData {
 	public final void reset() {
 		synchronized (store) {
 			store.reset();
-			startTimeStamp = System.currentTimeMillis();
 		}
 	}
 
