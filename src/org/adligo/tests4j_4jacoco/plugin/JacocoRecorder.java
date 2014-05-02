@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
 import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Logger;
+import org.adligo.tests4j.models.shared.system.report.I_Tests4J_Reporter;
 import org.adligo.tests4j_4jacoco.plugin.analysis.JacocoAnalyzer;
 import org.adligo.tests4j_4jacoco.plugin.data.I_ExecutionDataStore;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassNameToInputStream;
@@ -23,16 +23,16 @@ import org.jacoco.core.data.SessionInfoStore;
 import org.jacoco.core.runtime.IRuntime;
 
 public class JacocoRecorder implements I_CoverageRecorder {
-	protected I_Tests4J_Logger log;
+	protected I_Tests4J_Reporter reporter;
 	protected JacocoMemory memory;
 	private boolean root;
 	private String scope;
 	
 	
-	public JacocoRecorder(String pScope, JacocoMemory pMemory, I_Tests4J_Logger pLog) {
+	public JacocoRecorder(String pScope, JacocoMemory pMemory, I_Tests4J_Reporter pLog) {
 		scope = pScope;
 		memory = pMemory;
-		log = pLog;
+		reporter = pLog;
 	}
 	
 	@Override
@@ -68,11 +68,12 @@ public class JacocoRecorder implements I_CoverageRecorder {
 			
 			final CoverageBuilder coverageBuilder = new CoverageBuilder();
 			final JacocoAnalyzer analyzer = new JacocoAnalyzer(executionData, coverageBuilder);
-			logCoverage(coverageBuilder, analyzer,
-					"org.adligo.tests4j.models.shared.AbstractTrial");
-			logCoverage(coverageBuilder, analyzer,
-					"org.adligo.tests4j.models.shared.system.ByteListOutputStream");
-						
+			if (reporter.isLogEnabled(JacocoRecorder.class.getName())) {
+				logCoverage(coverageBuilder, analyzer,
+						"org.adligo.tests4j.models.shared.AbstractTrial");
+				logCoverage(coverageBuilder, analyzer,
+						"org.adligo.tests4j.models.shared.system.ByteListOutputStream");
+			}
 		} catch (Exception x) {
 			x.printStackTrace();
 		}
@@ -87,7 +88,7 @@ public class JacocoRecorder implements I_CoverageRecorder {
 		Collection<ISourceFileCoverage> sourceCoverages = coverageBuilder.getSourceFiles();
 		// Let's dump some metrics and line coverage information:
 		for (final ISourceFileCoverage cc : sourceCoverages) {
-			log.log("Coverage of class " + cc.getName());
+			reporter.log("Coverage of class " + cc.getName());
 
 			printCounter("instructions", cc.getInstructionCounter());
 			printCounter("branches", cc.getBranchCounter());
@@ -100,7 +101,7 @@ public class JacocoRecorder implements I_CoverageRecorder {
 				if (line.getInstructionCounter().getCoveredCount() >= 1 
 						|| line.getBranchCounter().getCoveredCount() >= 1) {
 					
-						log.log("Line " + i + " instructions " + 
+						reporter.log("Line " + i + " instructions " + 
 								line.getInstructionCounter().getCoveredCount() +
 								"/" +
 								line.getInstructionCounter().getTotalCount() + 
@@ -118,7 +119,7 @@ public class JacocoRecorder implements I_CoverageRecorder {
 	private void printCounter(final String unit, final ICounter counter) {
 		final Integer missed = Integer.valueOf(counter.getMissedCount());
 		final Integer total = Integer.valueOf(counter.getTotalCount());
-		log.log("" + missed + " of " + total + " missed " + unit);
+		reporter.log("" + missed + " of " + total + " missed " + unit);
 	}
 
 	public boolean isRoot() {

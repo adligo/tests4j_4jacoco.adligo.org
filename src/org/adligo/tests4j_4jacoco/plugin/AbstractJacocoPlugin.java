@@ -14,8 +14,8 @@ import org.adligo.tests4j.models.shared.PackageScope;
 import org.adligo.tests4j.models.shared.SourceFileScope;
 import org.adligo.tests4j.models.shared.system.I_CoveragePlugin;
 import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Logger;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Params;
+import org.adligo.tests4j.models.shared.system.report.I_Tests4J_Reporter;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassDiscovery;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassNameToInputStream;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.MemoryClassLoader;
@@ -24,13 +24,13 @@ import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 
 public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 	protected JacocoMemory memory;
-	private I_Tests4J_Logger log;
+	private I_Tests4J_Reporter reporter;
 	private boolean writeOutInstrumentedClassFiles = false;
 	private AtomicBoolean firstRecorder = new AtomicBoolean(false);
 	
 	@Override
 	public List<Class<? extends I_AbstractTrial>> instrumentClasses(I_Tests4J_Params pParams) {
-		log = pParams.getLog();
+		reporter = pParams.getReporter();
 		PackageSet packages = getPackages(pParams);
 		memory.setPackages(packages);
 		return loadClasses(packages, pParams);
@@ -103,8 +103,8 @@ public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 	}
 	private Class<?> loadClassInternal(String clazzName) throws IOException,
 			ClassNotFoundException {
-		if (log.isEnabled()) {
-			log.log("loading class " + clazzName);
+		if (reporter.isLogEnabled(AbstractJacocoPlugin.class.getName())) {
+			reporter.log("loading class " + clazzName);
 		}
 		MemoryClassLoader memoryClassLoader = memory.getMemoryClassLoader();
 		I_Instrumenter instr = memory.getInstrumenter();
@@ -142,7 +142,7 @@ public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 	
 	@Override
 	public synchronized I_CoverageRecorder createRecorder(String scope) {
-		JacocoRecorder rec = new JacocoRecorder(scope, memory, log);
+		JacocoRecorder rec = new JacocoRecorder(scope, memory, reporter);
 		if (!firstRecorder.get()) {
 			firstRecorder.set(true);
 			rec.setRoot(true);
@@ -154,8 +154,8 @@ public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 		return memory;
 	}
 
-	public I_Tests4J_Logger getLog() {
-		return log;
+	public I_Tests4J_Reporter getReporter() {
+		return reporter;
 	}
 
 	public boolean isWriteOutInstrumentedClassFiles() {
@@ -166,8 +166,8 @@ public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 		this.memory = memory;
 	}
 
-	public void setLog(I_Tests4J_Logger log) {
-		this.log = log;
+	public void setReporter(I_Tests4J_Reporter log) {
+		this.reporter = log;
 	}
 
 	public void setWriteOutInstrumentedClassFiles(

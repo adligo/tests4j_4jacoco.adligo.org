@@ -9,6 +9,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ *  a temp class
+ *  to prove that swapping out the boolean[]
+ *  with a Map will work!
+ *  
+ * @author scott
+ *
+ */
 public class SimpleProbesMap implements Map<Integer, Boolean> {
 	private boolean [] probeData;
 	
