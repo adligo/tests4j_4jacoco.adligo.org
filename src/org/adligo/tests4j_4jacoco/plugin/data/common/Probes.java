@@ -10,6 +10,13 @@ import java.util.Arrays;
 public class Probes implements I_Probes {
 	private boolean[] probes;
 	
+	public Probes(I_Probes other) {
+		probes = new boolean[other.size()];
+		for (int i = 0; i < other.size(); i++) {
+			probes[i] = other.get(i);
+		}
+	}
+	
 	public Probes(boolean [] pProbes) {
 		probes = Arrays.copyOf(pProbes, pProbes.length);
 	}

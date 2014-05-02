@@ -3,8 +3,19 @@ package org.adligo.tests4j_4jacoco.plugin.data.common;
 public class ProbesMutant implements I_Probes {
 	private boolean[] probes;
 
+	public ProbesMutant() {
+		probes = new boolean[]{};
+	}
+	
 	public ProbesMutant(boolean [] pProbes) {
 		probes = pProbes;
+	}
+	
+	public ProbesMutant(I_Probes other) {
+		probes = new boolean[other.size()];
+		for (int i = 0; i < other.size(); i++) {
+			probes[i] = other.get(i);
+		}
 	}
 	
 	@Override
@@ -25,5 +36,9 @@ public class ProbesMutant implements I_Probes {
 	@Override
 	public int size() {
 		return probes.length;
+	}
+	
+	public boolean[] getArray() {
+		return probes;
 	}
 }

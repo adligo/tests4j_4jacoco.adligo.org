@@ -12,7 +12,7 @@ import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class SimpleRuntimeData implements I_ProbesDataStoreAdaptor {
+public class SimpleProbesDataStoreAdaptor implements I_ProbesDataStoreAdaptor {
 	/** store for execution data */
 	protected final ExecutionDataStore store;
 	
@@ -23,7 +23,7 @@ public class SimpleRuntimeData implements I_ProbesDataStoreAdaptor {
 	/**
 	 * Creates a new runtime.
 	 */
-	public SimpleRuntimeData() {
+	public SimpleProbesDataStoreAdaptor() {
 		store = new ExecutionDataStore();
 		sessionId = "<none>";
 		startTimeStamp = System.currentTimeMillis();

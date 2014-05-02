@@ -5,10 +5,10 @@ public class ClassProbes implements I_ClassProbes {
 	private long classId;
 	private String className;
 	
-	public ClassProbes(I_Probes pProbes, long pClassId, String pClassName) {
-		probes = pProbes;
-		classId = pClassId;
-		className = pClassName;
+	public ClassProbes(I_ClassProbes other) {
+		probes = new Probes(other.getProbes());
+		classId = other.getClassId();
+		className = other.getClassName();
 	}
 	
 	@Override

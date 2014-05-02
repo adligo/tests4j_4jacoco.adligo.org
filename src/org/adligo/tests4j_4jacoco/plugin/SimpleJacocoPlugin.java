@@ -9,7 +9,7 @@ import org.adligo.tests4j_4jacoco.plugin.instrumentation.boolean_array.BooleanAr
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.DataInstrumenter;
 import org.adligo.tests4j_4jacoco.plugin.runtime.simple.ProbeDataAccessorByLoggingApiFactory;
 import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleLoggerRuntime;
-import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleRuntimeData;
+import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleProbesDataStoreAdaptor;
 import org.jacoco.core.internal.instr.InstrSupport;
 
 /**
@@ -27,7 +27,7 @@ public class SimpleJacocoPlugin extends AbstractPlugin {
 		BooleanArrayInstrumenterFactory instrFactory = new BooleanArrayInstrumenterFactory(factory);
 		DataInstrumenter cdi = new DataInstrumenter(instrFactory);
 		SimpleLoggerRuntime runtime = new SimpleLoggerRuntime(factory);
-		runtime.setup(new SimpleRuntimeData());
+		runtime.setup(new SimpleProbesDataStoreAdaptor());
 		memory = new Tests4J_4JacocoMemory(runtime, cdi);
 	}
 

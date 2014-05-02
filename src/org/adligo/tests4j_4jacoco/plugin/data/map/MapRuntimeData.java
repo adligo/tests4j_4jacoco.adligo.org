@@ -71,7 +71,7 @@ public class MapRuntimeData extends AbstractRuntimeData implements I_ProbesDataS
 		final String name = (String) args[1];
 		final int probecount = ((Integer) args[2]).intValue();
 		args[0] = new SimpleProbesMap(
-				getExecutionData(classid, name, probecount).getProbesMutant());
+				getExecutionData(classid, name, probecount).getProbesArray());
 	}
 
 	/**

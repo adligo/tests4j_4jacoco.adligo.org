@@ -1,6 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.data.wrappers;
 
-import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassProbes;
@@ -28,8 +28,14 @@ public class WrappedDataStore implements I_ProbesDataStore {
 	}
 
 	@Override
-	public Collection<I_ClassProbes> getAllCoverage() {
-		// TODO Auto-generated method stub
+	public Map<Long,I_ClassProbes> getAllCoverage() {
+		//impl was not available with ExecutionDataStore
+		return null;
+	}
+
+	@Override
+	public Set<String> getAllClassNames() {
+		//impl was not available with ExecutionDataStore
 		return null;
 	}
 

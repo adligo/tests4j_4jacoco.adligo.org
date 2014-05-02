@@ -5,6 +5,7 @@ import static java.lang.String.format;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassProbesMutant;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_Probes;
 import org.adligo.tests4j_4jacoco.plugin.data.common.Probes;
+import org.adligo.tests4j_4jacoco.plugin.data.common.ProbesMutant;
 import org.jacoco.core.data.ExecutionData;
 
 /**
@@ -14,11 +15,11 @@ import org.jacoco.core.data.ExecutionData;
  */
 public final class MapExecutionData implements I_ClassProbesMutant {
 
-		private final long id;
+		private long id;
 
-		private final String name;
+		private String name;
 
-		private final SimpleProbesMap probes;
+		private SimpleProbesMap probes;
 
 		/**
 		 * Creates a new {@link ExecutionData} object with the given probe data.
@@ -134,8 +135,8 @@ public final class MapExecutionData implements I_ClassProbesMutant {
 		 */
 		public void merge(final MapExecutionData other, final boolean flag) {
 			assertCompatibility(other.getId(), other.getName(),
-					other.getProbesMutant().length);
-			final boolean[] otherData = other.getProbesMutant();
+					other.getProbesArray().length);
+			final boolean[] otherData = other.getProbesArray();
 			for (int i = 0; i < probes.size(); i++) {
 				if (otherData[i]) {
 					probes.put(i, flag);
@@ -194,7 +195,22 @@ public final class MapExecutionData implements I_ClassProbesMutant {
 		}
 
 		@Override
-		public boolean[] getProbesMutant() {
+		public boolean[] getProbesArray() {
 			return probes.toArray();
+		}
+
+		@Override
+		public void setClassName(String p) {
+			name = p;
+		}
+
+		@Override
+		public void setClassId(long p) {
+			id = p;
+		}
+
+		@Override
+		public void setProbes(I_Probes p) {
+			probes = new SimpleProbesMap(new ProbesMutant(p).getArray());
 		}
 }

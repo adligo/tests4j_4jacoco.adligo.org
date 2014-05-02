@@ -9,7 +9,7 @@ import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrumenterFact
 import org.adligo.tests4j_4jacoco.plugin.runtime.simple.ProbeDataAccessorByLoggingApiFactory;
 import org.adligo.tests4j_4jacoco.plugin.runtime.simple.RuntimeLoggingHandler;
 import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleLoggerRuntime;
-import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleRuntimeData;
+import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleProbesDataStoreAdaptor;
 
 /**
  * This plugin can only record the top level coverage

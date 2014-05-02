@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassProbes;
@@ -174,15 +175,24 @@ public final class MapDataStore implements I_MapExecutionDataVisitor, I_ProbesDa
 		}
 
 		@Override
-		public Collection<I_ClassProbes> getAllCoverage() {
-			List<I_ClassProbes> toRet = new ArrayList<I_ClassProbes>();
-			toRet.addAll(entries.values());
+		public Map<Long, I_ClassProbes> getAllCoverage() {
+			Map<Long, I_ClassProbes> toRet = new HashMap<Long, I_ClassProbes>();
+			//toRet.addAll(entries); didn't work :(
+			Set<Entry<Long, MapExecutionData>> all = entries.entrySet();
+			for (Entry<Long,MapExecutionData> e: all) {
+				toRet.put(e.getKey(), e.getValue());
+			}
 			return toRet;
 		}
 
 		@Override
 		public I_ClassProbesMutant getMutable(long classId) {
 			return entries.get(classId);
+		}
+
+		@Override
+		public Set<String> getAllClassNames() {
+			return names;
 		}
 
 	}
