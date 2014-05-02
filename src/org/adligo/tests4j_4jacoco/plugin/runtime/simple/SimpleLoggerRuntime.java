@@ -6,8 +6,8 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_ExecutionDataStore;
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_RuntimeData;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStoreAdaptor;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Runtime;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_LoggerDataAccessorFactory;
 import org.jacoco.core.internal.instr.InstrSupport;
@@ -20,7 +20,7 @@ public class SimpleLoggerRuntime implements I_Runtime {
 	private final String key;
 	private final Handler handler;
 	/** access to the runtime data */
-	protected I_RuntimeData data;
+	protected I_ProbesDataStoreAdaptor data;
 	
 	/**
 	 * Creates a new runtime.
@@ -83,16 +83,16 @@ public class SimpleLoggerRuntime implements I_Runtime {
 		return handler;
 	}
 
-	public I_RuntimeData getData() {
+	public I_ProbesDataStoreAdaptor getData() {
 		return data;
 	}
 
-	public void setup(I_RuntimeData p) {
+	public void setup(I_ProbesDataStoreAdaptor p) {
 		data = p;
 	}
 
 	@Override
-	public I_ExecutionDataStore getCoverageData(String scope) {
+	public I_ProbesDataStore getCoverageData(String scope) {
 		// TODO Auto-generated method stub
 		return data.getCoverageData(scope);
 	}

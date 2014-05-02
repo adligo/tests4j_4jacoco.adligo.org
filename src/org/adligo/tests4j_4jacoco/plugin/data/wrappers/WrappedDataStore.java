@@ -1,18 +1,21 @@
 package org.adligo.tests4j_4jacoco.plugin.data.wrappers;
 
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassCoverage;
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_ExecutionDataStore;
+import java.util.Collection;
+import java.util.Set;
+
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassProbes;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.jacoco.core.data.ExecutionData;
 import org.jacoco.core.data.ExecutionDataStore;
 
-public class WrappedDataStore implements I_ExecutionDataStore {
+public class WrappedDataStore implements I_ProbesDataStore {
 	private ExecutionDataStore dataStore;
 	
 	public WrappedDataStore(ExecutionDataStore other) {
 		dataStore = other;
 	}
 
-	public I_ClassCoverage get(long id) {
+	public I_ClassProbes get(long id) {
 		ExecutionData ed = dataStore.get(id);
 		if (ed == null) {
 			return null;
@@ -23,4 +26,11 @@ public class WrappedDataStore implements I_ExecutionDataStore {
 	public boolean contains(String name) {
 		return dataStore.contains(name);
 	}
+
+	@Override
+	public Collection<I_ClassProbes> getAllCoverage() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

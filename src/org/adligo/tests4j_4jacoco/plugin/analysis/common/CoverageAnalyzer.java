@@ -4,15 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassCoverage;
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_ExecutionDataStore;
-import org.adligo.tests4j_4jacoco.plugin.data.simple.SimpleProbes;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassProbes;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_Probes;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.jacoco.core.analysis.ICoverageVisitor;
 import org.jacoco.core.data.ExecutionDataStore;
 import org.jacoco.core.internal.ContentTypeDetector;
@@ -25,16 +24,16 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 
 /**
- * An {@link Analyzer} instance processes a set of Java class files and
+ * An {@link CoverageAnalyzer} instance processes a set of Java class files and
  * calculates coverage data for them. For each class file the result is reported
  * to a given {@link ICoverageVisitor} instance. In addition the
- * {@link Analyzer} requires a {@link ExecutionDataStore} instance that holds
- * the execution data for the classes to analyze. The {@link Analyzer} offers
+ * {@link CoverageAnalyzer} requires a {@link ExecutionDataStore} instance that holds
+ * the execution data for the classes to analyze. The {@link CoverageAnalyzer} offers
  * several methods to analyze classes from a variety of sources.
  */
-public class Analyzer {
+public class CoverageAnalyzer {
 
-	private final I_ExecutionDataStore executionData;
+	private final I_ProbesDataStore executionData;
 
 	private final ICoverageVisitor coverageVisitor;
 
@@ -49,7 +48,7 @@ public class Analyzer {
 	 *            the output instance that will coverage data for every analyzed
 	 *            class
 	 */
-	public Analyzer(final I_ExecutionDataStore executionData,
+	public CoverageAnalyzer(final I_ProbesDataStore executionData,
 			final ICoverageVisitor coverageVisitor) {
 		this.executionData = executionData;
 		this.coverageVisitor = coverageVisitor;
@@ -67,8 +66,9 @@ public class Analyzer {
 	 */
 	private ClassVisitor createAnalyzingVisitor(final long classid,
 			final String className) {
-		final I_ClassCoverage data = executionData.get(classid);
-		final boolean[] probes;
+		final I_ClassProbes data = executionData.get(classid);
+		
+		final I_Probes probes;
 		final boolean noMatch;
 		if (data == null) {
 			probes = null;
@@ -77,7 +77,7 @@ public class Analyzer {
 			probes = data.getProbes();
 			noMatch = false;
 		}
-		final ClassAnalyzer analyzer = new ClassAnalyzer(classid, noMatch,
+		final ClassProbesAnalyzer analyzer = new ClassProbesAnalyzer(classid, noMatch,
 				probes, stringPool) {
 			@Override
 			public void visitEnd() {

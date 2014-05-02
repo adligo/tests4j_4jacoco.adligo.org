@@ -1,12 +1,12 @@
 package org.adligo.tests4j_4jacoco.plugin.data.multi;
 
 import org.adligo.tests4j_4jacoco.plugin.data.common.AbstractRuntimeData;
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_ExecutionDataStore;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_MapExecutionDataStore;
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_RuntimeData;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStoreAdaptor;
 
-public class MultiRuntimeData extends AbstractRuntimeData implements I_RuntimeData {
-	private I_MapExecutionDataStore dataStore = new MultiDataStore();
+public class MultiProbeDataStoreAdaptor extends AbstractRuntimeData implements I_ProbesDataStoreAdaptor {
+	private I_MapExecutionDataStore dataStore = new MultiProbeDataStore();
 
 	@Override
 	public void getProbes(Object[] args) {
@@ -17,7 +17,7 @@ public class MultiRuntimeData extends AbstractRuntimeData implements I_RuntimeDa
 	}
 
 	@Override
-	public I_ExecutionDataStore getCoverageData(String scope) {
+	public I_ProbesDataStore getCoverageData(String scope) {
 		// TODO Auto-generated method stub
 		return null;
 	}

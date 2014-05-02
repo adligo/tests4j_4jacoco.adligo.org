@@ -2,7 +2,9 @@ package org.adligo.tests4j_4jacoco.plugin.data.map;
 
 import static java.lang.String.format;
 
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassCoverage;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassProbesMutant;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_Probes;
+import org.adligo.tests4j_4jacoco.plugin.data.common.Probes;
 import org.jacoco.core.data.ExecutionData;
 
 /**
@@ -10,7 +12,7 @@ import org.jacoco.core.data.ExecutionData;
  * has to be taken about the probe data array of type <code>boolean[]</code>
  * which can be modified.
  */
-public final class MapExecutionData implements I_ClassCoverage {
+public final class MapExecutionData implements I_ClassProbesMutant {
 
 		private final long id;
 
@@ -77,8 +79,8 @@ public final class MapExecutionData implements I_ClassCoverage {
 		 * 
 		 * @return probe data
 		 */
-		public boolean[] getProbes() {
-			return probes.toArray();
+		public I_Probes getProbes() {
+			return new Probes(probes.toArray());
 		}
 
 		/**
@@ -132,8 +134,8 @@ public final class MapExecutionData implements I_ClassCoverage {
 		 */
 		public void merge(final MapExecutionData other, final boolean flag) {
 			assertCompatibility(other.getId(), other.getName(),
-					other.getProbes().length);
-			final boolean[] otherData = other.getProbes();
+					other.getProbesMutant().length);
+			final boolean[] otherData = other.getProbesMutant();
 			for (int i = 0; i < probes.size(); i++) {
 				if (otherData[i]) {
 					probes.put(i, flag);
@@ -189,5 +191,10 @@ public final class MapExecutionData implements I_ClassCoverage {
 		@Override
 		public long getClassId() {
 			return id;
+		}
+
+		@Override
+		public boolean[] getProbesMutant() {
+			return probes.toArray();
 		}
 }

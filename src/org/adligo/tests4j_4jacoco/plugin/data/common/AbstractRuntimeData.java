@@ -3,7 +3,7 @@ package org.adligo.tests4j_4jacoco.plugin.data.common;
 import org.jacoco.core.data.IExecutionDataVisitor;
 import org.jacoco.core.data.ISessionInfoVisitor;
 
-public abstract class AbstractRuntimeData implements I_RuntimeData {
+public abstract class AbstractRuntimeData implements I_ProbesDataStoreAdaptor {
 	
 
 	private String sessionId;

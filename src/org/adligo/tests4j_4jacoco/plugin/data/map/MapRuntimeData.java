@@ -1,10 +1,10 @@
 package org.adligo.tests4j_4jacoco.plugin.data.map;
 
 import org.adligo.tests4j_4jacoco.plugin.data.common.AbstractRuntimeData;
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_ExecutionDataStore;
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_RuntimeData;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStoreAdaptor;
 
-public class MapRuntimeData extends AbstractRuntimeData implements I_RuntimeData {
+public class MapRuntimeData extends AbstractRuntimeData implements I_ProbesDataStoreAdaptor {
 	/** store for execution data */
 	protected final MapDataStore store;
 	
@@ -71,7 +71,7 @@ public class MapRuntimeData extends AbstractRuntimeData implements I_RuntimeData
 		final String name = (String) args[1];
 		final int probecount = ((Integer) args[2]).intValue();
 		args[0] = new SimpleProbesMap(
-				getExecutionData(classid, name, probecount).getProbes());
+				getExecutionData(classid, name, probecount).getProbesMutant());
 	}
 
 	/**
@@ -90,7 +90,7 @@ public class MapRuntimeData extends AbstractRuntimeData implements I_RuntimeData
 		return super.equals(args);
 	}
 	
-	public I_ExecutionDataStore getCoverageData(String scope) {
+	public I_ProbesDataStore getCoverageData(String scope) {
 		return store;
 	}
 }

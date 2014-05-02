@@ -4,10 +4,12 @@ package org.adligo.tests4j_4jacoco.plugin.data.common;
 /**
  * implementations of this interface represent
  * the jacoco probes of a specific class.
+ * This is was extracted from ExecutionData.
+ * 
  * @author scott
  *
  */
-public interface I_ClassCoverage {
+public interface I_ClassProbes {
 	/**
 	 * the name of the class
 	 * @return
@@ -22,5 +24,5 @@ public interface I_ClassCoverage {
 	 * the probes 
 	 * @return
 	 */
-	public boolean[] getProbes();
+	public I_Probes getProbes();
 }

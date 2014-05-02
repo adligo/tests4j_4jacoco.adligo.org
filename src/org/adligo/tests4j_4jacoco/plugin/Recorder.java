@@ -13,8 +13,8 @@ import org.adligo.tests4j.models.shared.AbstractTrial;
 import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
 import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
 import org.adligo.tests4j.models.shared.system.report.I_Tests4J_Reporter;
-import org.adligo.tests4j_4jacoco.plugin.analysis.common.Analyzer;
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_ExecutionDataStore;
+import org.adligo.tests4j_4jacoco.plugin.analysis.common.CoverageAnalyzer;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassNameToInputStream;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Runtime;
 import org.jacoco.core.analysis.CoverageBuilder;
@@ -60,7 +60,7 @@ public class Recorder implements I_CoverageRecorder {
 		final SessionInfoStore sessionInfos = new SessionInfoStore();
 		data.collect(executionData, sessionInfos, false);
 		*/
-		I_ExecutionDataStore executionData = runtime.getCoverageData(scope);
+		I_ProbesDataStore executionData = runtime.getCoverageData(scope);
 		
 		try {
 			if (reporter.isLogEnabled(Recorder.class)) {
@@ -75,10 +75,10 @@ public class Recorder implements I_CoverageRecorder {
 		return toRet;
 	}
 
-	private void logCoverage(I_ExecutionDataStore executionData, List<String> classes)
+	private void logCoverage(I_ProbesDataStore executionData, List<String> classes)
 			throws IOException {
 		final CoverageBuilder coverageBuilder = new CoverageBuilder();
-		final Analyzer analyzer = new Analyzer(executionData, coverageBuilder);
+		final CoverageAnalyzer analyzer = new CoverageAnalyzer(executionData, coverageBuilder);
 		for (String clazz: classes) {
 			analyzer.analyzeClass(ClassNameToInputStream.getTargetClass(clazz), clazz);
 		}

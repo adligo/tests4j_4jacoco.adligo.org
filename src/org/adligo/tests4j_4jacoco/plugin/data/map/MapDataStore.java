@@ -1,12 +1,17 @@
 package org.adligo.tests4j_4jacoco.plugin.data.map;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_ExecutionDataStore;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassProbes;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassProbesMutant;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStoreMutant;
 import org.jacoco.core.data.ExecutionData;
 import org.jacoco.core.data.IExecutionDataVisitor;
 
@@ -18,7 +23,7 @@ import org.jacoco.core.data.IExecutionDataVisitor;
  * coverage date from multiple runs. A instance of this class is not thread
  * safe.
  */
-public final class MapDataStore implements I_MapExecutionDataVisitor, I_ExecutionDataStore {
+public final class MapDataStore implements I_MapExecutionDataVisitor, I_ProbesDataStoreMutant {
 
 		private final Map<Long, MapExecutionData> entries = new HashMap<Long, MapExecutionData>();
 
@@ -167,5 +172,18 @@ public final class MapDataStore implements I_MapExecutionDataVisitor, I_Executio
 		public void visitClassExecution(final MapExecutionData data) {
 			put(data);
 		}
+
+		@Override
+		public Collection<I_ClassProbes> getAllCoverage() {
+			List<I_ClassProbes> toRet = new ArrayList<I_ClassProbes>();
+			toRet.addAll(entries.values());
+			return toRet;
+		}
+
+		@Override
+		public I_ClassProbesMutant getMutable(long classId) {
+			return entries.get(classId);
+		}
+
 	}
 

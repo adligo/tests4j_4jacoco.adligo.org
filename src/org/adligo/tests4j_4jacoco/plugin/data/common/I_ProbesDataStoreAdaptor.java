@@ -3,7 +3,16 @@ package org.adligo.tests4j_4jacoco.plugin.data.common;
 import org.jacoco.core.data.IExecutionDataVisitor;
 import org.jacoco.core.data.ISessionInfoVisitor;
 
-public interface I_RuntimeData {
+/**
+ * this is called IRuntimeData in jacoco,
+ * I changed the name to match better with what I think it is intended for.
+ * This is to adapt the I_ProbeDataStore (aka jacoco's IExecutionDataStore)
+ * to the jacoco runtime, most notibly getProbes(Object []); 
+ * 
+ * @author scott
+ *
+ */
+public interface I_ProbesDataStoreAdaptor {
 	
 	/**
 	 * Sets a session identifier for this runtime. The identifier is used when
@@ -52,5 +61,5 @@ public interface I_RuntimeData {
 	 */
 	public void getProbes(final Object[] args);
 	
-	public I_ExecutionDataStore getCoverageData(String scope);
+	public I_ProbesDataStore getCoverageData(String scope);
 }

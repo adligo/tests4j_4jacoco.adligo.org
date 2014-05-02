@@ -14,6 +14,6 @@ public interface I_ExecutionDataVisitor {
 	 * @param data
 	 *            execution data for a class
 	 */
-	public void visitClassExecution(I_ClassCoverage data);
+	public void visitClassExecution(I_ClassProbes data);
 
 }

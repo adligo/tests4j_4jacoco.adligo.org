@@ -4,7 +4,7 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_RuntimeData;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStoreAdaptor;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.boolean_array.BooleanArrayInstrumenterFactory;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.DataInstrumenter;
 import org.adligo.tests4j_4jacoco.plugin.runtime.simple.ProbeDataAccessorByLoggingApiFactory;
