@@ -4,7 +4,7 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_JacocoRuntimeData;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_RuntimeData;
 
 public class RuntimeLoggingHandler extends Handler {
 	private final SimpleLoggerRuntime runtime;
@@ -18,7 +18,7 @@ public class RuntimeLoggingHandler extends Handler {
 		String key = runtime.getKey();
 		if (key.equals(record.getMessage())) {
 			Object [] params = record.getParameters();
-			I_JacocoRuntimeData data = runtime.getData();
+			I_RuntimeData data = runtime.getData();
 			data.getProbes(params);
 		}
 	}

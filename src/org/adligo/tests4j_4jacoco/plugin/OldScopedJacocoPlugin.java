@@ -18,9 +18,9 @@ import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleRuntimeData;
  * @author scott
  *
  */
-public class ScopedJacocoPlugin extends AbstractPlugin {
+public class OldScopedJacocoPlugin extends AbstractPlugin {
 	
-	public ScopedJacocoPlugin() {
+	public OldScopedJacocoPlugin() {
 		ProbeDataAccessorByLoggingApiFactory factory = new ProbeDataAccessorByLoggingApiFactory(
 				MapInstrConstants.DATAFIELD_DESC);
 		MapInstrumenterFactory instrFactory = new MapInstrumenterFactory(factory);

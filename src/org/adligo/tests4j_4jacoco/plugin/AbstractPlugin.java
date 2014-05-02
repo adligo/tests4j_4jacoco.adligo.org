@@ -22,8 +22,8 @@ import org.adligo.tests4j_4jacoco.plugin.instrumentation.MemoryClassLoader;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.PackageSet;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 
-public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
-	protected JacocoMemory memory;
+public abstract class AbstractPlugin implements I_CoveragePlugin {
+	protected Tests4J_4JacocoMemory memory;
 	private I_Tests4J_Reporter reporter;
 	private boolean writeOutInstrumentedClassFiles = false;
 	private AtomicBoolean firstRecorder = new AtomicBoolean(false);
@@ -103,7 +103,7 @@ public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 	}
 	private Class<?> loadClassInternal(String clazzName) throws IOException,
 			ClassNotFoundException {
-		if (reporter.isLogEnabled(AbstractJacocoPlugin.class.getName())) {
+		if (reporter.isLogEnabled(AbstractPlugin.class)) {
 			reporter.log("loading class " + clazzName);
 		}
 		MemoryClassLoader memoryClassLoader = memory.getMemoryClassLoader();
@@ -142,7 +142,7 @@ public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 	
 	@Override
 	public synchronized I_CoverageRecorder createRecorder(String scope) {
-		JacocoRecorder rec = new JacocoRecorder(scope, memory, reporter);
+		Recorder rec = new Recorder(scope, memory, reporter);
 		if (!firstRecorder.get()) {
 			firstRecorder.set(true);
 			rec.setRoot(true);
@@ -150,7 +150,7 @@ public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 		return rec;
 	}
 
-	public JacocoMemory getMemory() {
+	public Tests4J_4JacocoMemory getMemory() {
 		return memory;
 	}
 
@@ -162,7 +162,7 @@ public abstract class AbstractJacocoPlugin implements I_CoveragePlugin {
 		return writeOutInstrumentedClassFiles;
 	}
 
-	public void setMemory(JacocoMemory memory) {
+	public void setMemory(Tests4J_4JacocoMemory memory) {
 		this.memory = memory;
 	}
 

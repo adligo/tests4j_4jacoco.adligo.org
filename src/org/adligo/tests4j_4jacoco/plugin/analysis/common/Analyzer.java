@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.analysis;
+package org.adligo.tests4j_4jacoco.plugin.analysis.common;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,10 +10,9 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.adligo.tests4j_4jacoco.plugin.data.I_ExecutionClassData;
-import org.adligo.tests4j_4jacoco.plugin.data.I_ExecutionDataStore;
-import org.adligo.tests4j_4jacoco.plugin.data.SimpleProbes;
-import org.jacoco.core.analysis.Analyzer;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassCoverage;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ExecutionDataStore;
+import org.adligo.tests4j_4jacoco.plugin.data.simple.SimpleProbes;
 import org.jacoco.core.analysis.ICoverageVisitor;
 import org.jacoco.core.data.ExecutionDataStore;
 import org.jacoco.core.internal.ContentTypeDetector;
@@ -33,7 +32,7 @@ import org.objectweb.asm.ClassVisitor;
  * the execution data for the classes to analyze. The {@link Analyzer} offers
  * several methods to analyze classes from a variety of sources.
  */
-public class JacocoAnalyzer {
+public class Analyzer {
 
 	private final I_ExecutionDataStore executionData;
 
@@ -50,7 +49,7 @@ public class JacocoAnalyzer {
 	 *            the output instance that will coverage data for every analyzed
 	 *            class
 	 */
-	public JacocoAnalyzer(final I_ExecutionDataStore executionData,
+	public Analyzer(final I_ExecutionDataStore executionData,
 			final ICoverageVisitor coverageVisitor) {
 		this.executionData = executionData;
 		this.coverageVisitor = coverageVisitor;
@@ -68,15 +67,14 @@ public class JacocoAnalyzer {
 	 */
 	private ClassVisitor createAnalyzingVisitor(final long classid,
 			final String className) {
-		final I_ExecutionClassData data = executionData.get(classid);
+		final I_ClassCoverage data = executionData.get(classid);
 		final boolean[] probes;
 		final boolean noMatch;
 		if (data == null) {
 			probes = null;
 			noMatch = executionData.contains(className);
 		} else {
-			Map<Integer,Boolean> probesInstance = data.getProbes();
-			probes = SimpleProbes.toArray(probesInstance);
+			probes = data.getProbes();
 			noMatch = false;
 		}
 		final ClassAnalyzer analyzer = new ClassAnalyzer(classid, noMatch,

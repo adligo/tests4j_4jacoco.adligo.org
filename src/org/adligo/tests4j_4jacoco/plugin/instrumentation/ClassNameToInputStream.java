@@ -8,4 +8,6 @@ public class ClassNameToInputStream {
 		final String resource = '/' + name.replace('.', '/') + ".class";
 		return ClassNameToInputStream.class.getResourceAsStream(resource);
 	}
+	
+	
 }

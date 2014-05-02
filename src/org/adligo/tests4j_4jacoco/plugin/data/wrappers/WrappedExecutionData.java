@@ -1,12 +1,9 @@
 package org.adligo.tests4j_4jacoco.plugin.data.wrappers;
 
-import java.util.Map;
-
-import org.adligo.tests4j_4jacoco.plugin.data.I_ExecutionClassData;
-import org.adligo.tests4j_4jacoco.plugin.data.SimpleProbes;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassCoverage;
 import org.jacoco.core.data.ExecutionData;
 
-public class WrappedExecutionData implements I_ExecutionClassData {
+public class WrappedExecutionData implements I_ClassCoverage {
 	private ExecutionData data;
 	
 	public WrappedExecutionData(ExecutionData p) {
@@ -14,8 +11,18 @@ public class WrappedExecutionData implements I_ExecutionClassData {
 	}
 
 	@Override
-	public Map<Integer,Boolean> getProbes() {
-		return SimpleProbes.toArray(data.getProbes());
+	public boolean[] getProbes() {
+		return data.getProbes();
+	}
+
+	@Override
+	public String getClassName() {
+		return data.getName();
+	}
+
+	@Override
+	public long getClassId() {
+		return data.getId();
 	}
 	
 }

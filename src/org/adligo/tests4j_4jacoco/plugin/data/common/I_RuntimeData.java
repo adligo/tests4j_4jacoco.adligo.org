@@ -1,12 +1,9 @@
-package org.adligo.tests4j_4jacoco.plugin.runtime;
+package org.adligo.tests4j_4jacoco.plugin.data.common;
 
-import org.adligo.tests4j_4jacoco.plugin.data.I_ExecutionDataStore;
-import org.jacoco.core.data.ExecutionData;
 import org.jacoco.core.data.IExecutionDataVisitor;
 import org.jacoco.core.data.ISessionInfoVisitor;
-import org.jacoco.core.data.SessionInfo;
 
-public interface I_JacocoRuntimeData {
+public interface I_RuntimeData {
 	
 	/**
 	 * Sets a session identifier for this runtime. The identifier is used when
@@ -27,13 +24,6 @@ public interface I_JacocoRuntimeData {
 	 * @return current session identifier
 	 */
 	public String getSessionId();
-
-
-	/**
-	 * Resets all coverage information.
-	 */
-	public void reset();
-
 
 	/**
 	 * Retrieves the execution probe array for a given class. The passed
@@ -62,5 +52,5 @@ public interface I_JacocoRuntimeData {
 	 */
 	public void getProbes(final Object[] args);
 	
-	public I_ExecutionDataStore getDataStore();
+	public I_ExecutionDataStore getCoverageData(String scope);
 }

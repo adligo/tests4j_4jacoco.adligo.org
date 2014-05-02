@@ -1,8 +1,8 @@
 package org.adligo.tests4j_4jacoco.plugin.runtime.simple;
 
-import org.adligo.tests4j_4jacoco.plugin.data.I_ExecutionDataStore;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ExecutionDataStore;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_RuntimeData;
 import org.adligo.tests4j_4jacoco.plugin.data.wrappers.WrappedDataStore;
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_JacocoRuntimeData;
 import org.jacoco.core.data.ExecutionData;
 import org.jacoco.core.data.ExecutionDataStore;
 import org.jacoco.core.data.IExecutionDataVisitor;
@@ -12,7 +12,7 @@ import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class SimpleRuntimeData implements I_JacocoRuntimeData {
+public class SimpleRuntimeData implements I_RuntimeData {
 	/** store for execution data */
 	protected final ExecutionDataStore store;
 	
@@ -78,9 +78,6 @@ public class SimpleRuntimeData implements I_JacocoRuntimeData {
 		}
 	}
 
-	public I_ExecutionDataStore getDataStore() {
-		return new WrappedDataStore(store);
-	}
 	/**
 	 * Resets all coverage information.
 	 */
@@ -152,6 +149,11 @@ public class SimpleRuntimeData implements I_JacocoRuntimeData {
 			getProbes((Object[]) args);
 		}
 		return super.equals(args);
+	}
+	
+	@Override
+	public I_ExecutionDataStore getCoverageData(String scope) {
+		return new WrappedDataStore(store);
 	}
 	
 }

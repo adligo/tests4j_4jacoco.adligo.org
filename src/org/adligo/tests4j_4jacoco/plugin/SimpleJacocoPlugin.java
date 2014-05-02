@@ -4,9 +4,9 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_RuntimeData;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.boolean_array.BooleanArrayInstrumenterFactory;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.DataInstrumenter;
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_JacocoRuntimeData;
 import org.adligo.tests4j_4jacoco.plugin.runtime.simple.ProbeDataAccessorByLoggingApiFactory;
 import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleLoggerRuntime;
 import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleRuntimeData;
@@ -19,7 +19,7 @@ import org.jacoco.core.internal.instr.InstrSupport;
  * @author scott
  *
  */
-public class SimpleJacocoPlugin extends AbstractJacocoPlugin {
+public class SimpleJacocoPlugin extends AbstractPlugin {
 	
 	public SimpleJacocoPlugin() {
 		ProbeDataAccessorByLoggingApiFactory factory = new ProbeDataAccessorByLoggingApiFactory(
@@ -28,7 +28,7 @@ public class SimpleJacocoPlugin extends AbstractJacocoPlugin {
 		DataInstrumenter cdi = new DataInstrumenter(instrFactory);
 		SimpleLoggerRuntime runtime = new SimpleLoggerRuntime(factory);
 		runtime.setup(new SimpleRuntimeData());
-		memory = new JacocoMemory(runtime, cdi);
+		memory = new Tests4J_4JacocoMemory(runtime, cdi);
 	}
 
 

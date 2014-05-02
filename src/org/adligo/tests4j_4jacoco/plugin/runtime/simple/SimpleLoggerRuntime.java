@@ -6,12 +6,13 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_JacocoRuntime;
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_JacocoRuntimeData;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ExecutionDataStore;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_RuntimeData;
+import org.adligo.tests4j_4jacoco.plugin.runtime.I_Runtime;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_LoggerDataAccessorFactory;
 import org.jacoco.core.internal.instr.InstrSupport;
 
-public class SimpleLoggerRuntime implements I_JacocoRuntime {
+public class SimpleLoggerRuntime implements I_Runtime {
 	private static final Random RANDOM = new Random();
 	private final I_LoggerDataAccessorFactory factory;
 
@@ -19,7 +20,7 @@ public class SimpleLoggerRuntime implements I_JacocoRuntime {
 	private final String key;
 	private final Handler handler;
 	/** access to the runtime data */
-	protected I_JacocoRuntimeData data;
+	protected I_RuntimeData data;
 	
 	/**
 	 * Creates a new runtime.
@@ -48,9 +49,8 @@ public class SimpleLoggerRuntime implements I_JacocoRuntime {
 	}
 	
 	@Override
-	public I_JacocoRuntimeData shutdown() {
+	public void shutdown() {
 		this.logger.removeHandler(handler);
-		return data;
 	}
 	
 	public void disconnect(final Class<?> type) throws Exception {
@@ -83,13 +83,18 @@ public class SimpleLoggerRuntime implements I_JacocoRuntime {
 		return handler;
 	}
 
-	public I_JacocoRuntimeData getData() {
+	public I_RuntimeData getData() {
 		return data;
 	}
 
-	@Override
-	public void setup(I_JacocoRuntimeData p) {
+	public void setup(I_RuntimeData p) {
 		data = p;
+	}
+
+	@Override
+	public I_ExecutionDataStore getCoverageData(String scope) {
+		// TODO Auto-generated method stub
+		return data.getCoverageData(scope);
 	}
 
 }

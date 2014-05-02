@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.adligo.tests4j_4jacoco.plugin.data.I_ExecutionDataStore;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ExecutionDataStore;
 import org.jacoco.core.data.ExecutionData;
 import org.jacoco.core.data.IExecutionDataVisitor;
 

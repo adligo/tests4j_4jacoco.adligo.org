@@ -1,51 +1,20 @@
 package org.adligo.tests4j_4jacoco.plugin.data.map;
 
-import org.adligo.tests4j_4jacoco.plugin.data.I_ExecutionDataStore;
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_JacocoRuntimeData;
-import org.jacoco.core.data.IExecutionDataVisitor;
-import org.jacoco.core.data.ISessionInfoVisitor;
-import org.jacoco.core.internal.instr.InstrSupport;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import org.adligo.tests4j_4jacoco.plugin.data.common.AbstractRuntimeData;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ExecutionDataStore;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_RuntimeData;
 
-public class MapRuntimeData implements I_JacocoRuntimeData {
+public class MapRuntimeData extends AbstractRuntimeData implements I_RuntimeData {
 	/** store for execution data */
 	protected final MapDataStore store;
 	
-
-	private String sessionId;
-
 	/**
 	 * Creates a new runtime.
 	 */
 	public MapRuntimeData() {
 		store = new MapDataStore();
-		sessionId = "<none>";
 	}
 
-	/**
-	 * Sets a session identifier for this runtime. The identifier is used when
-	 * execution data is collected. If no identifier is explicitly set a
-	 * identifier is generated from the host name and a random number. This
-	 * method can be called at any time.
-	 * 
-	 * @see #collect(IExecutionDataVisitor, ISessionInfoVisitor, boolean)
-	 * @param id
-	 *            new session identifier
-	 */
-	public void setSessionId(final String id) {
-		sessionId = id;
-	}
-
-	/**
-	 * Get the current a session identifier for this runtime.
-	 * 
-	 * @see #setSessionId(String)
-	 * @return current session identifier
-	 */
-	public String getSessionId() {
-		return sessionId;
-	}
 
 
 	/**
@@ -101,7 +70,8 @@ public class MapRuntimeData implements I_JacocoRuntimeData {
 		final Long classid = (Long) args[0];
 		final String name = (String) args[1];
 		final int probecount = ((Integer) args[2]).intValue();
-		args[0] = getExecutionData(classid, name, probecount).getProbes();
+		args[0] = new SimpleProbesMap(
+				getExecutionData(classid, name, probecount).getProbes());
 	}
 
 	/**
@@ -120,57 +90,7 @@ public class MapRuntimeData implements I_JacocoRuntimeData {
 		return super.equals(args);
 	}
 	
-	/**
-	 * Generates code that creates the argument array for the
-	 * {@link #getProbes(Object[])} method. The array instance is left on the
-	 * operand stack. The generated code requires a stack size of 5.
-	 * 
-	 * @param classid
-	 *            class identifier
-	 * @param classname
-	 *            VM class name
-	 * @param probecount
-	 *            probe count for this class
-	 * @param mv
-	 *            visitor to emit generated code
-	 */
-	public static void generateArgumentArray(final long classid,
-			final String classname, final int probecount, final String scope, 
-			final MethodVisitor mv) {
-		mv.visitInsn(Opcodes.ICONST_4);
-		mv.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/Object");
-
-		// Class Id:
-		mv.visitInsn(Opcodes.DUP);
-		mv.visitInsn(Opcodes.ICONST_0);
-		mv.visitLdcInsn(Long.valueOf(classid));
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf",
-				"(J)Ljava/lang/Long;");
-		mv.visitInsn(Opcodes.AASTORE);
-
-		// Class Name:
-		mv.visitInsn(Opcodes.DUP);
-		mv.visitInsn(Opcodes.ICONST_1);
-		mv.visitLdcInsn(classname);
-		mv.visitInsn(Opcodes.AASTORE);
-
-		// Probe Count:
-		mv.visitInsn(Opcodes.DUP);
-		mv.visitInsn(Opcodes.ICONST_2);
-		InstrSupport.push(mv, probecount);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer",
-				"valueOf", "(I)Ljava/lang/Integer;");
-		mv.visitInsn(Opcodes.AASTORE);
-		
-		// Coverage Scope Name:
-		mv.visitInsn(Opcodes.DUP);
-		mv.visitInsn(Opcodes.ICONST_3);
-		mv.visitLdcInsn(scope);
-		mv.visitInsn(Opcodes.AASTORE);
-	}
-
-	@Override
-	public I_ExecutionDataStore getDataStore() {
+	public I_ExecutionDataStore getCoverageData(String scope) {
 		return store;
 	}
 }

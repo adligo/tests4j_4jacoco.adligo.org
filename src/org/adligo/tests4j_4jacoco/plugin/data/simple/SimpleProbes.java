@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.data;
+package org.adligo.tests4j_4jacoco.plugin.data.simple;
 
 import java.util.HashMap;
 import java.util.Map;

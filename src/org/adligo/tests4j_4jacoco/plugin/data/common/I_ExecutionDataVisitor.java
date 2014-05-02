@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.data;
+package org.adligo.tests4j_4jacoco.plugin.data.common;
 
 
 /**
@@ -14,6 +14,6 @@ public interface I_ExecutionDataVisitor {
 	 * @param data
 	 *            execution data for a class
 	 */
-	public void visitClassExecution(I_ExecutionClassData data);
+	public void visitClassExecution(I_ClassCoverage data);
 
 }
