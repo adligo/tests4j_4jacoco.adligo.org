@@ -120,7 +120,9 @@ public class SimpleProbesMap implements Map<Integer, Boolean> {
 
 	@Override
 	public void clear() {
-		probeData = new boolean[] {};
+		//do nothing in this impl, as the data here is persistent
+		//and clear is called to help garbage collection
+		// in the multi recorder
 	}
 
 	@Override
@@ -156,7 +158,7 @@ public class SimpleProbesMap implements Map<Integer, Boolean> {
 	 * @return
 	 */
 	public boolean[] toArray() {
-		return Arrays.copyOf(probeData, probeData.length);
+		return probeData;
 	}
 	
 	/**

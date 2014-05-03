@@ -2,6 +2,8 @@ package org.adligo.tests4j_4jacoco.plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.TreeMap;
 
 import org.adligo.tests4j.models.shared.AbstractTrial;
 import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
+import org.adligo.tests4j.models.shared.system.ByteListOutputStream;
 import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
 import org.adligo.tests4j.models.shared.system.report.I_Tests4J_Reporter;
 import org.adligo.tests4j_4jacoco.plugin.analysis.common.CoverageAnalyzer;
@@ -66,6 +69,7 @@ public class Recorder implements I_CoverageRecorder {
 			if (reporter.isLogEnabled(Recorder.class)) {
 				List<String> classes = new ArrayList<String>();
 				classes.add(AbstractTrial.class.getName());
+				classes.add(ByteListOutputStream.class.getName());
 				logCoverage(executionData, classes);
 			}
 		} catch (Exception x) {
@@ -121,29 +125,42 @@ public class Recorder implements I_CoverageRecorder {
 	
 	private void logCoverage(ISourceFileCoverage cc) throws IOException {
 		
-		reporter.log("Coverage of class " + cc.getName());
-
-		printCounter("instructions", cc.getInstructionCounter());
-		printCounter("branches", cc.getBranchCounter());
-		printCounter("lines", cc.getLineCounter());
-		printCounter("methods", cc.getMethodCounter());
-		printCounter("complexity", cc.getComplexityCounter());
-
 		
+		if (reporter.isLogEnabled(CoverageDetail.class)) {
+			reporter.log("Coverage of class " + cc.getName());
+
+			printCounter("\tinstructions", cc.getInstructionCounter());
+			printCounter("\tbranches", cc.getBranchCounter());
+			printCounter("\tlines", cc.getLineCounter());
+			printCounter("\tmethods", cc.getMethodCounter());
+			printCounter("\tcomplexity", cc.getComplexityCounter());
+		}
+		double cus = 0;
+		double ccus = 0;
 		for (int i = cc.getFirstLine(); i <= cc.getLastLine(); i++) {
 			ILine line = cc.getLine(i);
-				
-			reporter.log("Line " + i + " instructions " + 
-				line.getInstructionCounter().getCoveredCount() +
-				"/" +
-				line.getInstructionCounter().getTotalCount() + 
-				" instructions " + 
-				line.getBranchCounter().getCoveredCount() +
-				"/" +
-				line.getBranchCounter().getTotalCount() + 
-				" branches ");
+			cus = cus + line.getInstructionCounter().getTotalCount()
+						+ line.getBranchCounter().getTotalCount();
+			ccus = ccus + line.getInstructionCounter().getCoveredCount() 
+					+ line.getBranchCounter().getCoveredCount();
+			
+			if (reporter.isLogEnabled(CoverageDetail.class)) {	
+				reporter.log("\tLine " + i + " instructions " + 
+					line.getInstructionCounter().getCoveredCount() +
+					"/" +
+					line.getInstructionCounter().getTotalCount() + 
+					" instructions " + 
+					line.getBranchCounter().getCoveredCount() +
+					"/" +
+					line.getBranchCounter().getTotalCount() + 
+					" branches ");
+			}
 			
 		}
+		double pct = ccus/cus * 100;
+		DecimalFormat df = new DecimalFormat("##.##");
+		reporter.log(cc.getName() + " is " + df.format(pct) 
+				+ " percent covered ");
 	}
 
 
@@ -168,3 +185,5 @@ public class Recorder implements I_CoverageRecorder {
 	
 	
 }
+
+class CoverageDetail {} 

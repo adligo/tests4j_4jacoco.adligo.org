@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.adligo.tests4j.models.shared.AbstractTrial;
 import org.adligo.tests4j.models.shared.I_AbstractTrial;
 import org.adligo.tests4j.models.shared.PackageScope;
 import org.adligo.tests4j.models.shared.SourceFileScope;
@@ -54,7 +53,7 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 		return packages;
 	}
 	
-	public List<Class<? extends I_AbstractTrial>>  loadClasses(PackageSet packages, I_Tests4J_Params pParams) {
+	private List<Class<? extends I_AbstractTrial>>  loadClasses(PackageSet packages, I_Tests4J_Params pParams) {
 		List<Class<? extends I_AbstractTrial>> newTrials = 
 				new ArrayList<Class<? extends I_AbstractTrial>>();
 		
@@ -71,8 +70,8 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 				String trialClassName = trialClazz.getName();
 				
 				@SuppressWarnings("unchecked")
-				Class<? extends AbstractTrial> customClassLoadedClazz =
-						(Class<? extends AbstractTrial>)
+				Class<? extends I_AbstractTrial> customClassLoadedClazz =
+						(Class<? extends I_AbstractTrial>)
 						loadClass(trialClassName);
 				newTrials.add(customClassLoadedClazz);
 			}
@@ -88,23 +87,23 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 		MemoryClassLoader memoryClassLoader = memory.getMemoryClassLoader();
 		if (memoryClassLoader.getClass(clazzName) == null) {
 			if (!clazzName.contains("org.adligo.tests4j")) {
-				return loadClassInternal(clazzName);
+				return instrumentClass(clazzName);
 			} else {
 				Class<?> clz = Class.forName(clazzName);
 				if (clz.isAnnotation() || clz.isInterface() || clz.isEnum()) {
 					//skip use the parent classloader for def
 				} else {
-					return loadClassInternal(clazzName);
+					return instrumentClass(clazzName);
 				}
 			}
 			
 		}
 		return memoryClassLoader.getClass(clazzName);
 	}
-	private Class<?> loadClassInternal(String clazzName) throws IOException,
+	private Class<?> instrumentClass(String clazzName) throws IOException,
 			ClassNotFoundException {
 		if (reporter.isLogEnabled(AbstractPlugin.class)) {
-			reporter.log("loading class " + clazzName);
+			reporter.log("instrumenting class " + clazzName);
 		}
 		MemoryClassLoader memoryClassLoader = memory.getMemoryClassLoader();
 		I_Instrumenter instr = memory.getInstrumenter();
@@ -117,6 +116,7 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 			fos.close();
 		}
 		memoryClassLoader.addDefinition(clazzName, instrumented);
+		Class<?> clazz = memoryClassLoader.getClass(clazzName);
 		return memoryClassLoader.loadClass(clazzName);
 	}
 

@@ -1,6 +1,11 @@
 package org.adligo.tests4j_4jacoco.plugin.data.common;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -13,7 +18,7 @@ import org.adligo.tests4j.models.shared.system.I_CoveragePlugin;
  * @author scott
  *
  */
-public class CoverageRecorders {
+public class CoverageRecorderStates {
 	/**
 	 * key String is the scope passed to @see {@link I_CoveragePlugin#createRecorder(String)}
 	 * value AtomicBoolean is the recorder state, 
@@ -23,10 +28,12 @@ public class CoverageRecorders {
 	private final Map<String, AtomicBoolean> recorders = 
 			new ConcurrentHashMap<>();
 			
-	public void add(String scope, boolean on) {
+	public void setRecording(String scope, boolean on) {
 		AtomicBoolean onOff = recorders.get(scope);
 		if (onOff == null) {
 			recorders.put(scope, new AtomicBoolean(on));
+		} else {
+			onOff.set(on);
 		}
 	}
 	
@@ -38,4 +45,18 @@ public class CoverageRecorders {
 		return false;
 	}
 	
+	public List<String> getCurrentRecordingScopes() {
+		List<String> toRet = new ArrayList<String>();
+		
+		Set<Entry<String, AtomicBoolean>> entries = recorders.entrySet();
+		Iterator<Entry<String, AtomicBoolean>> it =  entries.iterator();
+		while (it.hasNext()) {
+			Entry<String, AtomicBoolean> entry = it.next();
+			AtomicBoolean ab =  entry.getValue();
+			if (ab.get()) {
+				toRet.add(entry.getKey());
+			}
+		}
+		return toRet;
+	}
 }

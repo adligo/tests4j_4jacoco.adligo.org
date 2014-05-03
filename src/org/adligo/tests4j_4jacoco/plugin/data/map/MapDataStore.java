@@ -195,5 +195,15 @@ public final class MapDataStore implements I_MapExecutionDataVisitor, I_ProbesDa
 			return names;
 		}
 
+		@Override
+		public void put(long id, I_ClassProbes classProbes) {
+			throw new IllegalStateException("Not Implemented.");
+		}
+
+		@Override
+		public void remove(long id) {
+			throw new IllegalStateException("Not Implemented.");
+		}
+
 	}
 

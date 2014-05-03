@@ -54,6 +54,8 @@ public interface I_ProbesDataStoreAdaptor {
 	 *	<ul>
 	 * 	<li>args[0]: Map backed by a custom Map impl so the 
 	 *           mutations to the probes can be filtered for sub recordings.
+	 *           note for the Map implementation clear may be called
+	 *           at the end of altered methods to help the garbage collector.
 	 * 	</ul>
 	 * 
 	 * @param args
