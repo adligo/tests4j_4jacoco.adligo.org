@@ -14,6 +14,21 @@ public interface I_MultiRecordingProbeDataStore {
 	public Map<Integer, Boolean> get(final Long id, final String name,
 			final int probecount);
 	
+	/**
+	 * start/resume a recording for the scope
+	 * @param scope
+	 */
 	public void startRecording(String scope);
-	public void stopRecording(String scope);
+	/**
+	 * pause recording for a scope
+	 * @param scope
+	 */
+	public void pauseRecording(String scope);
+	/**
+	 * return the coverage data 
+	 * and cleanup memory
+	 * @param scope
+	 * @return
+	 */
+	public I_ProbesDataStore endRecording(String scope);
 }

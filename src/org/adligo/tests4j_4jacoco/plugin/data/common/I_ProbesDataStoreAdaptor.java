@@ -63,5 +63,28 @@ public interface I_ProbesDataStoreAdaptor {
 	 */
 	public void getProbes(final Object[] args);
 	
-	public I_ProbesDataStore getCoverageData(String scope);
+	/**
+	 * start tracking for a particular scope
+	 * so that code covered while tracking is on
+	 * it will end up in the coverage data.
+	 * @param scope
+	 */
+	public void startTracking(String scope);
+	/**
+	 * pause tracking for a particular scope
+	 * (so if code is covered while paused,
+	 * it will not end up in the coverage data).
+	 * @param scope
+	 */
+	public void pasueTracking(String scope);
+	/**
+	 * end tracking for a particular scope
+	 * and return all of the coverage data (I_ProbesDataStore)
+	 * that pertains to a particular scope.
+	 * This should also release any memory 
+	 * used for tracking coverage data.
+	 * 
+	 * @param scope
+	 */
+	public I_ProbesDataStore endTracking(String scope);
 }

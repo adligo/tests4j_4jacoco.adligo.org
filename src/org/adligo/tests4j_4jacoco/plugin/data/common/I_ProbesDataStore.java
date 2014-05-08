@@ -24,6 +24,7 @@ public interface I_ProbesDataStore {
 	public I_ClassProbes get(long classId);
 	/**
 	 * this is necessary to copy between immutable and mutable variants
+	 * it should return the full class names including package names;
 	 * @return
 	 */
 	public Set<String> getAllClassNames();

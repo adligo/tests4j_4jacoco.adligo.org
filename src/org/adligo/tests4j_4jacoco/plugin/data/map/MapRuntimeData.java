@@ -90,7 +90,20 @@ public class MapRuntimeData extends AbstractRuntimeData implements I_ProbesDataS
 		return super.equals(args);
 	}
 	
-	public I_ProbesDataStore getCoverageData(String scope) {
+	@Override
+	public void startTracking(String scope) {
+		//do nothing everything is in the same scope
+	}
+
+	@Override
+	public void pasueTracking(String scope) {
+		//do nothing everything is in the same scope
+		throw new IllegalStateException("Method not implemented");
+	}
+
+	@Override
+	public I_ProbesDataStore endTracking(String scope) {
+		//do nothing everything is in the same scope
 		return store;
 	}
 }

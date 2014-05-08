@@ -41,10 +41,11 @@ public class SimpleLoggerRuntime implements I_Runtime {
 	}
 
 	@Override
-	public void startup() throws SecurityException {
+	public void startup(String scope) throws SecurityException {
 		if (data == null) {
 			throw new IllegalStateException("Null data at startup.");
 		}
+		data.startTracking(scope);
 		this.logger.addHandler(handler);
 	}
 	
@@ -92,9 +93,13 @@ public class SimpleLoggerRuntime implements I_Runtime {
 	}
 
 	@Override
-	public I_ProbesDataStore getCoverageData(String scope) {
-		// TODO Auto-generated method stub
-		return data.getCoverageData(scope);
+	public I_ProbesDataStore end(String scope) {
+		return data.endTracking(scope);
+	}
+
+	@Override
+	public void pause(String scope) {
+		data.pasueTracking(scope);
 	}
 
 }

@@ -2,7 +2,6 @@ package org.adligo.tests4j_4jacoco.plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +17,7 @@ import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
 import org.adligo.tests4j.models.shared.system.report.I_Tests4J_Reporter;
 import org.adligo.tests4j_4jacoco.plugin.analysis.common.CoverageAnalyzer;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
+import org.adligo.tests4j_4jacoco.plugin.data.coverage.LazyPackageCoverageFactory;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassNameToInputStream;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Runtime;
 import org.jacoco.core.analysis.CoverageBuilder;
@@ -30,12 +30,14 @@ public class Recorder implements I_CoverageRecorder {
 	protected Tests4J_4JacocoMemory memory;
 	private boolean root;
 	private String scope;
-	
+	private I_Runtime runtime;
+
 	
 	public Recorder(String pScope, Tests4J_4JacocoMemory pMemory, I_Tests4J_Reporter pLog) {
 		scope = pScope;
 		memory = pMemory;
 		reporter = pLog;
+		runtime = memory.getRuntime();
 	}
 	
 	@Override
@@ -47,24 +49,20 @@ public class Recorder implements I_CoverageRecorder {
 	@Override
 	public void startRecording() {
 		try {
-			I_Runtime runtime = memory.getRuntime();
-			runtime.startup();
+			runtime.startup(scope);
 		} catch (Exception x) {
 			throw new RuntimeException(x);
 		}
 	}
 	
 	@Override
-	public List<I_PackageCoverage> getCoverage() {
-		I_Runtime runtime = memory.getRuntime();
-
+	public List<I_PackageCoverage> endRecording() {
 		/*
 		final ExecutionDataStore executionData = new ExecutionDataStore();
 		final SessionInfoStore sessionInfos = new SessionInfoStore();
 		data.collect(executionData, sessionInfos, false);
 		*/
-		I_ProbesDataStore executionData = runtime.getCoverageData(scope);
-		
+		I_ProbesDataStore executionData = runtime.end(scope);
 		try {
 			if (reporter.isLogEnabled(Recorder.class)) {
 				List<String> classes = new ArrayList<String>();
@@ -75,8 +73,7 @@ public class Recorder implements I_CoverageRecorder {
 		} catch (Exception x) {
 			x.printStackTrace();
 		}
-		List<I_PackageCoverage> toRet = new ArrayList<I_PackageCoverage>();
-		return toRet;
+		return LazyPackageCoverageFactory.create(executionData);
 	}
 
 	private void logCoverage(I_ProbesDataStore executionData, List<String> classes)
@@ -180,16 +177,10 @@ public class Recorder implements I_CoverageRecorder {
 
 	@Override
 	public void pauseRecording() {
-		
-	}
-
-	@Override
-	public void endRecording() {
-		// TODO Auto-generated method stub
-		
+		runtime.pause(scope);
 	}
 	
 	
 }
 
-class CoverageDetail {} 
+class CoverageDetail {}

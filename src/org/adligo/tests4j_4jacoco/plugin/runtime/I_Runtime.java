@@ -10,7 +10,27 @@ import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
  *
  */
 public interface I_Runtime {
-	public void startup() throws SecurityException;
+	/**
+	 * starts/resumes recording for a scope. 
+	 * @param scope
+	 * @throws SecurityException
+	 */
+	public void startup(String scope) throws SecurityException;
+	/**
+	 * pauses for a particular scope
+	 * @param scope
+	 */
+	public void pause(String scope);
+	/**
+	 * shutsdown for all scopes
+	 */
 	public void shutdown();
-	public I_ProbesDataStore getCoverageData(String scope);
+	/**
+	 * clears memory for the scope 
+	 * and returns the coverage data.
+	 * 
+	 * @param scope
+	 * @return
+	 */
+	public I_ProbesDataStore end(String scope);
 }

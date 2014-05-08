@@ -192,7 +192,12 @@ public final class MapDataStore implements I_MapExecutionDataVisitor, I_ProbesDa
 
 		@Override
 		public Set<String> getAllClassNames() {
-			return names;
+			Set<String> toRet = new HashSet<String>();
+			for (String name: names) {
+				String clsNAme = name.replaceAll("/", ".");
+				toRet.add(clsNAme);
+			}
+			return toRet;
 		}
 
 		@Override

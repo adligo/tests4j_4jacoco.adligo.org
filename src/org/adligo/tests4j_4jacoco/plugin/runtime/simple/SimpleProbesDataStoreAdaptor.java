@@ -14,7 +14,7 @@ import org.objectweb.asm.Opcodes;
 
 public class SimpleProbesDataStoreAdaptor implements I_ProbesDataStoreAdaptor {
 	/** store for execution data */
-	protected final ExecutionDataStore store;
+	protected ExecutionDataStore store;
 	
 	private long startTimeStamp;
 
@@ -152,8 +152,20 @@ public class SimpleProbesDataStoreAdaptor implements I_ProbesDataStoreAdaptor {
 	}
 	
 	@Override
-	public I_ProbesDataStore getCoverageData(String scope) {
-		return new WrappedDataStore(store);
+	public synchronized I_ProbesDataStore endTracking(String scope) {
+		I_ProbesDataStore toRet =  new WrappedDataStore(store);
+		store = new ExecutionDataStore();
+		return toRet;
+	}
+
+	@Override
+	public void startTracking(String scope) {
+		//do nothing, everything is in one scope for this class
+	}
+
+	@Override
+	public void pasueTracking(String scope) {
+		//do nothing, everything is in one scope for this class
 	}
 	
 }

@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
 import org.adligo.tests4j_4jacoco.plugin.data.common.CoverageRecorderStates;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_MultiRecordingProbeDataStore;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 
 /**
  * This class represents a in memory data store for probes
@@ -55,8 +56,14 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 	}
 
 	@Override
-	public void stopRecording(String scope) {
+	public void pauseRecording(String scope) {
 		coverageRecorderStates.setRecording(scope, false);
+	}
+
+	@Override
+	public I_ProbesDataStore endRecording(String scope) {
+		coverageRecorderStates.setRecording(scope, false);
+		return null;
 	}
 
 }
