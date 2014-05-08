@@ -179,7 +179,13 @@ public class Recorder implements I_CoverageRecorder {
 	}
 
 	@Override
-	public void stopRecording() {
+	public void pauseRecording() {
+		
+	}
+
+	@Override
+	public void endRecording() {
+		// TODO Auto-generated method stub
 		
 	}
 	
