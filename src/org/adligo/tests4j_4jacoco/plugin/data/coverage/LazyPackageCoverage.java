@@ -57,7 +57,7 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 				String classShortName = className.substring(lastDot+1, className.length());
 				classNames.add(classShortName);
 			} else if (pkgName.contains(packageName)) {
-				String sub = pkgName.substring(packageName.length(), pkgName.length());
+				String sub = pkgName.substring(packageName.length() + 1, pkgName.length());
 				if (!sub.contains(".")) {
 					//its a sub package
 					subPackages.add(pkgName);

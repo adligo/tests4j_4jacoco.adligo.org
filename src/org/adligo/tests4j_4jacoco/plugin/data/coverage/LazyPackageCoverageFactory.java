@@ -36,14 +36,9 @@ public class LazyPackageCoverageFactory {
 				}
 			}
 		}
-		//ok allPackages now only has top packages
-		List<String> allClassNames = new ArrayList<String>();
-		for (String pkg: allPackages) {
-			allClassNames.addAll(cc.getClassesInPackage(pkg));
-		}
 		for (String pkg: allPackages) {
 			LazyPackageCoverageInput input = new LazyPackageCoverageInput();
-			input.setClassNames(allClassNames);
+			input.setClassNames(classNames);
 			input.setProbeData(data);
 			input.setPackageName(pkg);
 			toRet.add(new LazyPackageCoverage(input));

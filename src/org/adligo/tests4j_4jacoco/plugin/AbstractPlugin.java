@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -26,6 +28,58 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 	private I_Tests4J_Reporter reporter;
 	private boolean writeOutInstrumentedClassFiles = false;
 	private AtomicBoolean firstRecorder = new AtomicBoolean(false);
+	private static Set<String> TESTS4J_SHARED_CLASS_WHITELIST = getSharedClassWhitelist();
+	
+	private static Set<String> getSharedClassWhitelist() {
+		Set<String> toRet = new HashSet<String>();
+		toRet.add("org.adligo.tests4j.models.shared.AfterTrial");
+		toRet.add("org.adligo.tests4j.models.shared.BeforeTrial");
+		toRet.add("org.adligo.tests4j.models.shared.I_AbstractTrial");
+		toRet.add("org.adligo.tests4j.models.shared.IgnoreTest");
+		toRet.add("org.adligo.tests4j.models.shared.IgnoreTrial");
+		toRet.add("org.adligo.tests4j.models.shared.PackageScope");
+		toRet.add("org.adligo.tests4j.models.shared.SourceFileScope");
+		toRet.add("org.adligo.tests4j.models.shared.Test");
+		toRet.add("org.adligo.tests4j.models.shared.TrialType");
+		toRet.add("org.adligo.tests4j.models.shared.UseCaseScope");
+		
+		toRet.add("org.adligo.tests4j.models.shared.asserts.AssertType");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.I_AssertType");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.I_AssertionHelperInfo");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.I_Thrower");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_LineTextCompareResult");
+		
+		toRet.add("org.adligo.tests4j.models.shared.common.TrialTypeEnum");
+		
+		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnits");
+		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnitsContainer");
+		toRet.add("org.adligo.tests4j.models.shared.coverage.I_LineCoverage");
+		toRet.add("org.adligo.tests4j.models.shared.coverage.I_LineCoverageSegment");
+		toRet.add("org.adligo.tests4j.models.shared.coverage.I_PackageCoverage");
+		toRet.add("org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage");
+		
+		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TestMetadata");
+		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TrialMetadata");
+		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TrialRunMetadata");
+		
+		toRet.add("org.adligo.tests4j.models.shared.results.I_ApiTrialResult");
+		toRet.add("org.adligo.tests4j.models.shared.results.I_Duration");
+		toRet.add("org.adligo.tests4j.models.shared.results.I_SourceFileTrialResult");
+		toRet.add("org.adligo.tests4j.models.shared.results.I_TestFailure");
+		toRet.add("org.adligo.tests4j.models.shared.results.I_TestResult");
+		toRet.add("org.adligo.tests4j.models.shared.results.I_TrialFailure");
+		toRet.add("org.adligo.tests4j.models.shared.results.I_TrialResult");
+		toRet.add("org.adligo.tests4j.models.shared.results.I_TrialRunResult");
+		toRet.add("org.adligo.tests4j.models.shared.results.I_UseCase");
+		toRet.add("org.adligo.tests4j.models.shared.results.I_UseCaseTrialResult");
+		
+		
+		toRet.add("org.adligo.tests4j.models.shared.system.I_AssertListener");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_CoveragePlugin");
+		
+		
+		return Collections.unmodifiableSet(toRet);
+	}
 	
 	@Override
 	public List<Class<? extends I_AbstractTrial>> instrumentClasses(I_Tests4J_Params pParams) {
@@ -81,22 +135,23 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 		return newTrials;
 	}
 	
+	/**
+	 * load a class into a memoryClassLoader
+	 *    keep some classes out of the memoryClassLoader
+	 *    because they need to work in multiple class loaders
+	 * @param clazzName
+	 * @return
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	private Class<?> loadClass(String clazzName) throws IOException,
 			ClassNotFoundException {
 		
 		MemoryClassLoader memoryClassLoader = memory.getMemoryClassLoader();
 		if (memoryClassLoader.getClass(clazzName) == null) {
-			if (!clazzName.contains("org.adligo.tests4j")) {
+			if (!TESTS4J_SHARED_CLASS_WHITELIST.contains(clazzName)) {
 				return instrumentClass(clazzName);
-			} else {
-				Class<?> clz = Class.forName(clazzName);
-				if (clz.isAnnotation() || clz.isInterface() || clz.isEnum()) {
-					//skip use the parent classloader for def
-				} else {
-					return instrumentClass(clazzName);
-				}
-			}
-			
+			} 
 		}
 		return memoryClassLoader.getClass(clazzName);
 	}
@@ -116,7 +171,6 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 			fos.close();
 		}
 		memoryClassLoader.addDefinition(clazzName, instrumented);
-		Class<?> clazz = memoryClassLoader.getClass(clazzName);
 		return memoryClassLoader.loadClass(clazzName);
 	}
 
