@@ -41,7 +41,8 @@ public class LazyPackageCoverageFactory {
 			input.setClassNames(classNames);
 			input.setProbeData(data);
 			input.setPackageName(pkg);
-			toRet.add(new LazyPackageCoverage(input));
+			LazyPackageCoverage toAdd = new LazyPackageCoverage(input);
+			toRet.add(toAdd);
 		}
 		return toRet;
 	}
