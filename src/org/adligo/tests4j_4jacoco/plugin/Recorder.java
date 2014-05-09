@@ -64,11 +64,13 @@ public class Recorder implements I_CoverageRecorder {
 		*/
 		I_ProbesDataStore executionData = runtime.end(scope);
 		try {
-			if (reporter.isLogEnabled(Recorder.class)) {
-				List<String> classes = new ArrayList<String>();
-				classes.add(AbstractTrial.class.getName());
-				classes.add(ByteListOutputStream.class.getName());
-				logCoverage(executionData, classes);
+			if (reporter != null) {
+				if (reporter.isLogEnabled(Recorder.class)) {
+					List<String> classes = new ArrayList<String>();
+					classes.add(AbstractTrial.class.getName());
+					classes.add(ByteListOutputStream.class.getName());
+					logCoverage(executionData, classes);
+				}
 			}
 		} catch (Exception x) {
 			x.printStackTrace();

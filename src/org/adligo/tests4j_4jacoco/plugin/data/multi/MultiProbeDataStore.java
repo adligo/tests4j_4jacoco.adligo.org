@@ -1,13 +1,21 @@
 package org.adligo.tests4j_4jacoco.plugin.data.multi;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
+import org.adligo.tests4j_4jacoco.plugin.data.common.ClassProbes;
+import org.adligo.tests4j_4jacoco.plugin.data.common.ClassProbesMutant;
 import org.adligo.tests4j_4jacoco.plugin.data.common.CoverageRecorderStates;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_MultiRecordingProbeDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
+import org.adligo.tests4j_4jacoco.plugin.data.common.Probes;
+import org.adligo.tests4j_4jacoco.plugin.data.common.ProbesDataStore;
+import org.adligo.tests4j_4jacoco.plugin.data.common.ProbesDataStoreMutant;
 
 /**
  * This class represents a in memory data store for probes
@@ -24,7 +32,7 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 			new ConcurrentHashMap<RecorderProbesId, boolean[]>();
 			
 	@Override
-	public Map<Integer, Boolean> get(Long id, String name, int probecount) {
+	public synchronized Map<Integer, Boolean> get(Long id, String name, int probecount) {
 		List<String> currentRecordingScopes = coverageRecorderStates.getCurrentRecordingScopes();
 		boolean[][] probeData = new boolean[currentRecordingScopes.size()][];
 		
@@ -61,9 +69,25 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 	}
 
 	@Override
-	public I_ProbesDataStore endRecording(String scope) {
+	public synchronized I_ProbesDataStore endRecording(String scope) {
 		coverageRecorderStates.setRecording(scope, false);
-		return null;
+		ProbesDataStoreMutant pdsm = new ProbesDataStoreMutant();
+		Set<Entry<RecorderProbesId, boolean[]>> entries =  probes.entrySet();
+		Iterator<Entry<RecorderProbesId, boolean[]>> it =  entries.iterator();
+		while (it.hasNext()) {
+			Entry<RecorderProbesId, boolean[]> entry = it.next();
+			RecorderProbesId rpid = entry.getKey();
+			if (scope.equals(rpid.getScope())) {
+				it.remove();
+				boolean [] probeVals = entry.getValue();
+				ClassProbesMutant cpm = new ClassProbesMutant();
+				cpm.setClassId(rpid.getClassId());
+				cpm.setClassName(rpid.getClassName());
+				cpm.setProbes(new Probes(probeVals));
+				pdsm.put(rpid.getClassId(), new ClassProbes(cpm));
+			}
+		}
+		return new ProbesDataStore(pdsm);
 	}
 
 }

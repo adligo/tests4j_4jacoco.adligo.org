@@ -76,40 +76,60 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 		
 		toRet.add("org.adligo.tests4j.models.shared.system.I_AssertListener");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_CoveragePlugin");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Params");
 		
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_Probes");
 		
 		return Collections.unmodifiableSet(toRet);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Class<? extends I_AbstractTrial>> instrumentClasses(I_Tests4J_Params pParams) {
 		reporter = pParams.getReporter();
-		PackageSet packages = getPackages(pParams);
+		List<Class<?>> classes = new ArrayList<Class<?>>();
+		classes.addAll(pParams.getTrials());
+		PackageSet packages = getPackages(classes);
 		memory.setPackages(packages);
-		return loadClasses(packages, pParams);
+		List<Class<?>> newClasses =  loadClasses(packages, classes);
+		 List<Class<? extends I_AbstractTrial>> toRet = new ArrayList<Class<? extends I_AbstractTrial>>();
+		 for (Class<?> clazz: newClasses) {
+			 toRet.add((Class<? extends I_AbstractTrial>) clazz);
+		 }
+		 return toRet;
 	}
 	
-	private PackageSet getPackages(I_Tests4J_Params pParams) {
+	public List<Class<?>> instrumentClasses(List<Class<?>> classes) {
+		PackageSet packages = getPackages(classes);
+		memory.setPackages(packages);
+		return loadClasses(packages, classes);
+	}
+	
+	private PackageSet getPackages(List<Class<?>> classes) {
 		PackageSet packages = new PackageSet();
-		//ok find what may show up in the coverage
-		List<Class<? extends I_AbstractTrial>> trials = pParams.getTrials();
-		for (Class<? extends I_AbstractTrial> trial: trials) {
-			PackageScope ps = trial.getAnnotation(PackageScope.class);
-			if (ps != null) {
-				String pkg = ps.packageName();
-				packages.add(pkg);
+		for (Class<?> clazz: classes) {
+			if (I_AbstractTrial.class.isAssignableFrom(clazz)) {
+				PackageScope ps = clazz.getAnnotation(PackageScope.class);
+				if (ps != null) {
+					String pkg = ps.packageName();
+					packages.add(pkg);
+				} else {
+					SourceFileScope cs = clazz.getAnnotation(SourceFileScope.class);
+					if (cs != null) {
+						String pkg = cs.sourceClass().getPackage().getName();
+						packages.add(pkg);
+					}
+				}
 			} else {
-				SourceFileScope cs = trial.getAnnotation(SourceFileScope.class);
-				String pkg = cs.sourceClass().getPackage().getName();
-				packages.add(pkg);
+				packages.add(clazz.getPackage().getName());
 			}
 		}
 		return packages;
 	}
 	
-	private List<Class<? extends I_AbstractTrial>>  loadClasses(PackageSet packages, I_Tests4J_Params pParams) {
-		List<Class<? extends I_AbstractTrial>> newTrials = 
-				new ArrayList<Class<? extends I_AbstractTrial>>();
+	private List<Class<?>>  loadClasses(PackageSet packages, List<Class<?>> classes) {
+		List<Class<?>> newClasses = 
+				new ArrayList<Class<?>>();
 		
 		Set<String> testedPackages = packages.get();
 		try {
@@ -118,21 +138,19 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 				loadTestedClasses(pkg);
 			}
 	
-			List<Class<? extends I_AbstractTrial>> trials = pParams.getTrials();
 			//load the trials in the memory class loader
-			for (Class<? extends I_AbstractTrial> trialClazz: trials) {
-				String trialClassName = trialClazz.getName();
+			for (Class<?> clazz: classes) {
+				String className = clazz.getName();
 				
 				@SuppressWarnings("unchecked")
-				Class<? extends I_AbstractTrial> customClassLoadedClazz =
-						(Class<? extends I_AbstractTrial>)
-						loadClass(trialClassName);
-				newTrials.add(customClassLoadedClazz);
+				Class<?> customClassLoadedClazz =
+						loadClass(className);
+				newClasses.add(customClassLoadedClazz);
 			}
 		} catch (Exception x) {
 			throw new RuntimeException(x);
 		}
-		return newTrials;
+		return newClasses;
 	}
 	
 	/**
@@ -157,8 +175,10 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 	}
 	private Class<?> instrumentClass(String clazzName) throws IOException,
 			ClassNotFoundException {
-		if (reporter.isLogEnabled(AbstractPlugin.class)) {
-			reporter.log("instrumenting class " + clazzName);
+		if (reporter != null) {
+			if (reporter.isLogEnabled(AbstractPlugin.class)) {
+				reporter.log("instrumenting class " + clazzName);
+			}
 		}
 		MemoryClassLoader memoryClassLoader = memory.getMemoryClassLoader();
 		I_Instrumenter instr = memory.getInstrumenter();

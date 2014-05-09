@@ -18,21 +18,17 @@ public class MultiProbeDataStoreAdaptor extends AbstractRuntimeData implements I
 
 	@Override
 	public I_ProbesDataStore endTracking(String scope) {
-		// TODO Auto-generated method stub
-
-		return null;
+		return dataStore.endRecording(scope);
 	}
 
 	@Override
 	public void startTracking(String scope) {
-		// TODO Auto-generated method stub
-		
+		dataStore.startRecording(scope);
 	}
 
 	@Override
 	public void pasueTracking(String scope) {
-		// TODO Auto-generated method stub
-		
+		dataStore.pauseRecording(scope);
 	}
 
 
