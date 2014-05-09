@@ -1,15 +1,26 @@
 package org.adligo.tests4j_4jacoco.plugin.data.coverage;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.adligo.tests4j.models.shared.coverage.CoverageUnitContinerMutant;
+import org.adligo.tests4j.models.shared.coverage.CoverageUnits;
 import org.adligo.tests4j.models.shared.coverage.I_CoverageUnits;
 import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
 import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage;
+import org.adligo.tests4j_4jacoco.plugin.analysis.common.CoverageAnalyzer;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassNameToInputStream;
+import org.jacoco.core.analysis.CoverageBuilder;
+import org.jacoco.core.analysis.ISourceFileCoverage;
 
 /**
  * Note this is lazy mostly to;
@@ -24,11 +35,14 @@ import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
  *
  */
 public class LazyPackageCoverage implements I_PackageCoverage {
-	private boolean loadedAllSourceFiles = false;
+	private AtomicBoolean loadedAllSourceFiles = new AtomicBoolean(false);
 	private String packageName;
 	private List<LazyPackageCoverage> children = new ArrayList<LazyPackageCoverage>();
 	private Set<String> classNames = new HashSet<String>();
 	private I_ProbesDataStore probeData;
+	private Map<String,I_SourceFileCoverage> sourceCoverage = new HashMap<String, I_SourceFileCoverage>();
+	private CoverageUnitContinerMutant countTotals = new CoverageUnitContinerMutant();
+	private CoverageUnitContinerMutant counts = new CoverageUnitContinerMutant();
 	
 	public LazyPackageCoverage(LazyPackageCoverageInput input) {
 		packageName = input.getPackageName();
@@ -57,28 +71,76 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 		}
 	}
 	
+	private Map<String,I_SourceFileCoverage> getOrLoadSourceFileCoverage() {
+		if (loadedAllSourceFiles.get()) {
+			return sourceCoverage;
+		} else {
+			int cus = 0;
+			int covered_cus = 0;
+			
+			CoverageBuilder coverageBuilder = new CoverageBuilder();
+			CoverageAnalyzer analyzer = new CoverageAnalyzer(probeData, coverageBuilder);
+			
+			for (String fileName: classNames) {
+				String fullName = packageName  + "." + fileName;
+				try {
+					analyzer.analyzeClass(ClassNameToInputStream.getTargetClass(
+							fullName), fullName);
+				} catch (IOException x) {
+					x.printStackTrace();
+				}
+			}
+			Collection<ISourceFileCoverage> sourceCoverages = coverageBuilder.getSourceFiles();
+			for (ISourceFileCoverage sfc: sourceCoverages) {
+				String shortName = sfc.getName();
+				int lastDot = shortName.lastIndexOf(".");
+				shortName = shortName.substring(0, lastDot);
+				
+				LazySourceFileCoverage lsfc = new LazySourceFileCoverage(sfc);
+				cus = cus + lsfc.getCoverageUnits().get();
+				covered_cus = covered_cus + lsfc.getCoveredCoverageUnits().get();
+				
+				sourceCoverage.put(shortName, lsfc);
+			}
+			
+			counts.setCoverageUnits(new CoverageUnits(cus));
+			counts.setCoveredCoverageUnits(new CoverageUnits(covered_cus));
+			int total_cus = cus;
+			int total_covered_cus = covered_cus;
+			
+			for (LazyPackageCoverage child: children) {
+				child.getOrLoadSourceFileCoverage();
+				total_cus = total_cus + child.getCoverageUnits().get();
+				total_covered_cus = total_covered_cus + child.getCoveredCoverageUnits().get();
+			}
+			countTotals.setCoverageUnits(new CoverageUnits(total_cus));
+			countTotals.setCoveredCoverageUnits(new CoverageUnits(total_covered_cus));
+		}
+		return sourceCoverage;
+	}
+	
 	@Override
 	public I_CoverageUnits getCoverageUnits() {
-		// TODO Auto-generated method stub
-		return null;
+		getOrLoadSourceFileCoverage();
+		return counts.getCoverageUnits();
 	}
 
 	@Override
 	public I_CoverageUnits getCoveredCoverageUnits() {
-		// TODO Auto-generated method stub
-		return null;
+		getOrLoadSourceFileCoverage();
+		return counts.getCoveredCoverageUnits();
 	}
 
 	@Override
 	public BigDecimal getPercentageCovered() {
-		// TODO Auto-generated method stub
-		return null;
+		getOrLoadSourceFileCoverage();
+		return counts.getPercentageCovered();
 	}
 
 	@Override
 	public double getPercentageCoveredDouble() {
-		// TODO Auto-generated method stub
-		return 0;
+		getOrLoadSourceFileCoverage();
+		return counts.getPercentageCoveredDouble();
 	}
 
 	@Override
@@ -88,8 +150,8 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 
 	@Override
 	public I_SourceFileCoverage getCoverage(String sourceFileName) {
-		// TODO Auto-generated method stub
-		return null;
+		getOrLoadSourceFileCoverage();
+		return sourceCoverage.get(sourceFileName);
 	}
 
 	@Override
@@ -114,20 +176,20 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 
 	@Override
 	public I_CoverageUnits getTotalCoverageUnits() {
-		// TODO Auto-generated method stub
-		return null;
+		getOrLoadSourceFileCoverage();
+		return countTotals.getCoverageUnits();
 	}
 
 	@Override
 	public I_CoverageUnits getTotalCoveredCoverageUnits() {
-		// TODO Auto-generated method stub
-		return null;
+		getOrLoadSourceFileCoverage();
+		return countTotals.getCoveredCoverageUnits();
 	}
 
 	@Override
 	public BigDecimal getTotalPercentageCovered() {
-		// TODO Auto-generated method stub
-		return null;
+		getOrLoadSourceFileCoverage();
+		return countTotals.getPercentageCovered();
 	}
 
 	@Override
@@ -154,6 +216,12 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 		} else if (!packageName.equals(other.packageName))
 			return false;
 		return true;
+	}
+
+	@Override
+	public double getTotalPercentageCoveredDouble() {
+		getOrLoadSourceFileCoverage();
+		return countTotals.getPercentageCoveredDouble();
 	}
 
 }

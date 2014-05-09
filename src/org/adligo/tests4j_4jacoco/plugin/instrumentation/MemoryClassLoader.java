@@ -1,10 +1,13 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class MemoryClassLoader extends ClassLoader {
+import org.adligo.tests4j_4jacoco.plugin.data.coverage.I_ClassContainer;
+
+public class MemoryClassLoader extends ClassLoader implements I_ClassContainer {
 
 	private final ConcurrentHashMap<String, byte[]> definitions = new ConcurrentHashMap<String, byte[]>();
 
@@ -37,5 +40,27 @@ public class MemoryClassLoader extends ClassLoader {
 		return super.loadClass(name, resolve);
 	}
 
-}
+	public List<String> getClassesInPackage(String pkgName) {
+		Enumeration<String> keys =  definitions.keys();
+		List<String> toRet = new ArrayList<String>();
+		while (keys.hasMoreElements()) {
+			String key = keys.nextElement();
+			if (key.contains(pkgName)) {
+				toRet.add(key);
+			}
+		}
+		return toRet;
+	}
+
+	@Override
+	public List<String> getAllClasses() {
+		Enumeration<String> keys =  definitions.keys();
+		List<String> toRet = new ArrayList<String>();
+		while (keys.hasMoreElements()) {
+			String key = keys.nextElement();
+			toRet.add(key);
+		}
+		return toRet;
+	}
+ }
 

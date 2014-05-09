@@ -1,6 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin.data.coverage;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
@@ -25,8 +26,9 @@ public class LazyPackageCoverageInput {
 	public void setPackageName(String packageName) {
 		this.packageName = packageName;
 	}
-	public void setClassNames(List<String> classNames) {
-		this.classNames = classNames;
+	public void setClassNames(Collection<String> p) {
+		classNames.clear();
+		classNames.addAll(p);
 	}
 	public void setProbeData(I_ProbesDataStore probeData) {
 		this.probeData = probeData;

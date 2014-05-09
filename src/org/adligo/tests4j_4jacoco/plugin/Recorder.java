@@ -73,7 +73,7 @@ public class Recorder implements I_CoverageRecorder {
 		} catch (Exception x) {
 			x.printStackTrace();
 		}
-		return LazyPackageCoverageFactory.create(executionData);
+		return LazyPackageCoverageFactory.create(executionData, memory);
 	}
 
 	private void logCoverage(I_ProbesDataStore executionData, List<String> classes)
