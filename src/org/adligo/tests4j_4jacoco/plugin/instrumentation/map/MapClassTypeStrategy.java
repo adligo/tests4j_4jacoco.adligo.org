@@ -56,7 +56,7 @@ public class MapClassTypeStrategy extends AbstractObtainProbesStrategy implement
 		int probeCount = classInfo.getProbeCount();
 		
 		final MethodVisitor mv = cv.visitMethod(
-				InstrSupport.INITMETHOD_ACC, InstrSupport.INITMETHOD_NAME,
+				MapInstrConstants.INITMETHOD_ACC, InstrSupport.INITMETHOD_NAME,
 				//InstrSupport.INITMETHOD_DESC, null, null);
 				MapInstrConstants.INIT_METHOD_DESC, null, null);
 		
