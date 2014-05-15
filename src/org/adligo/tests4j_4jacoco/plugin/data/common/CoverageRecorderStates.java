@@ -18,7 +18,7 @@ import org.adligo.tests4j.models.shared.system.I_CoveragePlugin;
  * @author scott
  *
  */
-public class CoverageRecorderStates {
+public class CoverageRecorderStates implements I_CoverageRecoderStates {
 	/**
 	 * key String is the scope passed to @see {@link I_CoveragePlugin#createRecorder(String)}
 	 * value AtomicBoolean is the recorder state, 
@@ -26,7 +26,7 @@ public class CoverageRecorderStates {
 	 *      false is not recording 
 	 */
 	private final Map<String, AtomicBoolean> recorders = 
-			new ConcurrentHashMap<>();
+			new ConcurrentHashMap<String, AtomicBoolean>();
 			
 	public void setRecording(String scope, boolean on) {
 		AtomicBoolean onOff = recorders.get(scope);
@@ -59,4 +59,5 @@ public class CoverageRecorderStates {
 		}
 		return toRet;
 	}
+
 }

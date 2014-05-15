@@ -1,8 +1,13 @@
 package org.adligo.tests4j_4jacoco.plugin.data.multi;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_CoverageRecoderStates;
 
 /**
  * a wrapper around probe data for different recorders.
@@ -17,13 +22,21 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 	/**
 	 * each entry in the list pertains to a different recorder
 	 */
-	private boolean [][] probeData;
+	private Map<String,boolean[]> scopesToProbes = new ConcurrentHashMap<String, boolean[]>();
+	private I_CoverageRecoderStates states;
+	private String clazzCovered;
+	private int probeCount;
 	
-	public MultiProbesMap(boolean[][] pProbeData) {
-		probeData = pProbeData;
-		if (pProbeData == null) {
-			throw new NullPointerException("pProbeData can't be null!");
+	public MultiProbesMap(I_CoverageRecoderStates pStates, String pClazzToCover, int pProbeCount) {
+		states = pStates;
+		if (pStates == null) {
+			throw new NullPointerException("pStates can't be null!");
 		}
+		clazzCovered = pClazzToCover;
+		if (pClazzToCover == null) {
+			throw new NullPointerException("pClazzToCover can't be null!");
+		}
+		probeCount = pProbeCount;
 	}
 
 	@Override
@@ -60,8 +73,18 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		if (keyInt < 0) {
 			return false;
 		}
-		for (int i = 0; i < probeData.length; i++) {
-			boolean [] probes = probeData[i];
+		List<String> activeScopes = states.getCurrentRecordingScopes();
+		for (String scope: activeScopes) {
+			boolean [] probes = scopesToProbes.get(scope);
+			if (probes == null) {
+				synchronized (scopesToProbes) {
+					probes = scopesToProbes.get(scope);
+					if (probes == null) {
+						probes = new boolean[probeCount];
+						scopesToProbes.put(scope, probes);
+					}
+				}
+			}
 			if (keyInt < probes.length) {
 				probes[keyInt] = value;
 			}
@@ -71,20 +94,7 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 
 	@Override
 	public Boolean remove(Object key) {
-		if ( !(key instanceof Integer)) {
-			return false;
-		}
-		int keyInt = ((Integer) key).intValue();
-		if (keyInt < 0) {
-			return false;
-		}
-		for (int i = 0; i < probeData.length; i++) {
-			boolean [] probes = probeData[i];
-			if (keyInt < probes.length) {
-				probes[keyInt] = false;
-			}
-		}
-		return true;
+		throw new IllegalStateException("Method not implemented");
 	}
 
 	@Override
@@ -94,7 +104,7 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 
 	@Override
 	public void clear() {
-		probeData = null;
+		throw new IllegalStateException("Method not implemented");
 	}
 
 	@Override
@@ -110,5 +120,21 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 	@Override
 	public Set<Entry<Integer, Boolean>> entrySet() {
 		throw new IllegalStateException("Method not implemented");
+	}
+	
+	public void releaseRecording(String scope) {
+		scopesToProbes.remove(scope);
+	}
+
+	public String getClazzCovered() {
+		return clazzCovered;
+	}
+	
+	public boolean[] getProbes(String scope) {
+		boolean [] toRet = scopesToProbes.get(scope);
+		if (toRet == null) {
+			toRet = new boolean[probeCount];
+		}
+		return toRet;
 	}
 }
