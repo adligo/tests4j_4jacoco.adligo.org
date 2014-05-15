@@ -32,11 +32,16 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 			new ConcurrentHashMap<Long,MultiProbesMap>();
 			
 	@Override
-	public synchronized Map<Integer, Boolean> get(Long id, String name, int probecount) {
+	public Map<Integer, Boolean> get(Long id, String name, int probecount) {
 		MultiProbesMap toRet = classIdsToMulti.get(id);
 		if (toRet == null) {
-			toRet = new MultiProbesMap(states, name, probecount);
-			classIdsToMulti.put(id, toRet);
+			synchronized(classIdsToMulti) {
+				toRet = classIdsToMulti.get(id);
+				if (toRet == null) {
+					toRet = new MultiProbesMap(states, name, probecount);
+					classIdsToMulti.put(id, toRet);
+				}
+			}
 		}
 		return toRet;
 	}
@@ -63,6 +68,8 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 			MultiProbesMap val = entry.getValue();
 			
 			boolean [] probeVals = val.getProbes(scope);
+			val.releaseRecording(scope);
+			
 			ClassProbesMutant cpm = new ClassProbesMutant();
 			cpm.setClassId(clazzId);
 			cpm.setClassName(val.getClazzCovered());

@@ -10,10 +10,13 @@ public class MultiProbeDataStoreAdaptor extends AbstractRuntimeData implements I
 
 	@Override
 	public void getProbes(Object[] args) {
-		final Long classid = (Long) args[0];
-		final String name = (String) args[1];
-		final int probecount = ((Integer) args[2]).intValue();
-		args[0] = dataStore.get(classid, name, probecount);
+		Object obj0 = args[0];
+		if (obj0 instanceof Long) {
+			final Long classid = (Long) args[0];
+			final String name = (String) args[1];
+			final int probecount = ((Integer) args[2]).intValue();
+			args[0] = dataStore.get(classid, name, probecount);
+		}
 	}
 
 	@Override

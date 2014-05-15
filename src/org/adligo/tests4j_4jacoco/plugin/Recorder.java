@@ -48,6 +48,11 @@ public class Recorder implements I_CoverageRecorder {
 
 	@Override
 	public void startRecording() {
+		if (reporter != null) {
+			if (reporter.isLogEnabled(Recorder.class)) {
+				reporter.log("Recorder starting " + scope);
+			}
+		}
 		try {
 			runtime.startup(scope);
 		} catch (Exception x) {
@@ -57,6 +62,11 @@ public class Recorder implements I_CoverageRecorder {
 	
 	@Override
 	public List<I_PackageCoverage> endRecording() {
+		if (reporter != null) {
+			if (reporter.isLogEnabled(Recorder.class)) {
+				reporter.log("Ending Recording " + scope);
+			}
+		}
 		/*
 		final ExecutionDataStore executionData = new ExecutionDataStore();
 		final SessionInfoStore sessionInfos = new SessionInfoStore();
@@ -179,6 +189,11 @@ public class Recorder implements I_CoverageRecorder {
 
 	@Override
 	public void pauseRecording() {
+		if (reporter != null) {
+			if (reporter.isLogEnabled(Recorder.class)) {
+				reporter.log("Recording on Pause " + scope);
+			}
+		}
 		runtime.pause(scope);
 	}
 	
