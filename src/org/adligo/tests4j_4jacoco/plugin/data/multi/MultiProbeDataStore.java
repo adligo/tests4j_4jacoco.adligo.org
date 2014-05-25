@@ -68,13 +68,15 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 			MultiProbesMap val = entry.getValue();
 			
 			boolean [] probeVals = val.getProbes(scope);
-			val.releaseRecording(scope);
 			
 			ClassProbesMutant cpm = new ClassProbesMutant();
 			cpm.setClassId(clazzId);
 			cpm.setClassName(val.getClazzCovered());
 			cpm.setProbes(new Probes(probeVals));
 			pdsm.put(clazzId, new ClassProbes(cpm));
+			
+			val.releaseRecording(scope);
+			
 		}
 		return new ProbesDataStore(pdsm);
 	}

@@ -8,8 +8,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.adligo.tests4j.models.shared.AdditionalInstrumentation;
 import org.adligo.tests4j.models.shared.I_AbstractTrial;
 import org.adligo.tests4j.models.shared.PackageScope;
 import org.adligo.tests4j.models.shared.SourceFileScope;
@@ -118,6 +120,14 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 					if (cs != null) {
 						String pkg = cs.sourceClass().getPackage().getName();
 						packages.add(pkg);
+					}
+				}
+				AdditionalInstrumentation ai = clazz.getAnnotation(AdditionalInstrumentation.class);
+				if (ai != null) {
+					String pkgs = ai.javaPackages();
+					StringTokenizer tokens = new StringTokenizer(pkgs, ",");
+					while (tokens.hasMoreElements()) {
+						packages.add(tokens.nextToken().trim());
 					}
 				}
 			} else {
