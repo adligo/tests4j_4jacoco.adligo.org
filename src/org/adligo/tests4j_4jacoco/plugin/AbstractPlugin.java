@@ -45,9 +45,12 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 		toRet.add("org.adligo.tests4j.models.shared.TrialType");
 		toRet.add("org.adligo.tests4j.models.shared.UseCaseScope");
 		
+		toRet.add("org.adligo.tests4j.models.shared.bindings.I_MetadataBinding");
+		toRet.add("org.adligo.tests4j.models.shared.bindings.I_TrialProcessorBindings");
+		
+		
 		toRet.add("org.adligo.tests4j.models.shared.asserts.AssertType");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.I_AssertType");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.I_AssertionHelperInfo");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.I_Thrower");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_LineTextCompareResult");
 		
