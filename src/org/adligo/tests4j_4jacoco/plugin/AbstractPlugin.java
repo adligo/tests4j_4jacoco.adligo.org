@@ -12,7 +12,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.adligo.tests4j.models.shared.AdditionalInstrumentation;
-import org.adligo.tests4j.models.shared.I_AbstractTrial;
+import org.adligo.tests4j.models.shared.I_Trial;
 import org.adligo.tests4j.models.shared.PackageScope;
 import org.adligo.tests4j.models.shared.SourceFileScope;
 import org.adligo.tests4j.models.shared.system.I_CoveragePlugin;
@@ -39,14 +39,15 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 		toRet.add("org.adligo.tests4j.models.shared.I_AbstractTrial");
 		toRet.add("org.adligo.tests4j.models.shared.IgnoreTest");
 		toRet.add("org.adligo.tests4j.models.shared.IgnoreTrial");
+		toRet.add("org.adligo.tests4j.models.shared.I_Trial");
+		toRet.add("org.adligo.tests4j.models.shared.I_TrialProcessorBindings");
+		toRet.add("org.adligo.tests4j.models.shared.I_MetaTrial");
+		
 		toRet.add("org.adligo.tests4j.models.shared.PackageScope");
 		toRet.add("org.adligo.tests4j.models.shared.SourceFileScope");
 		toRet.add("org.adligo.tests4j.models.shared.Test");
 		toRet.add("org.adligo.tests4j.models.shared.TrialType");
 		toRet.add("org.adligo.tests4j.models.shared.UseCaseScope");
-		
-		toRet.add("org.adligo.tests4j.models.shared.bindings.I_MetadataBinding");
-		toRet.add("org.adligo.tests4j.models.shared.bindings.I_TrialProcessorBindings");
 		
 		
 		toRet.add("org.adligo.tests4j.models.shared.asserts.AssertType");
@@ -90,16 +91,16 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Class<? extends I_AbstractTrial>> instrumentClasses(I_Tests4J_Params pParams) {
+	public List<Class<? extends I_Trial>> instrumentClasses(I_Tests4J_Params pParams) {
 		reporter = pParams.getReporter();
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 		classes.addAll(pParams.getTrials());
 		PackageSet packages = getPackages(classes);
 		memory.setPackages(packages);
 		List<Class<?>> newClasses =  loadClasses(packages, classes);
-		 List<Class<? extends I_AbstractTrial>> toRet = new ArrayList<Class<? extends I_AbstractTrial>>();
+		 List<Class<? extends I_Trial>> toRet = new ArrayList<Class<? extends I_Trial>>();
 		 for (Class<?> clazz: newClasses) {
-			 toRet.add((Class<? extends I_AbstractTrial>) clazz);
+			 toRet.add((Class<? extends I_Trial>) clazz);
 		 }
 		 return toRet;
 	}
@@ -113,7 +114,7 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 	private PackageSet getPackages(List<Class<?>> classes) {
 		PackageSet packages = new PackageSet();
 		for (Class<?> clazz: classes) {
-			if (I_AbstractTrial.class.isAssignableFrom(clazz)) {
+			if (I_Trial.class.isAssignableFrom(clazz)) {
 				PackageScope ps = clazz.getAnnotation(PackageScope.class);
 				if (ps != null) {
 					String pkg = ps.packageName();
