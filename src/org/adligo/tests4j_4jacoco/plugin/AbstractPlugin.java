@@ -12,12 +12,12 @@ import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.adligo.tests4j.models.shared.AdditionalInstrumentation;
+import org.adligo.tests4j.models.shared.I_AbstractTrial;
 import org.adligo.tests4j.models.shared.I_Trial;
 import org.adligo.tests4j.models.shared.PackageScope;
 import org.adligo.tests4j.models.shared.SourceFileScope;
 import org.adligo.tests4j.models.shared.system.I_CoveragePlugin;
 import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Params;
 import org.adligo.tests4j.models.shared.system.report.I_Tests4J_Reporter;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassDiscovery;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassNameToInputStream;
@@ -91,21 +91,20 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Class<? extends I_Trial>> instrumentClasses(I_Tests4J_Params pParams) {
-		reporter = pParams.getReporter();
+	public List<Class<? extends I_AbstractTrial>> instrumentClasses(List<Class<? extends I_AbstractTrial>> trials) {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
-		classes.addAll(pParams.getTrials());
+		classes.addAll(trials);
 		PackageSet packages = getPackages(classes);
 		memory.setPackages(packages);
 		List<Class<?>> newClasses =  loadClasses(packages, classes);
-		 List<Class<? extends I_Trial>> toRet = new ArrayList<Class<? extends I_Trial>>();
+		 List<Class<? extends I_AbstractTrial>> toRet = new ArrayList<Class<? extends I_AbstractTrial>>();
 		 for (Class<?> clazz: newClasses) {
 			 toRet.add((Class<? extends I_Trial>) clazz);
 		 }
 		 return toRet;
 	}
 	
-	public List<Class<?>> instrumentClasses(List<Class<?>> classes) {
+	public List<Class<?>> instrumentClassesAny(List<Class<?>> classes) {
 		PackageSet packages = getPackages(classes);
 		memory.setPackages(packages);
 		return loadClasses(packages, classes);
