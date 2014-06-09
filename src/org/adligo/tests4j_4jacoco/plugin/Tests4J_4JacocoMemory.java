@@ -2,9 +2,9 @@ package org.adligo.tests4j_4jacoco.plugin;
 
 import java.util.List;
 
+import org.adligo.tests4j.run.discovery.TopPackageSet;
 import org.adligo.tests4j_4jacoco.plugin.data.coverage.I_ClassContainer;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.MemoryClassLoader;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.PackageSet;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Runtime;
 
@@ -18,7 +18,7 @@ public class Tests4J_4JacocoMemory implements I_ClassContainer {
 		instrumenter = pInstrumenter;
 	}
 	
-	private PackageSet packages;
+	private TopPackageSet packages;
 	
 	public MemoryClassLoader getMemoryClassLoader() {
 		return memoryClassLoader;
@@ -29,10 +29,10 @@ public class Tests4J_4JacocoMemory implements I_ClassContainer {
 	public I_Instrumenter getInstrumenter() {
 		return instrumenter;
 	}
-	public PackageSet getPackages() {
+	public TopPackageSet getPackages() {
 		return packages;
 	}
-	public void setPackages(PackageSet packages) {
+	public void setPackages(TopPackageSet packages) {
 		this.packages = packages;
 	}
 	

@@ -19,10 +19,10 @@ import org.adligo.tests4j.models.shared.SourceFileScope;
 import org.adligo.tests4j.models.shared.system.I_CoveragePlugin;
 import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
 import org.adligo.tests4j.models.shared.system.report.I_Tests4J_Reporter;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassDiscovery;
+import org.adligo.tests4j.run.discovery.ClassDiscovery;
+import org.adligo.tests4j.run.discovery.TopPackageSet;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassNameToInputStream;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.MemoryClassLoader;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.PackageSet;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 
 public abstract class AbstractPlugin implements I_CoveragePlugin {
@@ -94,7 +94,7 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 	public List<Class<? extends I_AbstractTrial>> instrumentClasses(List<Class<? extends I_AbstractTrial>> trials) {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 		classes.addAll(trials);
-		PackageSet packages = getPackages(classes);
+		TopPackageSet packages = TopPackageSet.getPackagesForInstrumentation(classes);
 		memory.setPackages(packages);
 		List<Class<?>> newClasses =  loadClasses(packages, classes);
 		 List<Class<? extends I_AbstractTrial>> toRet = new ArrayList<Class<? extends I_AbstractTrial>>();
@@ -105,42 +105,14 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 	}
 	
 	public List<Class<?>> instrumentClassesAny(List<Class<?>> classes) {
-		PackageSet packages = getPackages(classes);
+		TopPackageSet packages = TopPackageSet.getPackagesForInstrumentation(classes);
 		memory.setPackages(packages);
 		return loadClasses(packages, classes);
 	}
 	
-	private PackageSet getPackages(List<Class<?>> classes) {
-		PackageSet packages = new PackageSet();
-		for (Class<?> clazz: classes) {
-			if (I_Trial.class.isAssignableFrom(clazz)) {
-				PackageScope ps = clazz.getAnnotation(PackageScope.class);
-				if (ps != null) {
-					String pkg = ps.packageName();
-					packages.add(pkg);
-				} else {
-					SourceFileScope cs = clazz.getAnnotation(SourceFileScope.class);
-					if (cs != null) {
-						String pkg = cs.sourceClass().getPackage().getName();
-						packages.add(pkg);
-					}
-				}
-				AdditionalInstrumentation ai = clazz.getAnnotation(AdditionalInstrumentation.class);
-				if (ai != null) {
-					String pkgs = ai.javaPackages();
-					StringTokenizer tokens = new StringTokenizer(pkgs, ",");
-					while (tokens.hasMoreElements()) {
-						packages.add(tokens.nextToken().trim());
-					}
-				}
-			} else {
-				packages.add(clazz.getPackage().getName());
-			}
-		}
-		return packages;
-	}
 	
-	private List<Class<?>>  loadClasses(PackageSet packages, List<Class<?>> classes) {
+	
+	private List<Class<?>>  loadClasses(TopPackageSet packages, List<Class<?>> classes) {
 		List<Class<?>> newClasses = 
 				new ArrayList<Class<?>>();
 		
