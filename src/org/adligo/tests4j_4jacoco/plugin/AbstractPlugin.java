@@ -64,6 +64,7 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_PackageCoverage");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage");
 		
+		toRet.add("org.adligo.tests4j.models.shared.metadata.I_SourceInfo");
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TestMetadata");
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TrialMetadata");
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TrialRunMetadata");
