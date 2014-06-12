@@ -68,6 +68,7 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TestMetadata");
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TrialMetadata");
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TrialRunMetadata");
+		toRet.add("org.adligo.tests4j.models.shared.metadata.I_UseCase");
 		
 		toRet.add("org.adligo.tests4j.models.shared.results.I_ApiTrialResult");
 		toRet.add("org.adligo.tests4j.models.shared.results.I_Duration");
@@ -77,7 +78,6 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 		toRet.add("org.adligo.tests4j.models.shared.results.I_TrialFailure");
 		toRet.add("org.adligo.tests4j.models.shared.results.I_TrialResult");
 		toRet.add("org.adligo.tests4j.models.shared.results.I_TrialRunResult");
-		toRet.add("org.adligo.tests4j.models.shared.results.I_UseCase");
 		toRet.add("org.adligo.tests4j.models.shared.results.I_UseCaseTrialResult");
 		
 		
