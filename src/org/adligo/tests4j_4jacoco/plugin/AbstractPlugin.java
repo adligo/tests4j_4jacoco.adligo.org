@@ -8,14 +8,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.adligo.tests4j.models.shared.AdditionalInstrumentation;
 import org.adligo.tests4j.models.shared.I_AbstractTrial;
 import org.adligo.tests4j.models.shared.I_Trial;
-import org.adligo.tests4j.models.shared.PackageScope;
-import org.adligo.tests4j.models.shared.SourceFileScope;
 import org.adligo.tests4j.models.shared.system.I_CoveragePlugin;
 import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
 import org.adligo.tests4j.models.shared.system.report.I_Tests4J_Reporter;
@@ -97,6 +93,7 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 	public List<Class<? extends I_AbstractTrial>> instrumentClasses(List<Class<? extends I_AbstractTrial>> trials) {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 		classes.addAll(trials);
+		
 		TopPackageSet packages = TopPackageSet.getPackagesForInstrumentation(classes);
 		memory.setPackages(packages);
 		List<Class<?>> newClasses =  loadClasses(packages, classes);
@@ -169,6 +166,20 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 			}
 		}
 		MemoryClassLoader memoryClassLoader = memory.getMemoryClassLoader();
+		//instrument inner classes
+		try {
+			int i = 1;
+			while (true) {
+				Class<?> c = Class.forName(clazzName + "$" + i);
+				if (!memoryClassLoader.hasDefinition(c.getName())) {
+					instrumentClass(c.getName());
+				}
+				i++;
+			}
+		} catch (ClassNotFoundException e) {
+			//do nothing, this is the break in the loop
+		}
+		
 		I_Instrumenter instr = memory.getInstrumenter();
 		
 		final byte[] instrumented = instr.instrument(
