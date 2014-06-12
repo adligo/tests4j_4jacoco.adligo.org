@@ -85,6 +85,7 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 		toRet.add("org.adligo.tests4j.models.shared.system.I_AssertListener");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_CoveragePlugin");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Params");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_RemoteInfo");
 		
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_Probes");
 		
