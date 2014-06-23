@@ -33,6 +33,7 @@ public class SharedClassList {
 		
 		
 		toRet.add("org.adligo.tests4j.models.shared.asserts.AssertType");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.I_Asserts");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.I_AssertType");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.I_Thrower");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_LineTextCompareResult");
