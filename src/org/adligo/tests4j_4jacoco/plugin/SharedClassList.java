@@ -38,6 +38,8 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_LineTextCompareResult");
 		
 		toRet.add("org.adligo.tests4j.models.shared.common.TrialTypeEnum");
+		toRet.add("org.adligo.tests4j.models.shared.common.I_Platform");
+		toRet.add("org.adligo.tests4j.models.shared.common.PlatformEnum");
 		
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnits");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnitsContainer");
