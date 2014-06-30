@@ -32,11 +32,17 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.UseCaseScope");
 		
 		
-		toRet.add("org.adligo.tests4j.models.shared.asserts.AssertType");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.I_Asserts");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.I_AssertType");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.I_Thrower");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.common.AssertType");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_Asserts");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_AssertType");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_Thrower");
+		
 		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_LineTextCompareResult");
+		
+		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_Evaluation");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_EvaluatorLookup");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_UniformAssertionCommand");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_UniformAssertionEvaluator");
 		
 		toRet.add("org.adligo.tests4j.models.shared.common.TrialTypeEnum");
 		toRet.add("org.adligo.tests4j.models.shared.common.I_Platform");
