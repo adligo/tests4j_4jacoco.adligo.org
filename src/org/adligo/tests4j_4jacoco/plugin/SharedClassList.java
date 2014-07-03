@@ -31,7 +31,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_UniformAssertionCommand");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_UniformAssertionEvaluator");
 		
-		toRet.add("org.adligo.tests4j.models.shared.common.TrialTypeEnum");
+		toRet.add("org.adligo.tests4j.models.shared.common.TrialType");
 		toRet.add("org.adligo.tests4j.models.shared.common.I_Platform");
 		toRet.add("org.adligo.tests4j.models.shared.common.PlatformEnum");
 		
@@ -96,7 +96,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.trials.PackageScope");
 		toRet.add("org.adligo.tests4j.models.shared.trials.SourceFileScope");
 		toRet.add("org.adligo.tests4j.models.shared.trials.Test");
-		toRet.add("org.adligo.tests4j.models.shared.trials.TrialType");
+		toRet.add("org.adligo.tests4j.models.shared.trials.TrialTypeAnnotation");
 		toRet.add("org.adligo.tests4j.models.shared.trials.UseCaseScope");
 		
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_Probes");
