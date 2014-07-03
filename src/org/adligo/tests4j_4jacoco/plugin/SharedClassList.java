@@ -17,12 +17,22 @@ public class SharedClassList {
 	private static Set<String> getSharedClassWhitelist() {
 		Set<String> toRet = new HashSet<String>();
 	
-		
-		
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.AssertType");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_AssertCommand");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_AssertionData");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_Asserts");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_AssertType");
+		
+		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_CompareAssertCommand");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_CompareAssertionData");
+		
+		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_ExpectedThrownData");
+		
+		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_SimpleAssertCommand");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_SimpleCompareAssertCommand");
+		
 		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_Thrower");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_ThrownAssertCommand");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_ThrownAssertionData");
 		
 		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_LineTextCompareResult");
 		
