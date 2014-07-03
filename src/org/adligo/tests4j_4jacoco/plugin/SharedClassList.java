@@ -58,6 +58,8 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.results.I_TrialRunResult");
 		toRet.add("org.adligo.tests4j.models.shared.results.I_UseCaseTrialResult");
 		
+		toRet.add("org.adligo.tests4j.models.shared.results.feedback.I_ApiTrial_TestsResults");
+		toRet.add("org.adligo.tests4j.models.shared.results.feedback.I_SourceFileTrial_TestsResults");
 		
 		toRet.add("org.adligo.tests4j.models.shared.system.I_ThreadCount");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_AssertListener");
@@ -82,11 +84,14 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.trials.AfterTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.BeforeTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_AbstractTrial");
+		toRet.add("org.adligo.tests4j.models.shared.trials.I_ApiTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.IgnoreTest");
 		toRet.add("org.adligo.tests4j.models.shared.trials.IgnoreTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_Trial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialProcessorBindings");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_MetaTrial");
+		toRet.add("org.adligo.tests4j.models.shared.trials.I_SourceFileTrial");
+		
 		
 		toRet.add("org.adligo.tests4j.models.shared.trials.PackageScope");
 		toRet.add("org.adligo.tests4j.models.shared.trials.SourceFileScope");
