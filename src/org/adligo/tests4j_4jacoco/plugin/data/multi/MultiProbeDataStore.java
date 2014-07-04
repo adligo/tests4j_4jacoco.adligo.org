@@ -32,7 +32,7 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 			new ConcurrentHashMap<Long,MultiProbesMap>();
 			
 	@Override
-	public Map<Integer, Boolean> get(Long id, String name, int probecount) {
+	public synchronized Map<Integer, Boolean> get(Long id, String name, int probecount) {
 		MultiProbesMap toRet = classIdsToMulti.get(id);
 		if (toRet == null) {
 			synchronized(classIdsToMulti) {
@@ -47,12 +47,12 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 	}
 
 	@Override
-	public void startRecording(String scope) {
+	public synchronized void startRecording(String scope) {
 		states.setRecording(scope, true);
 	}
 
 	@Override
-	public void pauseRecording(String scope) {
+	public synchronized void pauseRecording(String scope) {
 		states.setRecording(scope, false);
 	}
 
