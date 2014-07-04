@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Reporter;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_CoverageRecoderStates;
 
 /**
@@ -32,8 +30,6 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 	private I_CoverageRecoderStates states;
 	private String clazzCovered;
 	private int probeCount;
-	private static I_Tests4J_Reporter REPORTER;
-	private static ConcurrentHashMap<String, Throwable> CREATION_LOCATIONS = new ConcurrentHashMap<String, Throwable>();
 	
 	public MultiProbesMap(I_CoverageRecoderStates pStates, String pClazzToCover, int pProbeCount) {
 		states = pStates;
@@ -83,16 +79,7 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		}
 		boolean toRet = false;
 		List<String> activeScopes = states.getCurrentRecordingScopes();
-		if (REPORTER != null) {
-			if (value) {
-				if (REPORTER.isLogEnabled(MultiProbesMap.class)) {
-					if (clazzCovered.contains("AssertType")) {
-						REPORTER.log("setting probe " + key + " for class " + 
-								clazzCovered + " scope \n\t" + activeScopes);
-					}
-				}
-			}
-		}
+		
 		Iterator<String> it = activeScopes.iterator();
 		while (it.hasNext()) {
 			String scope = it.next();
@@ -120,16 +107,6 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 					probes = scopesToProbes.get(scope);
 				}
 				if (key < probeCount) {
-					if (REPORTER != null) {
-						if (REPORTER.isLogEnabled(MultiProbesMap.class)) {
-							if (clazzCovered.contains("AssertType")) {
-								
-								if ("org.adligo.tests4j_tests.models.shared.asserts.common.AssertTypeTrial".equals(scope)) {
-									REPORTER.log("setting probe " + key + "/" + probeCount + " for class " + clazzCovered + " scope " + scope);
-								}
-							}
-						}
-					}
 					probes[key] = value;
 					toRet = true;
 				}
@@ -139,15 +116,6 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 	}
 
 	private boolean[] getFalseProbes() {
-		
-		if (REPORTER != null) {
-			if (REPORTER.isLogEnabled(MultiProbesMap.class)) {
-				Throwable trace = new Throwable("Tracking where false probes are created \n" +
-						"classCovered=" + clazzCovered );
-				String p = clazzCovered.replaceAll("/", ".");
-				CREATION_LOCATIONS.put(p, trace);
-			}
-		}
 		boolean[] probes;
 		probes = new boolean[probeCount];
 		for (int i = 0; i < probes.length; i++) {
@@ -207,18 +175,4 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 				", scopesToProbes=" + scopesToProbes + "]";
 	}
 
-	public static I_Tests4J_Reporter getREPORTER() {
-		return REPORTER;
-	}
-
-	public synchronized static void setREPORTER(I_Tests4J_Reporter rEPORTER) {
-		REPORTER = rEPORTER;
-	}
-	
-	public static void flushLocations(String clazzCovered) {
-		Throwable t = CREATION_LOCATIONS.get(clazzCovered);
-		if (t != null) {
-			REPORTER.onError(t);
-		}
-	}
 }

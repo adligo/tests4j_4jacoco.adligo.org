@@ -183,7 +183,6 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 
 	public void setReporter(I_Tests4J_Reporter log) {
 		this.reporter = log;
-		MultiProbesMap.setREPORTER(reporter);
 	}
 
 	public void setWriteOutInstrumentedClassFiles(
