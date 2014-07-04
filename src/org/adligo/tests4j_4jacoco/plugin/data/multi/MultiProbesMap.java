@@ -65,8 +65,11 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 	}
 
 	@Override
-	public Boolean put(Integer key, Boolean value) {
+	public synchronized Boolean put(Integer key, Boolean value) {
 		if (key == null || value == null) {
+			return false;
+		}
+		if (!value) {
 			return false;
 		}
 		int keyInt = key.intValue();
@@ -76,15 +79,20 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		List<String> activeScopes = states.getCurrentRecordingScopes();
 		for (String scope: activeScopes) {
 			boolean [] probes = scopesToProbes.get(scope);
-			if (probes == null) {
+			if (!scopesToProbes.containsKey(scope)) {
 				synchronized (scopesToProbes) {
-					probes = scopesToProbes.get(scope);
-					if (probes == null) {
+					if (!scopesToProbes.containsKey(scope)) {
 						probes = new boolean[probeCount];
+						for (int i = 0; i < probes.length; i++) {
+							probes[i] = false;
+						}
 						scopesToProbes.put(scope, probes);
+					} else {
+						probes = scopesToProbes.get(scope);
 					}
 				}
 			}
+			
 			if (keyInt < probes.length) {
 				probes[keyInt] = value;
 			}
@@ -122,7 +130,7 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		throw new IllegalStateException("Method not implemented");
 	}
 	
-	public void releaseRecording(String scope) {
+	public synchronized void releaseRecording(String scope) {
 		scopesToProbes.remove(scope);
 	}
 
