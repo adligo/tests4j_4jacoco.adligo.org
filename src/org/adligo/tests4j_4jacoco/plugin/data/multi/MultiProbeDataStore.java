@@ -52,9 +52,12 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 			} 
 		} 
 		if (toRet == null) {
-			//block until the id shows up
-			classIds.await(id);
-			toRet = classIdsToMulti.get(id);
+			toRet =  classIdsToMulti.get(id);
+			if (toRet == null) {
+				//block until the id shows up
+				classIds.await(id);
+				toRet = classIdsToMulti.get(id);
+			}
 		}
 		return toRet;
 	}
