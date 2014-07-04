@@ -25,7 +25,7 @@ public class CoverageRecorderStates implements I_CoverageRecoderStates {
 	 * 		true is recording 
 	 *      false is not recording 
 	 */
-	private final Map<String, AtomicBoolean> recorders = 
+	private final ConcurrentHashMap<String, AtomicBoolean> recorders = 
 			new ConcurrentHashMap<String, AtomicBoolean>();
 			
 	public void setRecording(String scope, boolean on) {
@@ -41,7 +41,7 @@ public class CoverageRecorderStates implements I_CoverageRecoderStates {
 		}
 	}
 	
-	public  boolean isRecording(String scope) {
+	public boolean isRecording(String scope) {
 		AtomicBoolean onOff = recorders.get(scope);
 		if (onOff != null) {
 			return onOff.get();
@@ -49,7 +49,7 @@ public class CoverageRecorderStates implements I_CoverageRecoderStates {
 		return false;
 	}
 	
-	public  List<String> getCurrentRecordingScopes() {
+	public List<String> getCurrentRecordingScopes() {
 		List<String> toRet = new ArrayList<String>();
 		
 		Set<Entry<String, AtomicBoolean>> entries = recorders.entrySet();
