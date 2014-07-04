@@ -1,11 +1,11 @@
 package org.adligo.tests4j_4jacoco.plugin.data.multi;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
 import org.adligo.tests4j_4jacoco.plugin.data.common.ClassProbes;
@@ -35,7 +35,7 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 	
 		
 	@Override
-	public Map<Integer, Boolean> get(final Long id, final String name, final int probecount) {
+	public synchronized Map<Integer, Boolean> get(final Long id, final String name, final int probecount) {
 		
 		MultiProbesMap toRet = classIdsToMulti.get(id);
 		if (toRet == null) {
@@ -49,34 +49,36 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 				});
 				
 				toRet =  classIdsToMulti.get(id);
+				if (toRet == null) {
+					//block until the id shows up
+					classIds.await(id);
+					toRet = classIdsToMulti.get(id);
+				}
 			} 
 		} 
 		if (toRet == null) {
 			toRet =  classIdsToMulti.get(id);
-			if (toRet == null) {
-				//block until the id shows up
-				classIds.await(id);
-				toRet = classIdsToMulti.get(id);
-			}
 		}
 		return toRet;
 	}
 
 	@Override
-	public void startRecording(String scope) {
+	public synchronized void startRecording(String scope) {
 		states.setRecording(scope, true);
 	}
 
 	@Override
-	public void pauseRecording(String scope) {
+	public synchronized void pauseRecording(String scope) {
 		states.setRecording(scope, false);
 	}
 
 	@Override
-	public I_ProbesDataStore endRecording(String scope) {
+	public synchronized  I_ProbesDataStore endRecording(String scope) {
 		states.setRecording(scope, false);
 		ProbesDataStoreMutant pdsm = new ProbesDataStoreMutant();
-		Set<Entry<Long, MultiProbesMap>> entries =  classIdsToMulti.entrySet();
+		
+		//spin through a snapshot
+		Set<Entry<Long, MultiProbesMap>> entries =  new HashMap<Long, MultiProbesMap>(classIdsToMulti).entrySet();
 		Iterator<Entry<Long, MultiProbesMap>> it =  entries.iterator();
 		while (it.hasNext()) {
 			Entry<Long, MultiProbesMap> entry = it.next();

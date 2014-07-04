@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.adligo.tests4j.models.shared.system.I_CoveragePlugin;
@@ -25,23 +26,19 @@ public class CoverageRecorderStates implements I_CoverageRecoderStates {
 	 * 		true is recording 
 	 *      false is not recording 
 	 */
-	private final ConcurrentHashMap<String, AtomicBoolean> recorders = 
+	private volatile ConcurrentHashMap<String, AtomicBoolean> recorders = 
 			new ConcurrentHashMap<String, AtomicBoolean>();
 			
 	public void setRecording(String scope, boolean on) {
 		AtomicBoolean onOff = recorders.get(scope);
 		if (onOff == null) {
-			synchronized (recorders) {
-				if (!recorders.containsKey(scope)) {
-					recorders.put(scope, new AtomicBoolean(on));
-				}
-			}
+			recorders.putIfAbsent(scope, new AtomicBoolean(on));
 		} else {
 			onOff.set(on);
 		}
 	}
 	
-	public boolean isRecording(String scope) {
+	public  boolean isRecording(String scope) {
 		AtomicBoolean onOff = recorders.get(scope);
 		if (onOff != null) {
 			return onOff.get();
@@ -49,8 +46,8 @@ public class CoverageRecorderStates implements I_CoverageRecoderStates {
 		return false;
 	}
 	
-	public List<String> getCurrentRecordingScopes() {
-		List<String> toRet = new ArrayList<String>();
+	public  List<String> getCurrentRecordingScopes() {
+		List<String> toRet = new CopyOnWriteArrayList<String>();
 		
 		Set<Entry<String, AtomicBoolean>> entries = recorders.entrySet();
 		Iterator<Entry<String, AtomicBoolean>> it =  entries.iterator();

@@ -17,6 +17,7 @@ import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j.models.shared.trials.I_Trial;
 import org.adligo.tests4j.run.discovery.ClassDiscovery;
 import org.adligo.tests4j.run.discovery.TopPackageSet;
+import org.adligo.tests4j_4jacoco.plugin.data.multi.MultiProbesMap;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassNameToInputStream;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.MemoryClassLoader;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
@@ -182,6 +183,7 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 
 	public void setReporter(I_Tests4J_Reporter log) {
 		this.reporter = log;
+		MultiProbesMap.setREPORTER(reporter);
 	}
 
 	public void setWriteOutInstrumentedClassFiles(
