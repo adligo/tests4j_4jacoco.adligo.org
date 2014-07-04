@@ -31,13 +31,17 @@ public class CoverageRecorderStates implements I_CoverageRecoderStates {
 	public void setRecording(String scope, boolean on) {
 		AtomicBoolean onOff = recorders.get(scope);
 		if (onOff == null) {
-			recorders.put(scope, new AtomicBoolean(on));
+			synchronized (recorders) {
+				if (!recorders.containsKey(scope)) {
+					recorders.put(scope, new AtomicBoolean(on));
+				}
+			}
 		} else {
 			onOff.set(on);
 		}
 	}
 	
-	public boolean isRecording(String scope) {
+	public  boolean isRecording(String scope) {
 		AtomicBoolean onOff = recorders.get(scope);
 		if (onOff != null) {
 			return onOff.get();
@@ -45,7 +49,7 @@ public class CoverageRecorderStates implements I_CoverageRecoderStates {
 		return false;
 	}
 	
-	public List<String> getCurrentRecordingScopes() {
+	public  List<String> getCurrentRecordingScopes() {
 		List<String> toRet = new ArrayList<String>();
 		
 		Set<Entry<String, AtomicBoolean>> entries = recorders.entrySet();
