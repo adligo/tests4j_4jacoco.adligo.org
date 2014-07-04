@@ -138,7 +138,7 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		return clazzCovered;
 	}
 	
-	public boolean[] getProbes(String scope) {
+	public synchronized boolean[] getProbes(String scope) {
 		boolean [] toRet = scopesToProbes.get(scope);
 		if (toRet == null) {
 			toRet = new boolean[probeCount];
