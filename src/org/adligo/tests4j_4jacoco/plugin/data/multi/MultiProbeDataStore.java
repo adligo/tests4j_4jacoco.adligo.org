@@ -1,11 +1,11 @@
 package org.adligo.tests4j_4jacoco.plugin.data.multi;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
 import org.adligo.tests4j_4jacoco.plugin.data.common.ClassProbes;
@@ -28,36 +28,49 @@ import org.adligo.tests4j_4jacoco.plugin.data.common.ProbesDataStoreMutant;
 public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 	private CoverageRecorderStates states = 
 			new CoverageRecorderStates();
-	private Map<Long,MultiProbesMap> classIdsToMulti = 
+	private ConcurrentHashMap<Long,MultiProbesMap> classIdsToMulti = 
 			new ConcurrentHashMap<Long,MultiProbesMap>();
-			
+	private ConcurrentMapValueAvailableNotifier<Long, MultiProbesMap> classIds = 
+			new ConcurrentMapValueAvailableNotifier<Long, MultiProbesMap>(classIdsToMulti);
+	
+		
 	@Override
-	public synchronized Map<Integer, Boolean> get(Long id, String name, int probecount) {
+	public Map<Integer, Boolean> get(final Long id, final String name, final int probecount) {
+		
 		MultiProbesMap toRet = classIdsToMulti.get(id);
 		if (toRet == null) {
-			synchronized(classIdsToMulti) {
-				toRet = classIdsToMulti.get(id);
-				if (toRet == null) {
-					toRet = new MultiProbesMap(states, name, probecount);
-					classIdsToMulti.put(id, toRet);
-				}
-			}
+			if (!classIds.containsKey(id)) {
+				classIds.put(id, new I_ValueCreator<MultiProbesMap>() {
+					
+					@Override
+					public MultiProbesMap create() {
+						return new MultiProbesMap(states, name, probecount);
+					}
+				});
+				
+				toRet =  classIdsToMulti.get(id);
+			} 
+		} 
+		if (toRet == null) {
+			//block until the id shows up
+			classIds.await(id);
+			toRet = classIdsToMulti.get(id);
 		}
 		return toRet;
 	}
 
 	@Override
-	public synchronized void startRecording(String scope) {
+	public void startRecording(String scope) {
 		states.setRecording(scope, true);
 	}
 
 	@Override
-	public synchronized void pauseRecording(String scope) {
+	public void pauseRecording(String scope) {
 		states.setRecording(scope, false);
 	}
 
 	@Override
-	public synchronized I_ProbesDataStore endRecording(String scope) {
+	public I_ProbesDataStore endRecording(String scope) {
 		states.setRecording(scope, false);
 		ProbesDataStoreMutant pdsm = new ProbesDataStoreMutant();
 		Set<Entry<Long, MultiProbesMap>> entries =  classIdsToMulti.entrySet();

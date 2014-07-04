@@ -19,10 +19,14 @@ import org.adligo.tests4j_4jacoco.plugin.data.common.I_CoverageRecoderStates;
  *
  */
 public class MultiProbesMap implements Map<Integer, Boolean>{
+	
 	/**
 	 * each entry in the list pertains to a different recorder
 	 */
-	private Map<String,boolean[]> scopesToProbes = new ConcurrentHashMap<String, boolean[]>();
+	private ConcurrentHashMap<String,boolean[]> scopesToProbes = 
+				new ConcurrentHashMap<String, boolean[]>();
+	private ConcurrentMapValueAvailableNotifier<String, boolean[]> scopesBlock = 
+				new ConcurrentMapValueAvailableNotifier<String, boolean[]>(scopesToProbes);
 	private I_CoverageRecoderStates states;
 	private String clazzCovered;
 	private int probeCount;
@@ -65,7 +69,7 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 	}
 
 	@Override
-	public synchronized Boolean put(Integer key, Boolean value) {
+	public  Boolean put(Integer key, Boolean value) {
 		if (key == null || value == null) {
 			return false;
 		}
@@ -79,25 +83,41 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		List<String> activeScopes = states.getCurrentRecordingScopes();
 		for (String scope: activeScopes) {
 			boolean [] probes = scopesToProbes.get(scope);
-			if (!scopesToProbes.containsKey(scope)) {
-				synchronized (scopesToProbes) {
-					if (!scopesToProbes.containsKey(scope)) {
-						probes = new boolean[probeCount];
-						for (int i = 0; i < probes.length; i++) {
-							probes[i] = false;
+			if (probes == null) {
+				if (!scopesBlock.containsKey(scope)) {
+					scopesBlock.put(scope, new I_ValueCreator<boolean[]>() {
+						
+						@Override
+						public boolean[] create() {
+							return getFalseProbes();
 						}
-						scopesToProbes.put(scope, probes);
-					} else {
-						probes = scopesToProbes.get(scope);
-					}
+					});
+					probes = scopesToProbes.get(scope);
+				} 
+			}
+			if (probes == null) {
+				probes = scopesToProbes.get(scope);
+				if (probes == null) {
+					//block until available
+					scopesBlock.await(scope);
+					probes = scopesToProbes.get(scope);
 				}
 			}
-			
-			if (keyInt < probes.length) {
-				probes[keyInt] = value;
+			if (key < probes.length) {
+				probes[key] = value;
 			}
+			
 		}
 		return true;
+	}
+
+	private boolean[] getFalseProbes() {
+		boolean[] probes;
+		probes = new boolean[probeCount];
+		for (int i = 0; i < probes.length; i++) {
+			probes[i] = false;
+		}
+		return probes;
 	}
 
 	@Override
@@ -130,7 +150,7 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		throw new IllegalStateException("Method not implemented");
 	}
 	
-	public synchronized void releaseRecording(String scope) {
+	public void releaseRecording(String scope) {
 		scopesToProbes.remove(scope);
 	}
 
@@ -138,11 +158,11 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		return clazzCovered;
 	}
 	
-	public synchronized boolean[] getProbes(String scope) {
-		boolean [] toRet = scopesToProbes.get(scope);
-		if (toRet == null) {
-			toRet = new boolean[probeCount];
+	public boolean[] getProbes(String scope) {
+		boolean[] probes = scopesToProbes.get(scope);
+		if (probes == null) {
+			probes = getFalseProbes();
 		}
-		return toRet;
+		return probes;
 	}
 }
