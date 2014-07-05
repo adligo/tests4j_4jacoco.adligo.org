@@ -13,20 +13,13 @@ public class Recorder implements I_CoverageRecorder {
 	protected I_Tests4J_Reporter reporter;
 	protected Tests4J_4JacocoMemory memory;
 	private boolean root;
-	private String scope;
 	private I_Runtime runtime;
 
 	
-	public Recorder(String pScope, Tests4J_4JacocoMemory pMemory, I_Tests4J_Reporter pLog) {
-		scope = pScope;
+	public Recorder(Tests4J_4JacocoMemory pMemory, I_Tests4J_Reporter pLog) {
 		memory = pMemory;
 		reporter = pLog;
 		runtime = memory.getRuntime();
-	}
-	
-	@Override
-	public String getScope() {
-		return scope;
 	}
 	
 
@@ -34,11 +27,11 @@ public class Recorder implements I_CoverageRecorder {
 	public void startRecording() {
 		if (reporter != null) {
 			if (reporter.isLogEnabled(Recorder.class)) {
-				reporter.log("Recorder starting " + scope);
+				reporter.log("Recorder starting ");
 			}
 		}
 		try {
-			runtime.startup(scope);
+			runtime.startup();
 		} catch (Exception x) {
 			throw new RuntimeException(x);
 		}
@@ -48,7 +41,7 @@ public class Recorder implements I_CoverageRecorder {
 	public List<I_PackageCoverage> endRecording() {
 		if (reporter != null) {
 			if (reporter.isLogEnabled(Recorder.class)) {
-				reporter.log("Ending Recording " + scope);
+				reporter.log("Ending Recording ");
 			}
 		}
 		/*
@@ -56,7 +49,7 @@ public class Recorder implements I_CoverageRecorder {
 		final SessionInfoStore sessionInfos = new SessionInfoStore();
 		data.collect(executionData, sessionInfos, false);
 		*/
-		I_ProbesDataStore executionData = runtime.end(scope);
+		I_ProbesDataStore executionData = runtime.end();
 		
 		return LazyPackageCoverageFactory.create(executionData, memory);
 	}

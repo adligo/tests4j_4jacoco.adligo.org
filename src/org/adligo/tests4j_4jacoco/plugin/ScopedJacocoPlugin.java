@@ -28,7 +28,7 @@ public class ScopedJacocoPlugin extends AbstractPlugin {
 
 
 	@Override
-	public boolean canSubRecord() {
+	public boolean canThreadLocalRecord() {
 		return true;
 	}
 }

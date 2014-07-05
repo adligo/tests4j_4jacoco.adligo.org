@@ -69,7 +69,7 @@ public interface I_ProbesDataStoreAdaptor {
 	 * it will end up in the coverage data.
 	 * @param scope
 	 */
-	public void startTracking(String scope);
+	public void startTracking();
 	/**
 	 * end tracking for a particular scope
 	 * and return all of the coverage data (I_ProbesDataStore)
@@ -79,5 +79,5 @@ public interface I_ProbesDataStoreAdaptor {
 	 * 
 	 * @param scope
 	 */
-	public I_ProbesDataStore endTracking(String scope);
+	public I_ProbesDataStore endTracking();
 }

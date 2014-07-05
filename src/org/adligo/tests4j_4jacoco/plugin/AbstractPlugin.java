@@ -156,8 +156,8 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 	}
 	
 	@Override
-	public synchronized I_CoverageRecorder createRecorder(String scope) {
-		Recorder rec = new Recorder(scope, memory, reporter);
+	public synchronized I_CoverageRecorder createRecorder() {
+		Recorder rec = new Recorder(memory, reporter);
 		if (!firstRecorder.get()) {
 			firstRecorder.set(true);
 			rec.setRoot(true);

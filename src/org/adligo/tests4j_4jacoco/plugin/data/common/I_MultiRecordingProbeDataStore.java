@@ -18,12 +18,12 @@ public interface I_MultiRecordingProbeDataStore {
 	 * start/resume a recording for the scope
 	 * @param scope
 	 */
-	public void startRecording(String scope);
+	public void startRecording();
 	/**
 	 * return the coverage data 
 	 * and cleanup memory
 	 * @param scope
 	 * @return
 	 */
-	public I_ProbesDataStore endRecording(String scope);
+	public I_ProbesDataStore endRecording();
 }

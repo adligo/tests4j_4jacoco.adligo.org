@@ -26,8 +26,6 @@ import org.adligo.tests4j_4jacoco.plugin.data.common.ProbesDataStoreMutant;
  *
  */
 public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
-	private CoverageRecorderStates states = 
-			new CoverageRecorderStates();
 	private ConcurrentHashMap<Long,MultiProbesMap> classIdsToMulti = 
 			new ConcurrentHashMap<Long,MultiProbesMap>();
 	private ConcurrentMapValueAvailableNotifier<Long, MultiProbesMap> classIds = 
@@ -44,7 +42,7 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 					
 					@Override
 					public MultiProbesMap create() {
-						return new MultiProbesMap(states, name, probecount);
+						return new MultiProbesMap(name, probecount);
 					}
 				});
 				
@@ -63,13 +61,11 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 	}
 
 	@Override
-	public synchronized void startRecording(String scope) {
-		states.setRecording(scope, true);
+	public void startRecording() {
 	}
 
 	@Override
-	public synchronized  I_ProbesDataStore endRecording(String scope) {
-		states.setRecording(scope, false);
+	public  I_ProbesDataStore endRecording() {
 		ProbesDataStoreMutant pdsm = new ProbesDataStoreMutant();
 		
 		//spin through a snapshot
@@ -80,7 +76,7 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 			Long clazzId = entry.getKey();
 			MultiProbesMap val = entry.getValue();
 			
-			boolean [] probeVals = val.getProbes(scope);
+			boolean [] probeVals = val.getProbes();
 			
 			ClassProbesMutant cpm = new ClassProbesMutant();
 			cpm.setClassId(clazzId);
@@ -88,7 +84,7 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 			cpm.setProbes(new Probes(probeVals));
 			pdsm.put(clazzId, new ClassProbes(cpm));
 			
-			val.releaseRecording(scope);
+			val.releaseRecording();
 			
 		}
 		return new ProbesDataStore(pdsm);

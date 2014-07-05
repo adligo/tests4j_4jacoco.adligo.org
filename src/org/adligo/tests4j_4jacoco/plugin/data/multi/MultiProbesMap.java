@@ -23,24 +23,29 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 	/**
 	 * each entry in the list pertains to a different recorder
 	 */
-	private ConcurrentHashMap<String,boolean[]> scopesToProbes = 
-				new ConcurrentHashMap<String, boolean[]>();
-	private ConcurrentMapValueAvailableNotifier<String, boolean[]> scopesBlock = 
-				new ConcurrentMapValueAvailableNotifier<String, boolean[]>(scopesToProbes);
-	private I_CoverageRecoderStates states;
+	private boolean[] probes;
+	private ThreadLocal<boolean []> localProbes = new ThreadLocal<boolean[]>();
+	
+	/**
+	 * The thread that created this instance
+	 * which is used to determine which boolean [] of
+	 * probes to use 
+	 * 1) the probes member variable (for the thread that created this instance)
+	 * 2) the localProbes ThreadLocal (for the other threads)
+	 * 
+	 */
+	private Thread creationThread = Thread.currentThread();
 	private String clazzCovered;
 	private int probeCount;
 	
-	public MultiProbesMap(I_CoverageRecoderStates pStates, String pClazzToCover, int pProbeCount) {
-		states = pStates;
-		if (pStates == null) {
-			throw new NullPointerException("pStates can't be null!");
-		}
+	public MultiProbesMap(String pClazzToCover, int pProbeCount) {
+		
 		clazzCovered = pClazzToCover;
 		if (pClazzToCover == null) {
 			throw new NullPointerException("pClazzToCover can't be null!");
 		}
 		probeCount = pProbeCount;
+		probes = getEmptyProbes();
 	}
 
 	@Override
@@ -78,50 +83,29 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 			return false;
 		}
 		boolean toRet = false;
-		List<String> activeScopes = states.getCurrentRecordingScopes();
 		
-		Iterator<String> it = activeScopes.iterator();
-		while (it.hasNext()) {
-			String scope = it.next();
-			boolean [] probes = scopesToProbes.get(scope);
-			if (probes == null) {
-				if (!scopesBlock.containsKey(scope)) {
-					scopesBlock.put(scope, new I_ValueCreator<boolean[]>() {
-						
-						@Override
-						public boolean[] create() {
-							return getFalseProbes();
-						}
-					});
-					probes = scopesToProbes.get(scope);
-					if (probes == null) {
-						//block until available
-						scopesBlock.await(scope);
-						probes = scopesToProbes.get(scope);
+		if (value) {
+			if (key < probeCount) {
+				probes[key] = value;
+				if ( !creationThread.equals(Thread.currentThread())) {
+					if (localProbes.get() == null) {
+						boolean [] local = getEmptyProbes();
+						local[key] = value;
+						localProbes.set(local);
 					}
-					
-				} 
-			}
-			if (value) {
-				if (probes == null) {
-					probes = scopesToProbes.get(scope);
 				}
-				if (key < probeCount) {
-					probes[key] = value;
-					toRet = true;
-				}
+				toRet = true;
 			}
 		}
 		return toRet;
 	}
 
-	private boolean[] getFalseProbes() {
-		boolean[] probes;
-		probes = new boolean[probeCount];
-		for (int i = 0; i < probes.length; i++) {
-			probes[i] = false;
+	private boolean[] getEmptyProbes() {
+		boolean[] toRet = new boolean[probeCount];
+		for (int i = 0; i < toRet.length; i++) {
+			toRet[i] = false;
 		}
-		return probes;
+		return toRet;
 	}
 
 	@Override
@@ -154,25 +138,33 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		throw new IllegalStateException("Method not implemented");
 	}
 	
-	public void releaseRecording(String scope) {
-		scopesToProbes.remove(scope);
+	public void releaseRecording() {
+		/*
+		if (creationThread.equals(Thread.currentThread())) {
+			probes = null;
+		}
+		*/
+		localProbes.set(null);
 	}
 
 	public String getClazzCovered() {
 		return clazzCovered;
 	}
 	
-	public boolean[] getProbes(String scope) {
-		boolean[] probes = scopesToProbes.get(scope);
-		if (probes == null) {
-			probes = getFalseProbes();
+	public boolean[] getProbes() {
+		boolean[] toRet = localProbes.get();
+		if (toRet == null) {
+			toRet = probes;
 		}
-		return probes;
+		if (toRet == null) {
+			return getEmptyProbes();
+		}
+		return toRet;
 	}
 	
 	public String toString() {
 		return "MultiProbesMap [classCovered=" + clazzCovered +
-				", scopesToProbes=" + scopesToProbes + "]";
+				", scopesToProbes=" + probes + ", localProbes=" + localProbes.get() + "]";
 	}
 
 }

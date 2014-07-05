@@ -15,17 +15,15 @@ public interface I_Runtime {
 	 * @param scope
 	 * @throws SecurityException
 	 */
-	public void startup(String scope) throws SecurityException;
+	public void startup() throws SecurityException;
 	/**
 	 * shutsdown for all scopes
 	 */
 	public void shutdown();
 	/**
-	 * clears memory for the scope 
-	 * and returns the coverage data.
+	 * returns the coverage data and clears it out of memory.
 	 * 
-	 * @param scope
 	 * @return
 	 */
-	public I_ProbesDataStore end(String scope);
+	public I_ProbesDataStore end();
 }
