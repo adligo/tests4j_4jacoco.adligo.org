@@ -20,11 +20,6 @@ public interface I_MultiRecordingProbeDataStore {
 	 */
 	public void startRecording(String scope);
 	/**
-	 * pause recording for a scope
-	 * @param scope
-	 */
-	public void pauseRecording(String scope);
-	/**
 	 * return the coverage data 
 	 * and cleanup memory
 	 * @param scope

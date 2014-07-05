@@ -17,11 +17,6 @@ public interface I_Runtime {
 	 */
 	public void startup(String scope) throws SecurityException;
 	/**
-	 * pauses for a particular scope
-	 * @param scope
-	 */
-	public void pause(String scope);
-	/**
 	 * shutsdown for all scopes
 	 */
 	public void shutdown();

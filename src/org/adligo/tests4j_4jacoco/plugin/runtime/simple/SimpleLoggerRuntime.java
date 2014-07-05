@@ -86,9 +86,5 @@ public class SimpleLoggerRuntime implements I_Runtime {
 		return data.endTracking(scope);
 	}
 
-	@Override
-	public void pause(String scope) {
-		data.pasueTracking(scope);
-	}
 
 }

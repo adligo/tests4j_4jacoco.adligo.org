@@ -71,13 +71,6 @@ public interface I_ProbesDataStoreAdaptor {
 	 */
 	public void startTracking(String scope);
 	/**
-	 * pause tracking for a particular scope
-	 * (so if code is covered while paused,
-	 * it will not end up in the coverage data).
-	 * @param scope
-	 */
-	public void pasueTracking(String scope);
-	/**
 	 * end tracking for a particular scope
 	 * and return all of the coverage data (I_ProbesDataStore)
 	 * that pertains to a particular scope.

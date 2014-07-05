@@ -163,9 +163,4 @@ public class SimpleProbesDataStoreAdaptor implements I_ProbesDataStoreAdaptor {
 		//do nothing, everything is in one scope for this class
 	}
 
-	@Override
-	public void pasueTracking(String scope) {
-		//do nothing, everything is in one scope for this class
-	}
-	
 }

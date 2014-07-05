@@ -79,16 +79,6 @@ public class Recorder implements I_CoverageRecorder {
 		this.root = root;
 	}
 
-	@Override
-	public void pauseRecording() {
-		if (reporter != null) {
-			if (reporter.isLogEnabled(Recorder.class)) {
-				reporter.log("Recording on Pause " + scope);
-			}
-		}
-		runtime.pause(scope);
-	}
-	
 	
 }
 

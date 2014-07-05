@@ -29,10 +29,6 @@ public class MultiProbeDataStoreAdaptor extends AbstractRuntimeData implements I
 		dataStore.startRecording(scope);
 	}
 
-	@Override
-	public void pasueTracking(String scope) {
-		dataStore.pauseRecording(scope);
-	}
 
 
 

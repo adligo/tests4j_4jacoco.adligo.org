@@ -68,11 +68,6 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 	}
 
 	@Override
-	public synchronized void pauseRecording(String scope) {
-		states.setRecording(scope, false);
-	}
-
-	@Override
 	public synchronized  I_ProbesDataStore endRecording(String scope) {
 		states.setRecording(scope, false);
 		ProbesDataStoreMutant pdsm = new ProbesDataStoreMutant();
