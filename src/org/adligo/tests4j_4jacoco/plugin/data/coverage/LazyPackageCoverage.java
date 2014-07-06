@@ -175,24 +175,6 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 	}
 
 	@Override
-	public I_CoverageUnits getTotalCoverageUnits() {
-		getOrLoadSourceFileCoverage();
-		return countTotals.getCoverageUnits();
-	}
-
-	@Override
-	public I_CoverageUnits getTotalCoveredCoverageUnits() {
-		getOrLoadSourceFileCoverage();
-		return countTotals.getCoveredCoverageUnits();
-	}
-
-	@Override
-	public BigDecimal getTotalPercentageCovered() {
-		getOrLoadSourceFileCoverage();
-		return countTotals.getPercentageCovered();
-	}
-
-	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -216,12 +198,6 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 		} else if (!packageName.equals(other.packageName))
 			return false;
 		return true;
-	}
-
-	@Override
-	public double getTotalPercentageCoveredDouble() {
-		getOrLoadSourceFileCoverage();
-		return countTotals.getPercentageCoveredDouble();
 	}
 
 }
