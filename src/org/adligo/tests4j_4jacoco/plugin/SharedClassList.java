@@ -43,7 +43,7 @@ public class SharedClassList {
 		
 		toRet.add("org.adligo.tests4j.models.shared.common.TrialType");
 		toRet.add("org.adligo.tests4j.models.shared.common.I_Platform");
-		toRet.add("org.adligo.tests4j.models.shared.common.PlatformEnum");
+		toRet.add("org.adligo.tests4j.models.shared.common.Platform");
 		
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnits");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnitsContainer");
@@ -98,7 +98,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.trials.IgnoreTest");
 		toRet.add("org.adligo.tests4j.models.shared.trials.IgnoreTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_Trial");
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialProcessorBindings");
+		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialBindings");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_MetaTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_SourceFileTrial");
 		
