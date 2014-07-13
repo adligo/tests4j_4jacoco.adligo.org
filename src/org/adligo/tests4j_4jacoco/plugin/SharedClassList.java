@@ -52,11 +52,11 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_PackageCoverage");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage");
 		
-		toRet.add("org.adligo.tests4j.models.shared.metadata.I_SourceInfo");
+		toRet.add("org.adligo.tests4j.models.shared.metadata.I_SourceInfoMetadata");
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TestMetadata");
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TrialMetadata");
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TrialRunMetadata");
-		toRet.add("org.adligo.tests4j.models.shared.metadata.I_UseCase");
+		toRet.add("org.adligo.tests4j.models.shared.metadata.I_UseCaseMetadata");
 		
 		toRet.add("org.adligo.tests4j.models.shared.results.I_ApiTrialResult");
 		toRet.add("org.adligo.tests4j.models.shared.results.I_Duration");
@@ -110,6 +110,10 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.trials.Test");
 		toRet.add("org.adligo.tests4j.models.shared.trials.TrialTypeAnnotation");
 		toRet.add("org.adligo.tests4j.models.shared.trials.UseCaseScope");
+		
+		toRet.add("org.adligo.tests4j.models.shared.xml.I_XML_Builder");
+		toRet.add("org.adligo.tests4j.models.shared.xml.I_XML_Consumer");
+		toRet.add("org.adligo.tests4j.models.shared.xml.I_XML_Producer");
 		
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_Probes");
 		
