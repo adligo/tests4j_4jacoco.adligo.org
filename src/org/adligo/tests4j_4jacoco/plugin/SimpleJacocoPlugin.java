@@ -1,5 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin;
 
+import org.adligo.tests4j.models.shared.system.I_CoveragePlugin;
+import org.adligo.tests4j.models.shared.system.I_CoveragePluginFactory;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Reporter;
 import org.adligo.tests4j_4jacoco.plugin.data.multi.MultiProbeDataStoreAdaptor;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.DataInstrumenter;
@@ -15,9 +17,11 @@ import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleLoggerRuntime;
  * @author scott
  *
  */
-public class SimpleJacocoPlugin extends AbstractPlugin {
+public class SimpleJacocoPlugin extends AbstractPlugin  {
 	
 	public SimpleJacocoPlugin(I_Tests4J_Reporter reporter) {
+		super.setReporter(reporter);
+		
 		ProbeDataAccessorByLoggingApiFactory factory = new ProbeDataAccessorByLoggingApiFactory(
 				MapInstrConstants.DATAFIELD_DESC);
 		MapInstrumenterFactory instrFactory = new MapInstrumenterFactory(factory);
