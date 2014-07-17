@@ -78,6 +78,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Params");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_RemoteInfo");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Reporter");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_TrialRunListener");
 		
 		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_Constants");
 		toRet.add("org.adligo.tests4j.models.shared.i18n.eclipse.I_EclipseErrors");
