@@ -1,14 +1,17 @@
 package org.adligo.tests4j_4jacoco.plugin.data.common;
 
 public class ProbesMutant implements I_Probes {
-	private boolean[] probes;
+	private final boolean[] probes;
 
 	public ProbesMutant() {
 		probes = new boolean[]{};
 	}
 	
 	public ProbesMutant(boolean [] pProbes) {
-		probes = pProbes;
+		probes = new boolean[pProbes.length];
+		for (int i = 0; i < pProbes.length; i++) {
+			probes[i] = pProbes[i];
+		}
 	}
 	
 	public ProbesMutant(I_Probes other) {
@@ -20,17 +23,16 @@ public class ProbesMutant implements I_Probes {
 	
 	@Override
 	public boolean get(int p) {
-		if (p >= probes.length) {
+		if (p >= probes.length || p < 0) {
 			return false;
 		}
 		return probes[p];
 	}
 	
 	public void set(int i, boolean p) {
-		if (i >= probes.length || i < 0) {
-			return;
+		if (i >= 0 && i < probes.length) {
+			probes[i] = p;
 		}
-		probes[i] = p;
 	}
 	
 	@Override

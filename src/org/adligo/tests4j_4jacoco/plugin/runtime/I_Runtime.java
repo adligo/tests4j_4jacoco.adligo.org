@@ -22,8 +22,10 @@ public interface I_Runtime {
 	public void shutdown();
 	/**
 	 * returns the coverage data and clears it out of memory.
-	 * 
+	 * @param root determines the if this is the root recording
+	 *    if not assume it is a child ThreadGroupLocal recording.
+	 *    
 	 * @return
 	 */
-	public I_ProbesDataStore end();
+	public I_ProbesDataStore end(boolean root);
 }

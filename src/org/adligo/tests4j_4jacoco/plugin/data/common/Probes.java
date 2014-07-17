@@ -1,6 +1,5 @@
 package org.adligo.tests4j_4jacoco.plugin.data.common;
 
-import java.util.Arrays;
 
 /**
  * a immutable representation of probes
@@ -8,7 +7,7 @@ import java.util.Arrays;
  *
  */
 public class Probes implements I_Probes {
-	private boolean[] probes;
+	private final boolean[] probes;
 	
 	public Probes(I_Probes other) {
 		probes = new boolean[other.size()];
@@ -18,7 +17,10 @@ public class Probes implements I_Probes {
 	}
 	
 	public Probes(boolean [] pProbes) {
-		probes = Arrays.copyOf(pProbes, pProbes.length);
+		probes = new boolean[pProbes.length];
+		for (int i = 0; i < pProbes.length; i++) {
+			probes[i] = pProbes[i];
+		}
 	}
 	
 	@Override

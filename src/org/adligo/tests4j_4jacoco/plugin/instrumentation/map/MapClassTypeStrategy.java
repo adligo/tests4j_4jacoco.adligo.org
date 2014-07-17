@@ -38,7 +38,7 @@ public class MapClassTypeStrategy extends AbstractObtainProbesStrategy implement
 	}
 
 	public void createJacocoData(final ClassVisitor cv) {
-		cv.visitField(InstrSupport.DATAFIELD_ACC,
+		cv.visitField(MapInstrConstants.DATAFIELD_ACC,
 				//InstrSupport.DATAFIELD_NAME, InstrSupport.DATAFIELD_DESC,
 				InstrSupport.DATAFIELD_NAME, MapInstrConstants.DATAFIELD_CLAZZ,
 				null, null);
@@ -158,24 +158,6 @@ public class MapClassTypeStrategy extends AbstractObtainProbesStrategy implement
 					"after accessorGenerator.create " + className + ".jacocoInit()  "
 					+ "\n" + sh);
 		}
-		
-		// Stack[0]: Map
-
-		for (int i = 0; i < probeCount; i++) {
-			mv.visitInsn(Opcodes.DUP);
-			sh.incrementStackSize();
-			if (BytecodeInjectionDebuger.isEnabled()) {
-				BytecodeInjectionDebuger.dupStackDebug();
-			}
-			
-			// Stack[1]: Map
-			// Stack[0]: Map
-			
-			MapBytecodeHelper.callMapPut(sh, i, false, mv);
-			
-			// Stack[0]: Map
-		}
-		
 		
 		if (BytecodeInjectionDebuger.isEnabled()) {
 			BytecodeInjectionDebuger.log(sh, mv,

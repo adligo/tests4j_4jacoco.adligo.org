@@ -152,7 +152,7 @@ public class SimpleProbesDataStoreAdaptor implements I_ProbesDataStoreAdaptor {
 	}
 	
 	@Override
-	public synchronized I_ProbesDataStore endTracking() {
+	public synchronized I_ProbesDataStore endTracking(boolean main) {
 		I_ProbesDataStore toRet =  new WrappedDataStore(store);
 		store = new ExecutionDataStore();
 		return toRet;

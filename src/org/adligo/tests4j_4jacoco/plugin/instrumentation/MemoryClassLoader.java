@@ -1,5 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -61,6 +63,15 @@ public class MemoryClassLoader extends ClassLoader implements I_ClassContainer {
 			toRet.add(key);
 		}
 		return toRet;
+	}
+
+	@Override
+	public InputStream getResourceAsStream(String name) {
+		byte[] bytes = definitions.get(name);
+		if (bytes != null) {
+			return new ByteArrayInputStream(bytes);
+		}
+		return super.getResourceAsStream(name);
 	}
  }
 

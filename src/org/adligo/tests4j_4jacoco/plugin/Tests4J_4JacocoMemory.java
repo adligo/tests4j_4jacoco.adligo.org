@@ -9,7 +9,17 @@ import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Runtime;
 
 public class Tests4J_4JacocoMemory implements I_ClassContainer {
-	private MemoryClassLoader memoryClassLoader = new MemoryClassLoader();
+	/**
+	 * this holds regular versions of the class which
+	 * have been instrumented 
+	 */
+	private MemoryClassLoader instrumentedClassLoader = new MemoryClassLoader();
+	/**
+	 * this holds regular versions of the class which
+	 * have NOT been instrumented since
+	 * getResourceAsStream seems to cause ThreadSafty issues
+	 */
+	private MemoryClassLoader cachedClassLoader = new MemoryClassLoader();
 	private I_Runtime runtime;
 	private I_Instrumenter instrumenter;
 	
@@ -20,8 +30,8 @@ public class Tests4J_4JacocoMemory implements I_ClassContainer {
 	
 	private TopPackageSet packages;
 	
-	public MemoryClassLoader getMemoryClassLoader() {
-		return memoryClassLoader;
+	public MemoryClassLoader getInstrumentedClassLoader() {
+		return instrumentedClassLoader;
 	}
 	public I_Runtime getRuntime() {
 		return runtime;
@@ -37,10 +47,13 @@ public class Tests4J_4JacocoMemory implements I_ClassContainer {
 	}
 	
 	public  List<String> getClassesInPackage(String pkgName) {
-		return memoryClassLoader.getClassesInPackage(pkgName);
+		return instrumentedClassLoader.getClassesInPackage(pkgName);
 	}
 	@Override
 	public List<String> getAllClasses() {
-		return memoryClassLoader.getAllClasses();
+		return instrumentedClassLoader.getAllClasses();
+	}
+	public MemoryClassLoader getCachedClassLoader() {
+		return cachedClassLoader;
 	}
 }

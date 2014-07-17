@@ -15,9 +15,9 @@ import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleLoggerRuntime;
  * @author scott
  *
  */
-public class ScopedJacocoPlugin extends AbstractPlugin {
+public class SimpleJacocoPlugin extends AbstractPlugin {
 	
-	public ScopedJacocoPlugin(I_Tests4J_Reporter reporter) {
+	public SimpleJacocoPlugin(I_Tests4J_Reporter reporter) {
 		ProbeDataAccessorByLoggingApiFactory factory = new ProbeDataAccessorByLoggingApiFactory(
 				MapInstrConstants.DATAFIELD_DESC);
 		MapInstrumenterFactory instrFactory = new MapInstrumenterFactory(factory);
@@ -30,6 +30,6 @@ public class ScopedJacocoPlugin extends AbstractPlugin {
 
 	@Override
 	public boolean canThreadGroupLocalRecord() {
-		return true;
+		return false;
 	}
 }

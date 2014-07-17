@@ -18,7 +18,6 @@ import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
 import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage;
 import org.adligo.tests4j_4jacoco.plugin.analysis.common.CoverageAnalyzer;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassNameToInputStream;
 import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.analysis.ISourceFileCoverage;
 
@@ -43,10 +42,12 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 	private Map<String,I_SourceFileCoverage> sourceCoverage = new HashMap<String, I_SourceFileCoverage>();
 	private CoverageUnitContinerMutant countTotals = new CoverageUnitContinerMutant();
 	private CoverageUnitContinerMutant counts = new CoverageUnitContinerMutant();
+	private ClassLoader classLoader;
 	
 	public LazyPackageCoverage(LazyPackageCoverageInput input) {
 		packageName = input.getPackageName();
 		probeData = input.getProbeData();
+		classLoader = input.getClassLoader();
 		
 		Set<String> subPackages = new HashSet<String>();
 		
@@ -71,7 +72,7 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 		}
 	}
 	
-	private Map<String,I_SourceFileCoverage> getOrLoadSourceFileCoverage() {
+	private  Map<String,I_SourceFileCoverage> getOrLoadSourceFileCoverage() {
 		if (loadedAllSourceFiles.get()) {
 			return sourceCoverage;
 		} else {
@@ -84,8 +85,7 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 			for (String fileName: classNames) {
 				String fullName = packageName  + "." + fileName;
 				try {
-					analyzer.analyzeClass(ClassNameToInputStream.getTargetClass(
-							fullName), fullName);
+					analyzer.analyzeClass(classLoader.getResourceAsStream(fullName), fullName);
 				} catch (IOException x) {
 					x.printStackTrace();
 				}

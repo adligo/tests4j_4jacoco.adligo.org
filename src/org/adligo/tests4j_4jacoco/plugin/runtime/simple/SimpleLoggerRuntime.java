@@ -82,8 +82,8 @@ public class SimpleLoggerRuntime implements I_Runtime {
 	}
 
 	@Override
-	public I_ProbesDataStore end() {
-		return data.endTracking();
+	public I_ProbesDataStore end(boolean root) {
+		return data.endTracking(root);
 	}
 
 

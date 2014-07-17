@@ -49,9 +49,9 @@ public class Recorder implements I_CoverageRecorder {
 		final SessionInfoStore sessionInfos = new SessionInfoStore();
 		data.collect(executionData, sessionInfos, false);
 		*/
-		I_ProbesDataStore executionData = runtime.end();
+		I_ProbesDataStore executionData = runtime.end(root);
 		
-		return LazyPackageCoverageFactory.create(executionData, memory);
+		return LazyPackageCoverageFactory.create(executionData, memory, memory.getCachedClassLoader());
 	}
 
 

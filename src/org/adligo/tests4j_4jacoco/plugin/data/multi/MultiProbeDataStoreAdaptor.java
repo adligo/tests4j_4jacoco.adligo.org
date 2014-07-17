@@ -1,13 +1,18 @@
 package org.adligo.tests4j_4jacoco.plugin.data.multi;
 
+import org.adligo.tests4j.models.shared.system.I_Tests4J_Reporter;
 import org.adligo.tests4j_4jacoco.plugin.data.common.AbstractRuntimeData;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_MultiRecordingProbeDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStoreAdaptor;
 
 public class MultiProbeDataStoreAdaptor extends AbstractRuntimeData implements I_ProbesDataStoreAdaptor {
-	private I_MultiRecordingProbeDataStore dataStore = new MultiProbeDataStore();
+	private I_MultiRecordingProbeDataStore dataStore;
 
+	
+	public MultiProbeDataStoreAdaptor(I_Tests4J_Reporter reporter) {
+		dataStore = new MultiProbeDataStore(reporter);
+	}
 	@Override
 	public void getProbes(Object[] args) {
 		Object obj0 = args[0];
@@ -20,8 +25,8 @@ public class MultiProbeDataStoreAdaptor extends AbstractRuntimeData implements I
 	}
 
 	@Override
-	public I_ProbesDataStore endTracking() {
-		return dataStore.endRecording();
+	public I_ProbesDataStore endTracking(boolean main) {
+		return dataStore.endRecording(main);
 	}
 
 	@Override

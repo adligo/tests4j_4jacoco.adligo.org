@@ -79,5 +79,5 @@ public interface I_ProbesDataStoreAdaptor {
 	 * 
 	 * @param scope
 	 */
-	public I_ProbesDataStore endTracking();
+	public I_ProbesDataStore endTracking(boolean main);
 }

@@ -1,11 +1,12 @@
 package org.adligo.tests4j_4jacoco.plugin;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -17,8 +18,6 @@ import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j.models.shared.trials.I_Trial;
 import org.adligo.tests4j.run.discovery.ClassDiscovery;
 import org.adligo.tests4j.run.discovery.TopPackageSet;
-import org.adligo.tests4j_4jacoco.plugin.data.multi.MultiProbesMap;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassNameToInputStream;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.MemoryClassLoader;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 
@@ -92,7 +91,7 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 	private Class<?> loadClass(String clazzName) throws IOException,
 			ClassNotFoundException {
 		
-		MemoryClassLoader memoryClassLoader = memory.getMemoryClassLoader();
+		MemoryClassLoader memoryClassLoader = memory.getInstrumentedClassLoader();
 		if (memoryClassLoader.getClass(clazzName) == null) {
 			if (!SharedClassList.WHITELIST.contains(clazzName)) {
 				return instrumentClass(clazzName);
@@ -107,7 +106,7 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 				reporter.log("instrumenting class " + clazzName);
 			}
 		}
-		MemoryClassLoader memoryClassLoader = memory.getMemoryClassLoader();
+		MemoryClassLoader memoryClassLoader = memory.getInstrumentedClassLoader();
 		//instrument inner classes
 		try {
 			int i = 1;
@@ -123,9 +122,24 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 		}
 		
 		I_Instrumenter instr = memory.getInstrumenter();
-		
+		MemoryClassLoader cachedClassLoader = memory.getCachedClassLoader();
+		InputStream classInputStream = null;
+		if (cachedClassLoader.hasDefinition(clazzName)) {
+			classInputStream = cachedClassLoader.getResourceAsStream(clazzName);
+		} else {
+			final String resource = '/' + clazzName.replace('.', '/') + ".class";
+			InputStream in = this.getClass().getResourceAsStream(resource);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			byte [] bytes = new byte[1];
+			while(in.read(bytes) != -1) {
+				baos.write(bytes);
+			}
+			bytes = baos.toByteArray();
+			cachedClassLoader.addDefinition(clazzName, bytes);
+			classInputStream = new ByteArrayInputStream(bytes);
+		}
 		final byte[] instrumented = instr.instrument(
-				ClassNameToInputStream.getTargetClass(clazzName), clazzName);
+				classInputStream, clazzName);
 		if (writeOutInstrumentedClassFiles) {
 			FileOutputStream fos = new FileOutputStream(new File("./" + clazzName + ".class"));
 			fos.write(instrumented);

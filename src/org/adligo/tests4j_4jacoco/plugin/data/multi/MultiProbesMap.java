@@ -1,13 +1,13 @@
 package org.adligo.tests4j_4jacoco.plugin.data.multi;
 
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_CoverageRecoderStates;
+import org.adligo.tests4j.models.shared.system.I_Tests4J_Reporter;
+import org.adligo.tests4j.run.helpers.Tests4J_ThreadFactory;
+import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
 
 /**
  * a wrapper around probe data for different recorders.
@@ -23,29 +23,34 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 	/**
 	 * each entry in the list pertains to a different recorder
 	 */
-	private boolean[] probes;
-	private ThreadLocal<boolean []> localProbes = new ThreadLocal<boolean[]>();
+	private final boolean[] probes;
+	private final ThreadGroupLocal<SynchronizedProbeMap> threadGroupProbes;
+	/*
+	private InheritableThreadLocal<ConcurrentHashMap<Integer, Boolean>> localProbes = 
+			new InheritableThreadLocal<ConcurrentHashMap<Integer, Boolean>>();
+	*/
+	private final String clazzCovered;
+	private final int probeCount;
+	private final I_Tests4J_Reporter reporter;
 	
-	/**
-	 * The thread that created this instance
-	 * which is used to determine which boolean [] of
-	 * probes to use 
-	 * 1) the probes member variable (for the thread that created this instance)
-	 * 2) the localProbes ThreadLocal (for the other threads)
-	 * 
-	 */
-	private Thread creationThread = Thread.currentThread();
-	private String clazzCovered;
-	private int probeCount;
-	
-	public MultiProbesMap(String pClazzToCover, int pProbeCount) {
-		
+	public MultiProbesMap(String pClazzToCover, final int pProbeCount, final I_Tests4J_Reporter pReporter) {
+		reporter = pReporter;
 		clazzCovered = pClazzToCover;
 		if (pClazzToCover == null) {
 			throw new NullPointerException("pClazzToCover can't be null!");
 		}
 		probeCount = pProbeCount;
-		probes = getEmptyProbes();
+		probes = getEmptyProbes(probeCount);
+		threadGroupProbes = 
+				new ThreadGroupLocal<SynchronizedProbeMap>(Tests4J_ThreadFactory.TRIAL_THREAD_NAME,
+						new I_InitalValueFactory<SynchronizedProbeMap>() {
+
+							@Override
+							public SynchronizedProbeMap createNew() {
+								return new SynchronizedProbeMap(getEmptyProbes(probeCount));
+							}
+					
+						}, reporter, pClazzToCover);
 	}
 
 	@Override
@@ -74,7 +79,13 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 	}
 
 	@Override
-	public  Boolean put(Integer key, Boolean value) {
+	public Boolean put(Integer key, Boolean value) {
+		if (reporter.isLogEnabled(MultiProbesMap.class)) {
+
+			reporter.log("" + super.toString() + " " + ThreadLogMessageBuilder.getThreadWithGroupNameForLog() +
+					"\n set the probes " + key + "/" + probeCount + " " + value + " on " + clazzCovered + "\n" +
+					threadGroupProbes.get());
+		}
 		if (key == null || value == null) {
 			return false;
 		}
@@ -87,21 +98,18 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		if (value) {
 			if (key < probeCount) {
 				probes[key] = value;
-				if ( !creationThread.equals(Thread.currentThread())) {
-					if (localProbes.get() == null) {
-						boolean [] local = getEmptyProbes();
-						local[key] = value;
-						localProbes.set(local);
-					}
-				}
+				
+				
+				SynchronizedProbeMap local = threadGroupProbes.getValue();
+				local.put(key, value);
 				toRet = true;
 			}
 		}
 		return toRet;
 	}
 
-	private boolean[] getEmptyProbes() {
-		boolean[] toRet = new boolean[probeCount];
+	private static boolean[] getEmptyProbes(int pProbeCount) {
+		boolean[] toRet = new boolean[pProbeCount];
 		for (int i = 0; i < toRet.length; i++) {
 			toRet[i] = false;
 		}
@@ -144,7 +152,18 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 			probes = null;
 		}
 		*/
-		localProbes.set(null);
+		/*
+		MultiProbesMap delegate = threadGroupLocalDelegate.get();
+		if (delegate != null) {
+			delegate.probes = getEmptyProbes(probeCount);
+		}
+		*/
+		if (reporter.isLogEnabled(MultiProbesMap.class)) {
+			reporter.log("" + super.toString() + " " + ThreadLogMessageBuilder.getThreadWithGroupNameForLog() +
+					" is clearing probes \n" +
+					toString());
+		}
+		threadGroupProbes.getValue().clear();
 	}
 
 	public String getClazzCovered() {
@@ -152,19 +171,55 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 	}
 	
 	public boolean[] getProbes() {
-		boolean[] toRet = localProbes.get();
-		if (toRet == null) {
-			toRet = probes;
+		return probes;
+	}
+	
+	public boolean[] getThreadGroupProbes() {
+		SynchronizedProbeMap map = threadGroupProbes.getValue();
+		boolean [] toRet = null;
+		if (map != null) {
+			toRet = map.get();
 		}
 		if (toRet == null) {
-			return getEmptyProbes();
+			toRet = getEmptyProbes(probeCount);
+			if (reporter.isLogEnabled(MultiProbesMap.class)) {
+				reporter.log("" + super.toString() + " " + ThreadLogMessageBuilder.getThreadWithGroupNameForLog() +
+						" is getting empty probes for class \n" +
+						clazzCovered + "\n" +
+						map);
+			}
 		}
 		return toRet;
 	}
 	
 	public String toString() {
+		SynchronizedProbeMap threadGroupLocalProbesMap = threadGroupProbes.getValue();
+		boolean [] threadGroupLocalProbes = null;
+		if (threadGroupLocalProbesMap != null) {
+			threadGroupLocalProbes = threadGroupLocalProbesMap.get();
+		}
 		return "MultiProbesMap [classCovered=" + clazzCovered +
-				", scopesToProbes=" + probes + ", localProbes=" + localProbes.get() + "]";
+				", probes=" + probesToString(probes) + ",threadGroupLocalProbes=" + 
+				probesToString(threadGroupLocalProbes)+ "]";
 	}
 
+	private String probesToString(boolean [] p) {
+		if (p == null) {
+			return null;
+		}
+		StringBuilder sbProbes = new StringBuilder();
+		sbProbes.append("[");
+		for (int i = 0; i < p.length; i++) {
+			if (i != 0) {
+				sbProbes.append(",");
+			}
+			if (probes[i]) {
+				sbProbes.append("t");
+			} else {
+				sbProbes.append("f");
+			}
+		}
+		sbProbes.append("]");
+		return sbProbes.toString();
+	}
 }

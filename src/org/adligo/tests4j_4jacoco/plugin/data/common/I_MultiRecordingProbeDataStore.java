@@ -25,5 +25,5 @@ public interface I_MultiRecordingProbeDataStore {
 	 * @param scope
 	 * @return
 	 */
-	public I_ProbesDataStore endRecording();
+	public I_ProbesDataStore endRecording(boolean main);
 }

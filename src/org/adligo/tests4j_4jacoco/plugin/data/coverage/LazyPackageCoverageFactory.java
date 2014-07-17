@@ -11,7 +11,7 @@ import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 
 public class LazyPackageCoverageFactory {
 
-	public static List<I_PackageCoverage> create(I_ProbesDataStore data, I_ClassContainer cc) {
+	public static List<I_PackageCoverage> create(I_ProbesDataStore data, I_ClassContainer cc, ClassLoader classLoader) {
 		List<I_PackageCoverage> toRet = new ArrayList<I_PackageCoverage>();
 		
 		Set<String> allPackages  = new HashSet<String>();
@@ -41,6 +41,7 @@ public class LazyPackageCoverageFactory {
 			input.setClassNames(classNames);
 			input.setProbeData(data);
 			input.setPackageName(pkg);
+			input.setClassLoader(classLoader);
 			LazyPackageCoverage toAdd = new LazyPackageCoverage(input);
 			toRet.add(toAdd);
 		}
