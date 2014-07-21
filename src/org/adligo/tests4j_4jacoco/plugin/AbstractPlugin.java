@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -13,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.adligo.tests4j.models.shared.system.I_CoveragePlugin;
 import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Reporter;
+import org.adligo.tests4j.models.shared.system.I_Tests4J_Logger;
 import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j.models.shared.trials.I_Trial;
 import org.adligo.tests4j.run.discovery.ClassDiscovery;
@@ -23,7 +25,7 @@ import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 
 public abstract class AbstractPlugin implements I_CoveragePlugin {
 	protected Tests4J_4JacocoMemory memory;
-	private I_Tests4J_Reporter reporter;
+	private I_Tests4J_Logger tests4jLogger;
 	private boolean writeOutInstrumentedClassFiles = false;
 	private AtomicBoolean firstRecorder = new AtomicBoolean(false);
 
@@ -101,10 +103,9 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 	}
 	private Class<?> instrumentClass(String clazzName) throws IOException,
 			ClassNotFoundException {
-		if (reporter != null) {
-			if (reporter.isLogEnabled(AbstractPlugin.class)) {
-				reporter.log("instrumenting class " + clazzName);
-			}
+		
+		if (tests4jLogger.isLogEnabled(AbstractPlugin.class)) {
+			tests4jLogger.log("instrumenting class " + clazzName);
 		}
 		MemoryClassLoader memoryClassLoader = memory.getInstrumentedClassLoader();
 		//instrument inner classes
@@ -146,7 +147,10 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 			fos.close();
 		}
 		memoryClassLoader.addDefinition(clazzName, instrumented);
-		return memoryClassLoader.loadClass(clazzName);
+		Class<?> toRet =  memoryClassLoader.loadClass(clazzName);
+		
+		
+		return toRet;
 	}
 
 	
@@ -171,7 +175,7 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 	
 	@Override
 	public synchronized I_CoverageRecorder createRecorder() {
-		Recorder rec = new Recorder(memory, reporter);
+		Recorder rec = new Recorder(memory, tests4jLogger);
 		if (!firstRecorder.get()) {
 			firstRecorder.set(true);
 			rec.setRoot(true);
@@ -183,8 +187,8 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 		return memory;
 	}
 
-	public I_Tests4J_Reporter getReporter() {
-		return reporter;
+	public I_Tests4J_Logger getTests4jLogger() {
+		return tests4jLogger;
 	}
 
 	public boolean isWriteOutInstrumentedClassFiles() {
@@ -195,8 +199,8 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 		this.memory = memory;
 	}
 
-	public void setReporter(I_Tests4J_Reporter log) {
-		this.reporter = log;
+	public void setTests4jLogger(I_Tests4J_Logger log) {
+		this.tests4jLogger = log;
 	}
 
 	public void setWriteOutInstrumentedClassFiles(

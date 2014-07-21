@@ -143,11 +143,11 @@ public class MapClassTypeStrategy extends AbstractObtainProbesStrategy implement
 		
 		if (BytecodeInjectionDebuger.isEnabled()) {
 			BytecodeInjectionDebuger.log(sh, mv,
-					"before accessorGenerator.create " + className + ".jacocoInit()  " + 
+					"before accessorGenerator.create " + className + ".$jacocoInit()  " + 
 					"\n" + sh);
 		}
 		final int size = accessorGenerator.create(id,
-				className, probeCount, mv);
+				className, probeCount, mv, sh);
 		if (BytecodeInjectionDebuger.isEnabled()) {
 			BytecodeInjectionDebuger.putInStackDebug(MapInstrConstants.DATAFIELD_CLAZZ);	
 		}

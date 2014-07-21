@@ -7,7 +7,13 @@ import java.util.Stack;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AnalyzerAdapter;
-
+/**
+ * This class assumes a single thread is 
+ * using asm.
+ * 
+ * @author scott
+ *
+ */
 public class BytecodeInjectionDebuger {
 	private static boolean enabled = false;
 	private static Stack<String> stackDebug = new Stack<String>();
@@ -33,7 +39,7 @@ public class BytecodeInjectionDebuger {
 		
 		if (sh.getCurrentStackSize() != stackDebug.size()) {
 			StringBuilder sbe = new StringBuilder();
-			sbe.append("The stackDebug must match the current stack size " + sh.getCurrentStackSize()+ "!\n");
+			sbe.append("The stackDebug " + stackDebug.size() + " must match the current stack size " + sh.getCurrentStackSize()+ "!\n");
 			appendStackDebug(sbe);
 			throw new IllegalStateException(sbe.toString());
 		}
@@ -105,5 +111,28 @@ public class BytecodeInjectionDebuger {
 	
 	public static void setEnabled(boolean p) {
 		enabled = p;
+	}
+	
+	public static void logStackTopElement(StackHelper sh,  MethodVisitor mv, String message) {
+		
+		mv.visitInsn(Opcodes.DUP);
+		putInStackDebug("?logStackTopElement");
+		sh.incrementStackSize();
+		
+		//stack[0/top] = ?
+		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Object", "toString", "()Ljava/lang/String;", false);
+		//stack[0/top] = String
+		
+		mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+		putInStackDebug("out");
+		sh.incrementStackSize();
+		//stack[0/top] = String
+		//Stack[1]  out (PrintStream)
+		mv.visitInsn(Opcodes.SWAP);
+		
+		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+		sh.decrementStackSize();
+		sh.decrementStackSize();
+		popOffStackDebug(2);
 	}
 }

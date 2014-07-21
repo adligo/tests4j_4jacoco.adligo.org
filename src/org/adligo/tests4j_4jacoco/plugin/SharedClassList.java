@@ -118,6 +118,8 @@ public class SharedClassList {
 		
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_Probes");
 		
+		
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.asm.StackHelper");
 		return Collections.unmodifiableSet(toRet);
 	}
 }

@@ -5,10 +5,18 @@ import java.util.Map;
 import java.util.Set;
 
 public class SynchronizedProbeMap implements Map<Integer, Boolean> {
+	private boolean [] initalProbes;
 	private boolean [] backed;
 	
 	public SynchronizedProbeMap(boolean [] p) {
-		backed = p;
+		initalProbes = new boolean[p.length];
+		for (int i = 0; i < p.length; i++) {
+			initalProbes[i] = p[i];
+		}
+		backed = new boolean[p.length];
+		for (int i = 0; i < p.length; i++) {
+			backed[i] = p[i];
+		}
 	}
 	
 	@Override
@@ -57,8 +65,9 @@ public class SynchronizedProbeMap implements Map<Integer, Boolean> {
 
 	@Override
 	public synchronized void clear() {
-		for (int i = 0; i < backed.length; i++) {
-			backed[i] = false;
+		backed = new boolean[initalProbes.length];
+		for (int i = 0; i < initalProbes.length; i++) {
+			backed[i] = initalProbes[i];
 		}
 	}
 

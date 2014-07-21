@@ -1,8 +1,10 @@
 package org.adligo.tests4j_4jacoco.plugin.runtime.simple;
 
+import org.adligo.tests4j_4jacoco.plugin.asm.BytecodeInjectionDebuger;
 import org.adligo.tests4j_4jacoco.plugin.asm.ClassCoverageDataParamFactory;
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_ProbeDataAccessorFactory;
+import org.adligo.tests4j_4jacoco.plugin.asm.StackHelper;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_LoggerDataAccessorFactory;
+import org.adligo.tests4j_4jacoco.plugin.runtime.I_ProbeDataAccessorFactory;
 import org.jacoco.core.runtime.IExecutionDataAccessorGenerator;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -34,7 +36,9 @@ public class ProbeDataAccessorByLoggingApiFactory implements I_LoggerDataAccesso
 	@Override
 	public int generateDataAccessor(long classid, String classname, int probecount,
 			MethodVisitor mv) {
-		return create(classid, classname, probecount, mv);
+		StackHelper sh = new StackHelper();
+		
+		return create(classid, classname, probecount, mv, sh);
 	}
 	
 	/**
@@ -43,7 +47,7 @@ public class ProbeDataAccessorByLoggingApiFactory implements I_LoggerDataAccesso
 	 * @see I_ProbeDataAccessorFactory#create(long, String, int, MethodVisitor)
 	 */
 	public int create(final long classid, final String classname,
-			final int probecount, final MethodVisitor mv) {
+			final int probecount, final MethodVisitor mv, StackHelper sh) {
 
 		// The data accessor performs the following steps:
 		//
@@ -81,7 +85,7 @@ public class ProbeDataAccessorByLoggingApiFactory implements I_LoggerDataAccesso
 
 		mv.visitInsn(Opcodes.SWAP);
 
-		// Stack[2]: [Ljava/lang/Object;
+		// Stack[2]: [Ljava/lang/Object; Object array
 		// Stack[1]: Ljava/util/logging/Logger;
 		// Stack[0]: [Ljava/lang/Object;
 
@@ -95,7 +99,7 @@ public class ProbeDataAccessorByLoggingApiFactory implements I_LoggerDataAccesso
 
 		mv.visitInsn(Opcodes.SWAP);
 
-		// Stack[3]: [Ljava/lang/Object;
+		// Stack[3]: [Ljava/lang/Object; Object array
 		// Stack[2]: Ljava/util/logging/Level;
 		// Stack[1]: Ljava/util/logging/Logger;
 		// Stack[0]: [Ljava/lang/Object;
@@ -103,14 +107,14 @@ public class ProbeDataAccessorByLoggingApiFactory implements I_LoggerDataAccesso
 		mv.visitLdcInsn(key);
 
 		// Stack[4]: Ljava/lang/String;
-		// Stack[3]: [Ljava/lang/Object;
+		// Stack[3]: [Ljava/lang/Object; object array
 		// Stack[2]: Ljava/util/logging/Level;
 		// Stack[1]: Ljava/util/logging/Logger;
 		// Stack[0]: [Ljava/lang/Object;
 
 		mv.visitInsn(Opcodes.SWAP);
 
-		// Stack[4]: [Ljava/lang/Object;
+		// Stack[4]: [Ljava/lang/Object; object array
 		// Stack[3]: Ljava/lang/String;
 		// Stack[2]: Ljava/util/logging/Level;
 		// Stack[1]: Ljava/util/logging/Logger;
@@ -122,7 +126,10 @@ public class ProbeDataAccessorByLoggingApiFactory implements I_LoggerDataAccesso
 				false);
 
 		// Stack[0]: [Ljava/lang/Object;
-
+		// Stack[1]: [Ljava/lang/Object;
+		if (BytecodeInjectionDebuger.isEnabled()) {
+			BytecodeInjectionDebuger.logStackTopElement(sh, mv, "result from logger.log is ");
+		}
 		// 3. Load data structure from parameter array:
 
 		mv.visitInsn(Opcodes.ICONST_0);

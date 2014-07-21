@@ -2,18 +2,18 @@ package org.adligo.tests4j_4jacoco.plugin.data.multi;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Reporter;
+import org.adligo.tests4j.models.shared.system.I_Tests4J_Logger;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
 
 public class ThreadGroupLocal<T> extends ThreadLocal<Holder<T>>{
 	private final ConcurrentHashMap<String, Holder<T>> threadGroupLocalMap = new ConcurrentHashMap<String, Holder<T>>();
 	private final ThreadGroupFilter filter;
 	private final I_InitalValueFactory<T> factory;
-	private final I_Tests4J_Reporter reporter;
+	private final I_Tests4J_Logger reporter;
 	private final String instrumentedClassName;
 	
 	public ThreadGroupLocal(String pFilterNamePart, I_InitalValueFactory<T> pFactory, 
-			I_Tests4J_Reporter pReporter, String pInstrumentedClassName) {
+			I_Tests4J_Logger pReporter, String pInstrumentedClassName) {
 		filter = new ThreadGroupFilter(pFilterNamePart);
 		factory = pFactory;
 		reporter = pReporter;
