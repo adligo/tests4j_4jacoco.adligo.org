@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.adligo.tests4j.models.shared.system.I_CoveragePlugin;
-import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
+import org.adligo.tests4j.models.shared.system.I_Tests4J_CoveragePlugin;
+import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageRecorder;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Logger;
 import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j.models.shared.trials.I_Trial;
@@ -23,7 +23,7 @@ import org.adligo.tests4j.run.discovery.TopPackageSet;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.MemoryClassLoader;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 
-public abstract class AbstractPlugin implements I_CoveragePlugin {
+public abstract class AbstractPlugin implements I_Tests4J_CoveragePlugin {
 	protected Tests4J_4JacocoMemory memory;
 	private I_Tests4J_Logger tests4jLogger;
 	private boolean writeOutInstrumentedClassFiles = false;
@@ -174,7 +174,7 @@ public abstract class AbstractPlugin implements I_CoveragePlugin {
 	}
 	
 	@Override
-	public synchronized I_CoverageRecorder createRecorder() {
+	public synchronized I_Tests4J_CoverageRecorder createRecorder() {
 		Recorder rec = new Recorder(memory, tests4jLogger);
 		if (!firstRecorder.get()) {
 			firstRecorder.set(true);

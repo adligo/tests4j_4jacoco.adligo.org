@@ -71,14 +71,25 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.results.feedback.I_ApiTrial_TestsResults");
 		toRet.add("org.adligo.tests4j.models.shared.results.feedback.I_SourceFileTrial_TestsResults");
 		
-		toRet.add("org.adligo.tests4j.models.shared.system.I_ThreadCount");
-		toRet.add("org.adligo.tests4j.models.shared.system.I_AssertListener");
-		toRet.add("org.adligo.tests4j.models.shared.system.I_CoveragePlugin");
-		toRet.add("org.adligo.tests4j.models.shared.system.I_CoverageRecorder");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_AssertListener");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Controls");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_CoveragePlugin");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageRecorder");
+		
+		
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Delegate");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_DelegateFactory");
+		
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Listener");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Logger");
+		
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Params");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_RemoteInfo");
-		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Reporter");
-		toRet.add("org.adligo.tests4j.models.shared.system.I_TrialRunListener");
+		
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_System");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_TestFinishedListener");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_TrialList");
+		
 		
 		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_Constants");
 		toRet.add("org.adligo.tests4j.models.shared.i18n.eclipse.I_EclipseErrors");

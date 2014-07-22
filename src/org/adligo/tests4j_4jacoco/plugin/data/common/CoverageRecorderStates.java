@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.adligo.tests4j.models.shared.system.I_CoveragePlugin;
+import org.adligo.tests4j.models.shared.system.I_Tests4J_CoveragePlugin;
 
 /**
  * this class represents the state 
@@ -21,7 +21,7 @@ import org.adligo.tests4j.models.shared.system.I_CoveragePlugin;
  */
 public class CoverageRecorderStates implements I_CoverageRecoderStates {
 	/**
-	 * key String is the scope passed to @see {@link I_CoveragePlugin#createRecorder(String)}
+	 * key String is the scope passed to @see {@link I_Tests4J_CoveragePlugin#createRecorder(String)}
 	 * value AtomicBoolean is the recorder state, 
 	 * 		true is recording 
 	 *      false is not recording 

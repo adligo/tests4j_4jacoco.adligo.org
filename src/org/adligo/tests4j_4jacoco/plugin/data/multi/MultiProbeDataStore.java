@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.adligo.tests4j.models.shared.system.I_CoverageRecorder;
+import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageRecorder;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Logger;
 import org.adligo.tests4j.run.helpers.Tests4J_ThreadFactory;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
@@ -22,7 +22,7 @@ import org.adligo.tests4j_4jacoco.plugin.data.common.ProbesDataStoreMutant;
 
 /**
  * This class represents a in memory data store for probes
- * which can be used for multiple {@link I_CoverageRecorder}'s
+ * which can be used for multiple {@link I_Tests4J_CoverageRecorder}'s
  * at the same time.
  * 
  * @author scott
