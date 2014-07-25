@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoveragePlugin;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoveragePluginFactory;
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Logger;
+import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j_4jacoco.plugin.data.multi.MultiProbeDataStoreAdaptor;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.MemoryClassLoader;
@@ -24,7 +24,7 @@ import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleLoggerRuntime;
  */
 public class SimpleJacocoPlugin extends AbstractPlugin  {
 	
-	public SimpleJacocoPlugin(I_Tests4J_Logger logger) {
+	public SimpleJacocoPlugin(I_Tests4J_Log logger) {
 		super.setTests4jLogger(logger);
 		
 		ProbeDataAccessorByLoggingApiFactory factory = new ProbeDataAccessorByLoggingApiFactory(

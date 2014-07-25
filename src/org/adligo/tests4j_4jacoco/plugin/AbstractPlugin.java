@@ -4,13 +4,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoveragePlugin;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageRecorder;
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Logger;
+import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_InstrumenterFactory;
 
 public abstract class AbstractPlugin implements I_Tests4J_CoveragePlugin {
 	protected Tests4J_4JacocoMemory memory;
-	private I_Tests4J_Logger tests4jLogger;
+	private I_Tests4J_Log tests4jLogger;
 	private boolean writeOutInstrumentedClassFiles = false;
 	private AtomicBoolean firstRecorder = new AtomicBoolean(false);
 	private ThreadLocal<TrialInstrumenter> trialIntrumenters = new ThreadLocal<TrialInstrumenter>();
@@ -47,7 +47,7 @@ public abstract class AbstractPlugin implements I_Tests4J_CoveragePlugin {
 		return memory;
 	}
 
-	public I_Tests4J_Logger getTests4jLogger() {
+	public I_Tests4J_Log getTests4jLogger() {
 		return tests4jLogger;
 	}
 
@@ -59,7 +59,7 @@ public abstract class AbstractPlugin implements I_Tests4J_CoveragePlugin {
 		this.memory = memory;
 	}
 
-	public void setTests4jLogger(I_Tests4J_Logger log) {
+	public void setTests4jLogger(I_Tests4J_Log log) {
 		this.tests4jLogger = log;
 	}
 

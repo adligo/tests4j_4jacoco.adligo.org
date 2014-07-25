@@ -83,7 +83,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_DelegateFactory");
 		
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Listener");
-		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Logger");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Log");
 		
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Params");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_RemoteInfo");

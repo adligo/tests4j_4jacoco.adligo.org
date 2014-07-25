@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Logger;
+import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.helpers.Tests4J_ThreadFactory;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
 
@@ -31,9 +31,9 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 	*/
 	private final String clazzCovered;
 	private final int probeCount;
-	private final I_Tests4J_Logger logger;
+	private final I_Tests4J_Log logger;
 	
-	public MultiProbesMap(String pClazzToCover, final int pProbeCount, final I_Tests4J_Logger pReporter) {
+	public MultiProbesMap(String pClazzToCover, final int pProbeCount, final I_Tests4J_Log pReporter) {
 		logger = pReporter;
 		clazzCovered = pClazzToCover;
 		if (pClazzToCover == null) {

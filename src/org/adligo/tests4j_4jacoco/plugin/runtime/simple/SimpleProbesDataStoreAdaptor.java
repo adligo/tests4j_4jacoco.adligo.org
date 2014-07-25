@@ -1,6 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.runtime.simple;
 
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Logger;
+import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStoreAdaptor;
 import org.adligo.tests4j_4jacoco.plugin.data.wrappers.WrappedDataStore;
@@ -16,7 +16,7 @@ import org.objectweb.asm.Opcodes;
 public class SimpleProbesDataStoreAdaptor implements I_ProbesDataStoreAdaptor {
 	/** store for execution data */
 	protected ExecutionDataStore store;
-	private I_Tests4J_Logger tests4jLogger;
+	private I_Tests4J_Log tests4jLogger;
 	private long startTimeStamp;
 
 	private String sessionId;
@@ -24,7 +24,7 @@ public class SimpleProbesDataStoreAdaptor implements I_ProbesDataStoreAdaptor {
 	/**
 	 * Creates a new runtime.
 	 */
-	public SimpleProbesDataStoreAdaptor(I_Tests4J_Logger p) {
+	public SimpleProbesDataStoreAdaptor(I_Tests4J_Log p) {
 		tests4jLogger = p;
 		store = new ExecutionDataStore();
 		sessionId = "<none>";

@@ -1,6 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin;
 
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Logger;
+import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.data.multi.MultiProbeDataStoreAdaptor;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrumenterFactory;
@@ -16,7 +16,7 @@ import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleLoggerRuntime;
  */
 public class ScopedJacocoPlugin extends AbstractPlugin {
 	
-	public ScopedJacocoPlugin(I_Tests4J_Logger reporter) {
+	public ScopedJacocoPlugin(I_Tests4J_Log reporter) {
 		super.setTests4jLogger(reporter);
 		
 		ProbeDataAccessorByLoggingApiFactory factory = new ProbeDataAccessorByLoggingApiFactory(

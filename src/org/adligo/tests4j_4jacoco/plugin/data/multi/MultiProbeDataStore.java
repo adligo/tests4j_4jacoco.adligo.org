@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageRecorder;
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Logger;
+import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.helpers.Tests4J_ThreadFactory;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
 import org.adligo.tests4j_4jacoco.plugin.data.common.ClassProbes;
@@ -34,9 +34,9 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 	private final ConcurrentMapValueAvailableNotifier<Long, MultiProbesMap> classIds = 
 			new ConcurrentMapValueAvailableNotifier<Long, MultiProbesMap>(classIdsToMulti);
 
-	private final I_Tests4J_Logger reporter;
+	private final I_Tests4J_Log reporter;
 	
-	public MultiProbeDataStore(I_Tests4J_Logger p) {
+	public MultiProbeDataStore(I_Tests4J_Log p) {
 		reporter = p;
 	}
 	

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Logger;
+import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j.run.discovery.ClassDiscovery;
 import org.adligo.tests4j.run.discovery.TopPackageSet;
@@ -21,7 +21,7 @@ import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 
 public class TrialInstrumenter {
 	private static ConcurrentLinkedQueue<String> startedClasses = new ConcurrentLinkedQueue<String>();
-	private I_Tests4J_Logger tests4jLogger;
+	private I_Tests4J_Log tests4jLogger;
 	private boolean writeOutInstrumentedClassFiles = false;
 	private MemoryClassLoader cachedClassLoader;
 	private MemoryClassLoader instrumentedClassLoader;
@@ -200,7 +200,7 @@ public class TrialInstrumenter {
 		}
 	}
 
-	public I_Tests4J_Logger getTests4jLogger() {
+	public I_Tests4J_Log getTests4jLogger() {
 		return tests4jLogger;
 	}
 
@@ -208,7 +208,7 @@ public class TrialInstrumenter {
 		return writeOutInstrumentedClassFiles;
 	}
 
-	public void setTests4jLogger(I_Tests4J_Logger log) {
+	public void setTests4jLogger(I_Tests4J_Log log) {
 		this.tests4jLogger = log;
 	}
 
