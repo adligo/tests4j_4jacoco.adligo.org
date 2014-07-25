@@ -34,7 +34,12 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_ThrownAssertCommand");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_ThrownAssertionData");
 		
-		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_LineTextCompareResult");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_DiffIndexes");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_DiffIndexesPair");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_LineDiff");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_LineDiffType");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_TextLines");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_TextLinesCompareResult");
 		
 		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_Evaluation");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_EvaluatorLookup");
@@ -68,9 +73,6 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.results.I_TrialRunResult");
 		toRet.add("org.adligo.tests4j.models.shared.results.I_UseCaseTrialResult");
 		
-		toRet.add("org.adligo.tests4j.models.shared.results.feedback.I_ApiTrial_TestsResults");
-		toRet.add("org.adligo.tests4j.models.shared.results.feedback.I_SourceFileTrial_TestsResults");
-		
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_AssertListener");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Controls");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_CoveragePlugin");
@@ -90,19 +92,19 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_TestFinishedListener");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_TrialList");
 		
+		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_AfterTrialErrors");
+		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_AfterTrialTestsErrors");
+		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_AnnotationErrors");
+		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_AssertionInputMessages");
+		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_AssertionResultMessages");
 		
+		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_BeforeTrialErrors");
 		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_Constants");
-		toRet.add("org.adligo.tests4j.models.shared.i18n.eclipse.I_EclipseErrors");
+		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_EclipseErrors");
 		
-		toRet.add("org.adligo.tests4j.models.shared.i18n.trials.I_Tests4J_AfterTrialErrors");
-		toRet.add("org.adligo.tests4j.models.shared.i18n.trials.I_Tests4J_AfterTrialTestErrors");
-		toRet.add("org.adligo.tests4j.models.shared.i18n.trials.I_Tests4J_AnnotationErrors");
-		toRet.add("org.adligo.tests4j.models.shared.i18n.trials.I_Tests4J_BeforeTrialErrors");
-		toRet.add("org.adligo.tests4j.models.shared.i18n.trials.I_Tests4J_TestMethodErrors");
-		toRet.add("org.adligo.tests4j.models.shared.i18n.trials.I_Tests4J_TrialDescriptionMessages");
+		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_TestMethodErrors");
 		
-		toRet.add("org.adligo.tests4j.models.shared.i18n.asserts.I_Tests4J_AssertionInputMessages");
-		toRet.add("org.adligo.tests4j.models.shared.i18n.asserts.I_Tests4J_AssertionResultMessages");
+		
 		
 		toRet.add("org.adligo.tests4j.models.shared.trials.AfterTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.BeforeTrial");
@@ -128,9 +130,17 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.xml.I_XML_Producer");
 		
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_Probes");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.asm.I_StackHelper");
 		
-		
-		toRet.add("org.adligo.tests4j_4jacoco.plugin.asm.StackHelper");
+		for (String clazz: toRet) {
+			try {
+				//actually load all of the classes using the default classloader here
+				Class.forName(clazz);
+			} catch (ClassNotFoundException e) {
+				throw new RuntimeException(e);
+			}
+		}
 		return Collections.unmodifiableSet(toRet);
 	}
 }

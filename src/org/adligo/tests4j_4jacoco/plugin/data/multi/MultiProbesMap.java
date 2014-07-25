@@ -24,7 +24,7 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 	 * each entry in the list pertains to a different recorder
 	 */
 	private final boolean[] probes;
-	private final ThreadGroupLocal<SynchronizedProbeMap> threadGroupProbes;
+	private final ThreadGroupLocal<CascadingProbeMap> threadGroupProbes;
 	/*
 	private InheritableThreadLocal<ConcurrentHashMap<Integer, Boolean>> localProbes = 
 			new InheritableThreadLocal<ConcurrentHashMap<Integer, Boolean>>();
@@ -42,16 +42,16 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		probeCount = pProbeCount;
 		probes = getEmptyProbes(probeCount);
 		threadGroupProbes = 
-				new ThreadGroupLocal<SynchronizedProbeMap>(Tests4J_ThreadFactory.TRIAL_THREAD_NAME,
-						new I_InitalValueFactory<SynchronizedProbeMap>() {
+				new ThreadGroupLocal<CascadingProbeMap>(Tests4J_ThreadFactory.TRIAL_THREAD_NAME,
+						new I_InitalValueFactory<CascadingProbeMap>() {
 
 							@Override
-							public SynchronizedProbeMap createNew() {
+							public CascadingProbeMap createNew() {
 								
 								//a certain amout of code coverage
 								//can occur on the main thread, before the trial
 								//run
-								return new SynchronizedProbeMap(probes);
+								return new CascadingProbeMap(probes);
 							}
 					
 						}, logger, pClazzToCover);
@@ -96,7 +96,7 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		
 		if (value) {
 			if (key < probeCount) {
-				SynchronizedProbeMap local = threadGroupProbes.getValue();
+				CascadingProbeMap local = threadGroupProbes.getValue();
 				if (!probes[key] || !local.get(key)) {
 					if (logger.isLogEnabled(MultiProbesMap.class)) {
 							StringBuilder sb = new StringBuilder();
@@ -190,7 +190,7 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 	}
 	
 	public boolean[] getThreadGroupProbes() {
-		SynchronizedProbeMap threadGroupLocalProbesMap = threadGroupProbes.getValue();
+		CascadingProbeMap threadGroupLocalProbesMap = threadGroupProbes.getValue();
 		boolean [] threadGroupLocalProbes = null;
 		if (threadGroupLocalProbesMap != null) {
 			threadGroupLocalProbes = threadGroupLocalProbesMap.get();
@@ -214,7 +214,7 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 	}
 	
 	public String toString() {
-		SynchronizedProbeMap threadGroupLocalProbesMap = threadGroupProbes.getValue();
+		CascadingProbeMap threadGroupLocalProbesMap = threadGroupProbes.getValue();
 		boolean [] threadGroupLocalProbes = null;
 		if (threadGroupLocalProbesMap != null) {
 			threadGroupLocalProbes = threadGroupLocalProbesMap.get();

@@ -1,5 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation.map;
 
+import org.adligo.tests4j_4jacoco.plugin.asm.I_StackHelper;
 import org.adligo.tests4j_4jacoco.plugin.asm.StackHelper;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.AbstractObtainProbesStrategy;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassInstrumentationInfo;
@@ -19,7 +20,7 @@ public class MapInterfaceTypeStrategy extends AbstractObtainProbesStrategy imple
 		long id = classInfo.getId();
 		String className = classInfo.getClassName();
 		int probeCount = classInfo.getProbeCount();
-		StackHelper sh = new StackHelper();
+		I_StackHelper sh = new StackHelper();
 		
 		final int maxStack = accessorGenerator.create(id,
 				className, probeCount, mv, sh);

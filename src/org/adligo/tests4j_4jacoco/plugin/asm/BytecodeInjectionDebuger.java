@@ -18,7 +18,7 @@ public class BytecodeInjectionDebuger {
 	private static boolean enabled = false;
 	private static Stack<String> stackDebug = new Stack<String>();
 	
-	public static void log(StackHelper sh, MethodVisitor mv, String p) {
+	public static void log(I_StackHelper sh, MethodVisitor mv, String p) {
 		
 		
 		mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
@@ -45,7 +45,7 @@ public class BytecodeInjectionDebuger {
 		}
 	}
 
-	public static void logStack(StackHelper sh, AnalyzerAdapter aa, MethodVisitor mv) {
+	public static void logStack(I_StackHelper sh, AnalyzerAdapter aa, MethodVisitor mv) {
 		
 		mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
 		putInStackDebug("out");
@@ -113,7 +113,7 @@ public class BytecodeInjectionDebuger {
 		enabled = p;
 	}
 	
-	public static void logStackTopElement(StackHelper sh,  MethodVisitor mv, String message) {
+	public static void logStackTopElement(I_StackHelper sh,  MethodVisitor mv, String message) {
 		
 		mv.visitInsn(Opcodes.DUP);
 		putInStackDebug("?logStackTopElement");

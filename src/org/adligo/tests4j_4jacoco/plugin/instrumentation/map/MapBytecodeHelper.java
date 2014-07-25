@@ -1,7 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation.map;
 
 import org.adligo.tests4j_4jacoco.plugin.asm.BytecodeInjectionDebuger;
-import org.adligo.tests4j_4jacoco.plugin.asm.StackHelper;
+import org.adligo.tests4j_4jacoco.plugin.asm.I_StackHelper;
 import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -18,7 +18,7 @@ public class MapBytecodeHelper {
 	 * @param mv
 	 * @return stack size
 	 */
-	public static void callMapPut(final StackHelper sh, final int i, 
+	public static void callMapPut(final I_StackHelper sh, final int i, 
 			final boolean p, final MethodVisitor mv) {
 		// Stack[+0]: Map
 		
@@ -64,7 +64,7 @@ public class MapBytecodeHelper {
 	 * @param mv
 	 * @param className
 	 */
-	public static void moveMapToStack(final StackHelper sh, MethodVisitor mv, String className) {
+	public static void moveMapToStack(final I_StackHelper sh, MethodVisitor mv, String className) {
 		// Load the value of the static data field:
 		mv.visitFieldInsn(Opcodes.GETSTATIC, className,
 				//InstrSupport.DATAFIELD_NAME, InstrSupport.DATAFIELD_DESC);
@@ -83,7 +83,7 @@ public class MapBytecodeHelper {
 	 * @param className
 	 * @return the maxium stack size
 	 */
-	public static void moveMapToField(final StackHelper sh, MethodVisitor mv, String className) {
+	public static void moveMapToField(final I_StackHelper sh, MethodVisitor mv, String className) {
 		// Stack[0]: Map
 
 		mv.visitInsn(Opcodes.DUP);

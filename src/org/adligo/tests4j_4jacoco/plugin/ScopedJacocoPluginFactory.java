@@ -8,7 +8,7 @@ public class ScopedJacocoPluginFactory implements I_Tests4J_CoveragePluginFactor
 	@Override
 	public I_Tests4J_CoveragePlugin create(I_Tests4J_Logger reporter) {
 		ScopedJacocoPlugin toRet =  new ScopedJacocoPlugin(reporter);
-		//toRet.setWriteOutInstrumentedClassFiles(true);
+		toRet.setWriteOutInstrumentedClassFiles(true);
 		return toRet;
 	}
 }

@@ -30,10 +30,9 @@ public class SimpleJacocoPlugin extends AbstractPlugin  {
 		ProbeDataAccessorByLoggingApiFactory factory = new ProbeDataAccessorByLoggingApiFactory(
 				MapInstrConstants.DATAFIELD_DESC);
 		MapInstrumenterFactory instrFactory = new MapInstrumenterFactory(factory);
-		DataInstrumenter cdi = new DataInstrumenter(instrFactory);
 		SimpleLoggerRuntime runtime = new SimpleLoggerRuntime(factory);
 		runtime.setup(new MultiProbeDataStoreAdaptor(logger));
-		memory = new Tests4J_4JacocoMemory(runtime, cdi);
+		memory = new Tests4J_4JacocoMemory(runtime, instrFactory);
 	}
 
 

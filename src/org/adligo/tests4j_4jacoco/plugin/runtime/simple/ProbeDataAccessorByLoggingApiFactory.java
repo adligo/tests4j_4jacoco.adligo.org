@@ -2,6 +2,7 @@ package org.adligo.tests4j_4jacoco.plugin.runtime.simple;
 
 import org.adligo.tests4j_4jacoco.plugin.asm.BytecodeInjectionDebuger;
 import org.adligo.tests4j_4jacoco.plugin.asm.ClassCoverageDataParamFactory;
+import org.adligo.tests4j_4jacoco.plugin.asm.I_StackHelper;
 import org.adligo.tests4j_4jacoco.plugin.asm.StackHelper;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_LoggerDataAccessorFactory;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_ProbeDataAccessorFactory;
@@ -36,7 +37,7 @@ public class ProbeDataAccessorByLoggingApiFactory implements I_LoggerDataAccesso
 	@Override
 	public int generateDataAccessor(long classid, String classname, int probecount,
 			MethodVisitor mv) {
-		StackHelper sh = new StackHelper();
+		I_StackHelper sh = new StackHelper();
 		
 		return create(classid, classname, probecount, mv, sh);
 	}
@@ -47,7 +48,7 @@ public class ProbeDataAccessorByLoggingApiFactory implements I_LoggerDataAccesso
 	 * @see I_ProbeDataAccessorFactory#create(long, String, int, MethodVisitor)
 	 */
 	public int create(final long classid, final String classname,
-			final int probecount, final MethodVisitor mv, StackHelper sh) {
+			final int probecount, final MethodVisitor mv, I_StackHelper sh) {
 
 		// The data accessor performs the following steps:
 		//

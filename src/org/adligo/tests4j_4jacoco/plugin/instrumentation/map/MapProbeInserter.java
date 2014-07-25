@@ -1,6 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation.map;
 
 import org.adligo.tests4j_4jacoco.plugin.asm.BytecodeInjectionDebuger;
+import org.adligo.tests4j_4jacoco.plugin.asm.I_StackHelper;
 import org.adligo.tests4j_4jacoco.plugin.asm.StackHelper;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.AbstractProbeInserter;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ObtainProbesStrategy;
@@ -20,7 +21,7 @@ public class MapProbeInserter extends AbstractProbeInserter {
 
 
 	public void insertProbe(final int probeIndex) {
-		StackHelper sh = new StackHelper();
+		I_StackHelper sh = new StackHelper();
 		
 		if (BytecodeInjectionDebuger.isEnabled()) {
 			BytecodeInjectionDebuger.log(sh, mv, 

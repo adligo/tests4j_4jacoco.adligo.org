@@ -1,6 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation.map;
 
 import org.adligo.tests4j_4jacoco.plugin.asm.BytecodeInjectionDebuger;
+import org.adligo.tests4j_4jacoco.plugin.asm.I_StackHelper;
 import org.adligo.tests4j_4jacoco.plugin.asm.StackHelper;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.AbstractObtainProbesStrategy;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassInstrumentationInfo;
@@ -63,7 +64,7 @@ public class MapClassTypeStrategy extends AbstractObtainProbesStrategy implement
 		
 		mv.visitCode();
 
-		StackHelper sh = new StackHelper();
+		I_StackHelper sh = new StackHelper();
 		
 		// Load the value of the static data field:
 		MapBytecodeHelper.moveMapToStack(sh, mv, className);
@@ -135,7 +136,7 @@ public class MapClassTypeStrategy extends AbstractObtainProbesStrategy implement
 	 * @param mv
 	 *            generator to emit code to
 	 */
-	private void genInitializeDataField(final StackHelper sh,  final MethodVisitor mv,
+	private void genInitializeDataField(final I_StackHelper sh,  final MethodVisitor mv,
 			final int probeCount) {
 		long id = classInfo.getId();
 		String className = classInfo.getClassName();

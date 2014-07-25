@@ -1,6 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.runtime;
 
-import org.adligo.tests4j_4jacoco.plugin.asm.StackHelper;
+import org.adligo.tests4j_4jacoco.plugin.asm.I_StackHelper;
 import org.jacoco.core.runtime.IExecutionDataAccessorGenerator;
 import org.objectweb.asm.MethodVisitor;
 
@@ -27,6 +27,6 @@ public interface I_ProbeDataAccessorFactory {
 	 * not exclusively a boolean []
 	 */
 	public int create(final long classid, final String classname,
-			final int probecount, MethodVisitor mv, StackHelper sh);
+			final int probecount, MethodVisitor mv, I_StackHelper sh);
 	
 }

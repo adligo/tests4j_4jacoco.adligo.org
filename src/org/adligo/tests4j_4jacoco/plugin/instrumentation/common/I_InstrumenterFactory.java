@@ -1,5 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
 
+import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_ProbeDataAccessorFactory;
 import org.objectweb.asm.MethodVisitor;
 
@@ -28,4 +29,7 @@ public interface I_InstrumenterFactory {
 	
 	public AbstractProbeInserter createProbeInserter(final int access, final String desc, final MethodVisitor mv,
 			final I_ObtainProbesStrategy arrayStrategy);
+	
+	
+	public I_Instrumenter createInstrumenter();
 }

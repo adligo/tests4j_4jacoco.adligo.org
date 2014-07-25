@@ -4,11 +4,11 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-public class SynchronizedProbeMap implements Map<Integer, Boolean> {
+public class CascadingProbeMap implements Map<Integer, Boolean> {
 	private boolean [] initalProbes;
 	private boolean [] backed;
 	
-	public SynchronizedProbeMap(boolean [] p) {
+	public CascadingProbeMap(boolean [] p) {
 		initalProbes = new boolean[p.length];
 		for (int i = 0; i < p.length; i++) {
 			initalProbes[i] = p[i];
@@ -20,7 +20,7 @@ public class SynchronizedProbeMap implements Map<Integer, Boolean> {
 	}
 	
 	@Override
-	public synchronized int size() {
+	public int size() {
 		return backed.length;
 	}
 
@@ -39,17 +39,17 @@ public class SynchronizedProbeMap implements Map<Integer, Boolean> {
 		throw new IllegalStateException("method not implemented");
 	}
 
-	public synchronized boolean[] get() {
+	public boolean[] get() {
 		return backed;
 	}
 	
 	@Override
-	public synchronized Boolean get(Object key) {
+	public Boolean get(Object key) {
 		return backed[(Integer) key];
 	}
 
 	@Override
-	public synchronized Boolean put(Integer key, Boolean value) {
+	public Boolean put(Integer key, Boolean value) {
 		backed[(Integer) key] = value;
 		return true;
 	}
@@ -64,8 +64,7 @@ public class SynchronizedProbeMap implements Map<Integer, Boolean> {
 		throw new IllegalStateException("method not implemented");	}
 
 	@Override
-	public synchronized void clear() {
-		backed = new boolean[initalProbes.length];
+	public void clear() {
 		for (int i = 0; i < initalProbes.length; i++) {
 			backed[i] = initalProbes[i];
 		}

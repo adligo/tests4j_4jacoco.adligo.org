@@ -9,10 +9,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.adligo.tests4j_4jacoco.plugin.data.coverage.I_ClassContainer;
 
+/**
+ * a threadsafe memory container for classes,
+ * it just extends ClassLoader so that they are loaded from disk only once.
+ * @author scott
+ *
+ */
 public class MemoryClassLoader extends ClassLoader implements I_ClassContainer {
 
 	private final ConcurrentHashMap<String, byte[]> definitions = new ConcurrentHashMap<String, byte[]>();
-
+	private final ConcurrentHashMap<String, Class<?>> classes = new ConcurrentHashMap<String, Class<?>>();
 	/**
 	 * Add a in-memory representation of a class.
 	 * 
@@ -22,7 +28,7 @@ public class MemoryClassLoader extends ClassLoader implements I_ClassContainer {
 	 *            class definition
 	 */
 	public void addDefinition(final String name, final byte[] bytes) {
-		definitions.put(name, bytes);
+		definitions.putIfAbsent(name, bytes);
 	}
 
 	public boolean hasDefinition(final String name) {
@@ -35,9 +41,20 @@ public class MemoryClassLoader extends ClassLoader implements I_ClassContainer {
 	@Override
 	protected Class<?> loadClass(final String name, final boolean resolve)
 			throws ClassNotFoundException {
-		final byte[] bytes = definitions.get(name);
-		if (bytes != null) {
-			return defineClass(name, bytes, 0, bytes.length);
+		if (definitions.containsKey(name)) {
+			if (classes.containsKey(name)) {
+				return classes.get(name);
+			}
+			
+			byte[] bytes = definitions.get(name);
+			synchronized (classes) {
+				if (classes.containsKey(name)) {
+					return classes.get(name);
+				}
+				Class<?> toRet =  defineClass(name, bytes, 0, bytes.length);
+				classes.putIfAbsent(name, toRet);
+				return classes.get(name);
+			}
 		}
 		return super.loadClass(name, resolve);
 	}
