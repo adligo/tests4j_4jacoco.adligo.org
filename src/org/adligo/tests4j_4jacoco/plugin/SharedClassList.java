@@ -92,17 +92,12 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_TestFinishedListener");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_TrialList");
 		
-		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_AfterTrialErrors");
-		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_AfterTrialTestsErrors");
 		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_AnnotationErrors");
 		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_AssertionInputMessages");
 		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_AssertionResultMessages");
 		
-		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_BeforeTrialErrors");
 		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_Constants");
 		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_EclipseErrors");
-		
-		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_TestMethodErrors");
 		
 		
 		
