@@ -5,7 +5,6 @@ import java.util.List;
 import org.adligo.tests4j_4jacoco.plugin.data.coverage.I_ClassContainer;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.MemoryClassLoader;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_InstrumenterFactory;
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Runtime;
 
 public class Tests4J_4JacocoMemory implements I_ClassContainer {

@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -113,34 +114,9 @@ public class TrialInstrumenter {
 			return instrumentedClassLoader.getClass(clazzName);
 		}
 		
-		try {
-			
-			//instrument parent classes
-			Class<?> c = Class.forName(clazzName);
-			Class<?> s = c.getSuperclass();
-			if (s != null) {
-				if (!Object.class.equals(s)) {
-					if (!instrumentedClassLoader.hasDefinition(s.getName())) {
-						instrumentClass(s.getName());
-					}
-				}
-			}
-		} catch (ClassNotFoundException e) {
-			//do nothing, this is the break in the loop
-		}
-		//instrument inner classes
-		try {
-			int i = 1;
-			while (true) {
-				Class<?> c = Class.forName(clazzName + "$" + i);
-				if (!instrumentedClassLoader.hasDefinition(c.getName())) {
-					instrumentClass(c.getName());
-				}
-				i++;
-			}
-		} catch (ClassNotFoundException e) {
-			//do nothing, this is the break in the loop
-		}
+		discoverAndLoadParentClasses(clazzName);
+		discoverAndInstrumentFields(clazzName);
+		discoverAndInstrumentInnerClasses(clazzName);
 		
 		InputStream classInputStream = null;
 		if (cachedClassLoader.hasDefinition(clazzName)) {
@@ -180,6 +156,64 @@ public class TrialInstrumenter {
 		}
 	}
 
+	private void discoverAndLoadParentClasses(String clazzName)
+			throws IOException {
+		try {
+			
+			//instrument parent classes
+			Class<?> c = Class.forName(clazzName);
+			Class<?> s = c.getSuperclass();
+			if (s != null) {
+				if (!Object.class.equals(s)) {
+					if (!instrumentedClassLoader.hasDefinition(s.getName())) {
+						instrumentClass(s.getName());
+					}
+				}
+			}
+		} catch (ClassNotFoundException e) {
+			//do nothing, this is the break in the loop
+			//this is because we are discovering class
+		}
+	}
+
+	private void discoverAndInstrumentInnerClasses(String clazzName)
+			throws IOException {
+		//instrument inner classes
+		try {
+			int i = 1;
+			while (true) {
+				Class<?> c = Class.forName(clazzName + "$" + i);
+				if (!instrumentedClassLoader.hasDefinition(c.getName())) {
+					instrumentClass(c.getName());
+				}
+				i++;
+			}
+		} catch (ClassNotFoundException e) {
+			//do nothing, this is the break in the loop
+			//because we are discovering classes
+		}
+	}
+
+	private void discoverAndInstrumentFields(String clazzName)
+			throws IOException {
+	
+		Class<?> c;
+		try {
+			c = Class.forName(clazzName);
+			Field[] fields = c.getFields();
+			for (int j = 0; j < fields.length; j++) {
+				Field f = fields[j];
+				Class<?> fieldClass = f.getClass();
+				String fieldClassName = fieldClass.getName();
+				if (!instrumentedClassLoader.hasDefinition(fieldClassName)) {
+					instrumentClass(fieldClassName);
+				}
+			}
+		} catch (ClassNotFoundException e) {
+			tests4jLogger.onException(e);
+		}
+	}
+	
 	
 	private void loadTestedClasses(String pkg)
 			throws ClassNotFoundException, IOException {
