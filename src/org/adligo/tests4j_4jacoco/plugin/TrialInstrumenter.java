@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
-import org.adligo.tests4j.run.discovery.ClassDiscovery;
+import org.adligo.tests4j.run.discovery.PackageDiscovery;
 import org.adligo.tests4j.run.discovery.TopPackageSet;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.MemoryClassLoader;
@@ -217,19 +217,19 @@ public class TrialInstrumenter {
 	
 	private void loadTestedClasses(String pkg)
 			throws ClassNotFoundException, IOException {
-		ClassDiscovery cd = new ClassDiscovery(pkg);
+		PackageDiscovery cd = new PackageDiscovery(pkg);
 		loadTestedClasses(cd);
 			
 	}
 
-	private void loadTestedClasses(ClassDiscovery cd)
+	private void loadTestedClasses(PackageDiscovery cd)
 			throws IOException, ClassNotFoundException {
 		List<String> classNames = cd.getClassNames();
 		for (String clazz: classNames) {
 			loadClass(clazz);
 		}
-		List<ClassDiscovery> subCds = cd.getSubPackages();
-		for (ClassDiscovery subCd: subCds) {
+		List<PackageDiscovery> subCds = cd.getSubPackages();
+		for (PackageDiscovery subCd: subCds) {
 			loadTestedClasses(subCd);
 		}
 	}

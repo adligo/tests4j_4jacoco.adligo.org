@@ -50,6 +50,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.common.I_Platform");
 		toRet.add("org.adligo.tests4j.models.shared.common.Platform");
 		
+		
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnits");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnitsContainer");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_LineCoverage");
@@ -123,6 +124,8 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.xml.I_XML_Builder");
 		toRet.add("org.adligo.tests4j.models.shared.xml.I_XML_Consumer");
 		toRet.add("org.adligo.tests4j.models.shared.xml.I_XML_Producer");
+		
+		toRet.add("org.adligo.tests4j.run.discovery.I_Dependency");
 		
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_Probes");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore");
