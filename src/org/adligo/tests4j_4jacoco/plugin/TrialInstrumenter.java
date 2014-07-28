@@ -12,20 +12,21 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.adligo.tests4j.models.shared.common.StringMethods;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j.run.discovery.PackageDiscovery;
 import org.adligo.tests4j.run.discovery.TopPackageSet;
+import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.MemoryClassLoader;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
 
 public class TrialInstrumenter {
 	private static ConcurrentLinkedQueue<String> startedClasses = new ConcurrentLinkedQueue<String>();
 	private I_Tests4J_Log tests4jLogger;
 	private boolean writeOutInstrumentedClassFiles = false;
-	private MemoryClassLoader cachedClassLoader;
-	private MemoryClassLoader instrumentedClassLoader;
+	private I_CachedClassBytesClassLoader cachedClassLoader;
+	private I_CachedClassBytesClassLoader instrumentedClassLoader;
 	private I_Instrumenter instrumenter;
 	
 	@SuppressWarnings("unchecked")
@@ -91,12 +92,12 @@ public class TrialInstrumenter {
 	private Class<?> loadClass(String clazzName) throws IOException,
 			ClassNotFoundException {
 		
-		if (instrumentedClassLoader.getClass(clazzName) == null) {
+		if (instrumentedClassLoader.getCachedClass(clazzName) == null) {
 			if (!SharedClassList.WHITELIST.contains(clazzName)) {
 				return instrumentClass(clazzName);
 			} 
 		}
-		return instrumentedClassLoader.getClass(clazzName);
+		return instrumentedClassLoader.getCachedClass(clazzName);
 	}
 	private Class<?> instrumentClass(String clazzName) throws IOException,
 			ClassNotFoundException {
@@ -110,8 +111,8 @@ public class TrialInstrumenter {
 		}
 		startedClasses.add(clazzName);
 		
-		if (instrumentedClassLoader.hasDefinition(clazzName)) {
-			return instrumentedClassLoader.getClass(clazzName);
+		if (instrumentedClassLoader.hasCache(clazzName)) {
+			return instrumentedClassLoader.getCachedClass(clazzName);
 		}
 		
 		discoverAndLoadParentClasses(clazzName);
@@ -119,19 +120,13 @@ public class TrialInstrumenter {
 		discoverAndInstrumentInnerClasses(clazzName);
 		
 		InputStream classInputStream = null;
-		if (cachedClassLoader.hasDefinition(clazzName)) {
-			classInputStream = cachedClassLoader.getResourceAsStream(clazzName);
+		if (cachedClassLoader.hasCache(clazzName)) {
+			classInputStream = cachedClassLoader.getCachedBytesStream(clazzName);
 		} else {
-			final String resource = '/' + clazzName.replace('.', '/') + ".class";
+			final String resource = StringMethods.toResource(clazzName);
 			InputStream in = this.getClass().getResourceAsStream(resource);
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			byte [] bytes = new byte[1];
-			while(in.read(bytes) != -1) {
-				baos.write(bytes);
-			}
-			bytes = baos.toByteArray();
-			cachedClassLoader.addDefinition(clazzName, bytes);
-			classInputStream = new ByteArrayInputStream(bytes);
+			cachedClassLoader.addCache(in, clazzName);
+			classInputStream = cachedClassLoader.getCachedBytesStream(clazzName);
 		}
 		
 		final byte[] instrumented = instrumenter.instrument(
@@ -146,10 +141,9 @@ public class TrialInstrumenter {
 			tests4jLogger.log(ThreadLogMessageBuilder.getThreadForLog() +  " instrumenting class " + clazzName);
 		}
 		synchronized (instrumentedClassLoader) {
-			Class<?> toRet = instrumentedClassLoader.getClass(clazzName);
+			Class<?> toRet = instrumentedClassLoader.getCachedClass(clazzName);
 			if (toRet == null) {
-				instrumentedClassLoader.addDefinition(clazzName, instrumented);
-				toRet =  instrumentedClassLoader.loadClass(clazzName);
+				toRet = instrumentedClassLoader.addCache(clazzName, instrumented);
 			}
 			return toRet;
 			
@@ -165,7 +159,7 @@ public class TrialInstrumenter {
 			Class<?> s = c.getSuperclass();
 			if (s != null) {
 				if (!Object.class.equals(s)) {
-					if (!instrumentedClassLoader.hasDefinition(s.getName())) {
+					if (!instrumentedClassLoader.hasCache(s.getName())) {
 						instrumentClass(s.getName());
 					}
 				}
@@ -183,7 +177,7 @@ public class TrialInstrumenter {
 			int i = 1;
 			while (true) {
 				Class<?> c = Class.forName(clazzName + "$" + i);
-				if (!instrumentedClassLoader.hasDefinition(c.getName())) {
+				if (!instrumentedClassLoader.hasCache(c.getName())) {
 					instrumentClass(c.getName());
 				}
 				i++;
@@ -205,7 +199,7 @@ public class TrialInstrumenter {
 				Field f = fields[j];
 				Class<?> fieldClass = f.getClass();
 				String fieldClassName = fieldClass.getName();
-				if (!instrumentedClassLoader.hasDefinition(fieldClassName)) {
+				if (!instrumentedClassLoader.hasCache(fieldClassName)) {
 					instrumentClass(fieldClassName);
 				}
 			}
@@ -251,20 +245,20 @@ public class TrialInstrumenter {
 		this.writeOutInstrumentedClassFiles = writeOutInstrumentedClassFiles;
 	}
 
-	protected MemoryClassLoader getCachedClassLoader() {
+	protected I_CachedClassBytesClassLoader getCachedClassLoader() {
 		return cachedClassLoader;
 	}
 
-	protected MemoryClassLoader getInstrumentedClassLoader() {
+	protected I_CachedClassBytesClassLoader getInstrumentedClassLoader() {
 		return instrumentedClassLoader;
 	}
 
-	protected void setCachedClassLoader(MemoryClassLoader cachedClassLoader) {
+	protected void setCachedClassLoader(I_CachedClassBytesClassLoader cachedClassLoader) {
 		this.cachedClassLoader = cachedClassLoader;
 	}
 
 	protected void setInstrumentedClassLoader(
-			MemoryClassLoader instrumentedClassLoader) {
+			I_CachedClassBytesClassLoader instrumentedClassLoader) {
 		this.instrumentedClassLoader = instrumentedClassLoader;
 	}
 

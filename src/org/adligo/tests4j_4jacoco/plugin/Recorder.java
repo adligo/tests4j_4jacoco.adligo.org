@@ -7,9 +7,9 @@ import java.util.List;
 import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageRecorder;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
+import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.coverage.LazyPackageCoverageFactory;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.MemoryClassLoader;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Runtime;
 
 public class Recorder implements I_Tests4J_CoverageRecorder {
@@ -41,8 +41,8 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 		
 		if (jacocoInitOnFirstRecording) {
 			if (root) {
-				MemoryClassLoader mcl = memory.getInstrumentedClassLoader();
-				List<String> allClasses = mcl.getAllClasses();
+				I_CachedClassBytesClassLoader mcl = memory.getInstrumentedClassLoader();
+				List<String> allClasses = mcl.getAllCachedClasses();
 				int progress = 0;
 				double nextProgressLog = 10.0;
 				for (String clazz: allClasses) {
@@ -56,7 +56,7 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 						reporter.log("tests4j_4jacoco " + df.format(dp/tot) + "% calling $jacocoInit()s");
 					}
 					if (clazz.indexOf("$") == -1) {
-						Class<?> loadedClass = mcl.getClass(clazz);
+						Class<?> loadedClass = mcl.getCachedClass(clazz);
 						try {
 							Method jacocoInit = loadedClass.getMethod("$jacocoInit", new Class[] {});
 							jacocoInit.invoke(loadedClass, new Object[] {});
@@ -85,7 +85,7 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 		*/
 		I_ProbesDataStore executionData = runtime.end(root);
 		
-		return LazyPackageCoverageFactory.create(executionData, memory, memory.getCachedClassLoader());
+		return LazyPackageCoverageFactory.create(executionData, memory.getInstrumentedClassLoader(), memory.getCachedClassLoader());
 	}
 
 

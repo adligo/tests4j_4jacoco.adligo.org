@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.MemoryClassLoader;
 
 public class LazyPackageCoverageInput {
 	private String packageName;
@@ -14,7 +14,7 @@ public class LazyPackageCoverageInput {
 	 */
 	private List<String> classNames = new ArrayList<String>();
 	private I_ProbesDataStore probeData;
-	private ClassLoader classLoader;
+	private I_CachedClassBytesClassLoader classLoader;
 	
 	public String getPackageName() {
 		return packageName;
@@ -35,10 +35,10 @@ public class LazyPackageCoverageInput {
 	public void setProbeData(I_ProbesDataStore probeData) {
 		this.probeData = probeData;
 	}
-	public ClassLoader getClassLoader() {
+	public I_CachedClassBytesClassLoader getClassLoader() {
 		return classLoader;
 	}
-	public void setClassLoader(ClassLoader classLoader) {
+	public void setClassLoader(I_CachedClassBytesClassLoader classLoader) {
 		this.classLoader = classLoader;
 	}
 	

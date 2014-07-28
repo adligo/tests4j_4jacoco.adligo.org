@@ -9,11 +9,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageRecorder;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
-import org.adligo.tests4j.run.helpers.Tests4J_ThreadFactory;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
 import org.adligo.tests4j_4jacoco.plugin.data.common.ClassProbes;
 import org.adligo.tests4j_4jacoco.plugin.data.common.ClassProbesMutant;
-import org.adligo.tests4j_4jacoco.plugin.data.common.CoverageRecorderStates;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_MultiRecordingProbeDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.Probes;

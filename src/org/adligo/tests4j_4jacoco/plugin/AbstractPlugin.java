@@ -9,7 +9,7 @@ import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_InstrumenterFactory;
 
 public abstract class AbstractPlugin implements I_Tests4J_CoveragePlugin {
-	protected Tests4J_4JacocoMemory memory;
+	private Tests4J_4JacocoMemory memory;
 	private I_Tests4J_Log tests4jLogger;
 	private boolean writeOutInstrumentedClassFiles = false;
 	private AtomicBoolean firstRecorder = new AtomicBoolean(false);
@@ -43,7 +43,7 @@ public abstract class AbstractPlugin implements I_Tests4J_CoveragePlugin {
 		return rec;
 	}
 
-	public Tests4J_4JacocoMemory getMemory() {
+	protected Tests4J_4JacocoMemory getMemory() {
 		return memory;
 	}
 
@@ -55,7 +55,7 @@ public abstract class AbstractPlugin implements I_Tests4J_CoveragePlugin {
 		return writeOutInstrumentedClassFiles;
 	}
 
-	public void setMemory(Tests4J_4JacocoMemory memory) {
+	protected void setMemory(Tests4J_4JacocoMemory memory) {
 		this.memory = memory;
 	}
 

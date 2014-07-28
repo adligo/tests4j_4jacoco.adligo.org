@@ -16,16 +16,17 @@ import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleLoggerRuntime;
  */
 public class ScopedJacocoPlugin extends AbstractPlugin {
 	
-	public ScopedJacocoPlugin(I_Tests4J_Log reporter) {
-		super.setTests4jLogger(reporter);
+	public ScopedJacocoPlugin(I_Tests4J_Log logger) {
+		super.setTests4jLogger(logger);
 		
 		ProbeDataAccessorByLoggingApiFactory factory = new ProbeDataAccessorByLoggingApiFactory(
 				MapInstrConstants.DATAFIELD_DESC);
 		MapInstrumenterFactory instrFactory = new MapInstrumenterFactory(factory);
 		
 		SimpleLoggerRuntime runtime = new SimpleLoggerRuntime(factory);
-		runtime.setup(new MultiProbeDataStoreAdaptor(reporter));
-		memory = new Tests4J_4JacocoMemory(runtime, instrFactory);
+		runtime.setup(new MultiProbeDataStoreAdaptor(logger));
+		Tests4J_4JacocoMemory memory = new Tests4J_4JacocoMemory(runtime, instrFactory, logger);
+		super.setMemory(memory);
 	}
 
 

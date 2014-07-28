@@ -45,11 +45,12 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_EvaluatorLookup");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_UniformAssertionCommand");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_UniformAssertionEvaluator");
+		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_UniformThrownAssertionCommand");
 		
 		toRet.add("org.adligo.tests4j.models.shared.common.TrialType");
 		toRet.add("org.adligo.tests4j.models.shared.common.I_Platform");
 		toRet.add("org.adligo.tests4j.models.shared.common.Platform");
-		
+		toRet.add("org.adligo.tests4j.models.shared.common.I_Immutable");
 		
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnits");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnitsContainer");
@@ -100,7 +101,9 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_Constants");
 		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_EclipseErrors");
 		
-		
+		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_LineDiffTextDisplayMessages");
+		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_ParamReaderMessages");
+		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_ReportMessages");
 		
 		toRet.add("org.adligo.tests4j.models.shared.trials.AfterTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.BeforeTrial");
@@ -126,9 +129,23 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.xml.I_XML_Producer");
 		
 		toRet.add("org.adligo.tests4j.run.discovery.I_Dependency");
+		toRet.add("org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader");
+		
+		toRet.add("org.adligo.tests4j.run.remote.socket_api.I_AfterMessageHandler");
 		
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_Probes");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassProbes");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassProbesMutant");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStoreAdaptor");
+		
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassInstrumentationInfo");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassProbesVisitor");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_MethodProbesVisitor");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ProbeIdGenerator");
+		
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.runtime.I_ProbeDataAccessorFactory");
+		
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.asm.I_StackHelper");
 		
 		for (String clazz: toRet) {
