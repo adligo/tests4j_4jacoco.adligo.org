@@ -7,7 +7,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.adligo.tests4j_4jacoco.plugin.data.coverage.I_ClassContainer;
+import org.adligo.tests4j.run.discovery.I_ClassContainer;
 
 /**
  * a threadsafe memory container for classes,
@@ -31,9 +31,11 @@ public class MemoryClassLoader extends ClassLoader implements I_ClassContainer {
 		definitions.putIfAbsent(name, bytes);
 	}
 
+
 	public boolean hasDefinition(final String name) {
 		return definitions.containsKey(name);
 	}
+	
 	
 	public Class<?> getClass(final String name) {
 		return super.findLoadedClass(name);

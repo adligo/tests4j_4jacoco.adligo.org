@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
+import org.adligo.tests4j.run.discovery.I_ClassContainer;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 
 public class LazyPackageCoverageFactory {
