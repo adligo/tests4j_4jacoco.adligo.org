@@ -52,7 +52,6 @@ public class MapClassTypeStrategy extends AbstractObtainProbesStrategy implement
 	}
 	
 	public void createJacocoInit(final ClassVisitor cv) {
-		long id = classInfo.getId();
 		String className = classInfo.getClassName();
 		int probeCount = classInfo.getProbeCount();
 		

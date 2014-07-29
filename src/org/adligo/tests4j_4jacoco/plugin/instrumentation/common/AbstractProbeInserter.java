@@ -1,7 +1,5 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
 
-import java.util.Map;
-
 import org.adligo.tests4j_4jacoco.plugin.asm.ApiVersion;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;

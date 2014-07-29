@@ -1,7 +1,5 @@
 package org.adligo.tests4j_4jacoco.plugin;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.adligo.tests4j.models.shared.common.StringMethods;
+import org.adligo.tests4j.models.shared.common.ClassMethods;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j.run.discovery.PackageDiscovery;
@@ -123,7 +121,7 @@ public class TrialInstrumenter {
 		if (cachedClassLoader.hasCache(clazzName)) {
 			classInputStream = cachedClassLoader.getCachedBytesStream(clazzName);
 		} else {
-			final String resource = StringMethods.toResource(clazzName);
+			final String resource = ClassMethods.toResource(clazzName);
 			InputStream in = this.getClass().getResourceAsStream(resource);
 			cachedClassLoader.addCache(in, clazzName);
 			classInputStream = cachedClassLoader.getCachedBytesStream(clazzName);
