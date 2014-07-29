@@ -22,7 +22,7 @@ public class ClassReferencesMutant {
 				} 
 				String className = ClassMethods.fromTypeDescription(classTypeName);
 				if (!StringMethods.isEmpty(className)) {
-					if (className.indexOf(".") != -1) {
+					if (className.indexOf(".") != -1 && className.length() >= 2) {
 						boolean ignored = false;
 						if (ignoredPackageNames != null) {
 							for (String ignoredPackage: ignoredPackageNames) {
