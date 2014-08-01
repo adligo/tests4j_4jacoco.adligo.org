@@ -63,7 +63,7 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 						} catch (NoSuchMethodException x) {
 							//interfaces don't have it
 						} catch (Throwable e) {
-							throw new RuntimeException(e);
+							throw new RuntimeException("Class " + clazz + " failed to call $jacocoInit.", e);
 						}
 					}
 				}

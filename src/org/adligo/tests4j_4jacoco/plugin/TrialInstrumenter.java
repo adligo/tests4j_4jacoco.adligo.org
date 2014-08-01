@@ -17,7 +17,7 @@ import org.adligo.tests4j.run.discovery.PackageDiscovery;
 import org.adligo.tests4j.run.discovery.TopPackageSet;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
+import org.adligo.tests4j_4jacoco.plugin.runtime.I_ClassBytesInstrumenter;
 
 public class TrialInstrumenter {
 	private static ConcurrentLinkedQueue<String> startedClasses = new ConcurrentLinkedQueue<String>();
@@ -25,7 +25,7 @@ public class TrialInstrumenter {
 	private boolean writeOutInstrumentedClassFiles = false;
 	private I_CachedClassBytesClassLoader cachedClassLoader;
 	private I_CachedClassBytesClassLoader instrumentedClassLoader;
-	private I_Instrumenter instrumenter;
+	private I_ClassBytesInstrumenter instrumenter;
 	
 	@SuppressWarnings("unchecked")
 	public Class<? extends I_AbstractTrial> instrument(Class<? extends I_AbstractTrial> trial) {
@@ -127,7 +127,7 @@ public class TrialInstrumenter {
 			classInputStream = cachedClassLoader.getCachedBytesStream(clazzName);
 		}
 		
-		final byte[] instrumented = instrumenter.instrument(
+		final byte[] instrumented = instrumenter.instrumentClass(
 				classInputStream, clazzName);
 		if (writeOutInstrumentedClassFiles) {
 			FileOutputStream fos = new FileOutputStream(new File("./" + clazzName + ".class"));
@@ -260,11 +260,11 @@ public class TrialInstrumenter {
 		this.instrumentedClassLoader = instrumentedClassLoader;
 	}
 
-	protected I_Instrumenter getInstrumenter() {
+	protected I_ClassBytesInstrumenter getInstrumenter() {
 		return instrumenter;
 	}
 
-	protected void setInstrumenter(I_Instrumenter instrumenter) {
+	protected void setInstrumenter(I_ClassBytesInstrumenter instrumenter) {
 		this.instrumenter = instrumenter;
 	}
 

@@ -1,11 +1,10 @@
 package org.adligo.tests4j_4jacoco.plugin.discovery;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
+import org.adligo.tests4j.models.shared.common.ClassMethods;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
-import org.objectweb.asm.Attribute;
+import org.adligo.tests4j.run.discovery.ClassReferencesMutant;
+import org.adligo.tests4j.run.discovery.I_ClassFilter;
+import org.adligo.tests4j.run.discovery.I_ClassReferences;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -13,17 +12,25 @@ import org.objectweb.asm.MethodVisitor;
 
 public class ReferenceTrackingClassVisitor extends ClassVisitor {
 	private I_Tests4J_Log log;
-	private ClassReferencesMutant classReferences = new ClassReferencesMutant();
-	ReferenceTrackingMethodVisitor mv;
+	private ClassReferencesMutant classReferences;
+	
+	private ReferenceTrackingMethodVisitor mv;
+	private I_ClassFilter classFilter;
+	
 	private String className;
 	
 	public ReferenceTrackingClassVisitor(int version, I_Tests4J_Log pLog) {
 		super(version);
 		log = pLog;
 		mv = new ReferenceTrackingMethodVisitor(super.api, log);
-		mv.setClassReferences(classReferences);
-		
+		reset();
 	}
+	
+	public void reset() {
+		classReferences = new ClassReferencesMutant();
+		mv.setClassReferences(classReferences);
+	}
+	
 	@Override
 	public void visit(int version, int access, String name, String signature,
 			String superName, String[] interfaces) {
@@ -31,14 +38,15 @@ public class ReferenceTrackingClassVisitor extends ClassVisitor {
 		if (log.isLogEnabled(ReferenceTrackingClassVisitor.class)) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(super.toString() + " in class " + name + 
-					" interfaces are;");
+					" signature is " + signature);
 			for (int i = 0; i < interfaces.length; i++) {
 				sb.append(log.getLineSeperator());
 				sb.append(interfaces[i]);
 			}
 			log.log(sb.toString());
 		}
-		classReferences.clearClassNames();
+		classReferences.setClassName(className);
+		
 		super.visit(version, access, name, signature, superName, interfaces);
 	}
 
@@ -46,7 +54,10 @@ public class ReferenceTrackingClassVisitor extends ClassVisitor {
 	public FieldVisitor visitField(int access, String name, String desc,
 			String signature, Object value) {
 		
-		classReferences.onLocalVariableClassName(desc);
+		desc = ClassMethods.fromTypeDescription(desc);
+		if ( !classFilter.isFiltered(desc)) {
+			classReferences.addReference(desc);
+		}
 		return super.visitField(access, name, desc, signature, value);
 	}
 	
@@ -56,7 +67,13 @@ public class ReferenceTrackingClassVisitor extends ClassVisitor {
 		if (log.isLogEnabled(ReferenceTrackingClassVisitor.class)) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(super.toString() + " in method " + className + 
-					"." + name);
+					"." + name + " signature is " + signature);
+			if (exceptions != null) {
+				for (int i = 0; i < exceptions.length; i++) {
+					sb.append(log.getLineSeperator());
+					sb.append(exceptions[i]);
+				}
+			}
 			log.log(sb.toString());
 		}
 		
@@ -64,11 +81,17 @@ public class ReferenceTrackingClassVisitor extends ClassVisitor {
 		return mv;
 	}
 
-
-	
-
-	public ClassReferencesMutant getClassReferences() {
+	public I_ClassReferences getClassReferences() {
 		return classReferences;
+	}
+
+	public I_ClassFilter getClassFilter() {
+		return classFilter;
+	}
+
+	public void setClassFilter(I_ClassFilter classFilter) {
+		this.classFilter = classFilter;
+		mv.setClassFilter(classFilter);
 	}
 	
 

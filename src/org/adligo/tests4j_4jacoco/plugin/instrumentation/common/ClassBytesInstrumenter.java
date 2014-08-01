@@ -10,7 +10,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
+import org.adligo.tests4j_4jacoco.plugin.runtime.I_ClassBytesInstrumenter;
 import org.jacoco.core.internal.ContentTypeDetector;
 import org.jacoco.core.internal.Pack200Streams;
 import org.jacoco.core.internal.data.CRC64;
@@ -21,7 +21,7 @@ import org.objectweb.asm.ClassWriter;
 /**
  * Several APIs to instrument Java class definitions for coverage tracing.
  */
-public class DataInstrumenter implements I_Instrumenter {
+public class ClassBytesInstrumenter implements I_ClassBytesInstrumenter {
 
 	private final I_InstrumenterFactory instrumenterFactory;
 
@@ -33,7 +33,7 @@ public class DataInstrumenter implements I_Instrumenter {
 	 * @param runtime
 	 *            runtime used by the instrumented classes
 	 */
-	public DataInstrumenter(final I_InstrumenterFactory pInstrumenterFactory) {
+	public ClassBytesInstrumenter(final I_InstrumenterFactory pInstrumenterFactory) {
 		instrumenterFactory = pInstrumenterFactory;
 		this.signatureRemover = new SignatureRemover();
 	}
@@ -41,7 +41,6 @@ public class DataInstrumenter implements I_Instrumenter {
 	/* (non-Javadoc)
 	 * @see org.adligo.tests4j_4jacoco.plugin.instrumentation.I_I#setRemoveSignatures(boolean)
 	 */
-	@Override
 	public void setRemoveSignatures(final boolean flag) {
 		signatureRemover.setActive(flag);
 	}
@@ -57,7 +56,7 @@ public class DataInstrumenter implements I_Instrumenter {
 	 */
 	private ClassVisitor createInstrumentingVisitor(final long classid,
 			final ClassVisitor cv) {
-		ClassInstrumenter jci = new ClassInstrumenter(classid,
+		StrategySelectionInstrumenter jci = new StrategySelectionInstrumenter(classid,
 				instrumenterFactory, cv);
 		return new ClassProbesAdapter(jci, true);
 	}
@@ -65,7 +64,6 @@ public class DataInstrumenter implements I_Instrumenter {
 	/* (non-Javadoc)
 	 * @see org.adligo.tests4j_4jacoco.plugin.instrumentation.I_I#instrument(org.objectweb.asm.ClassReader)
 	 */
-	@Override
 	public byte[] instrument(final ClassReader reader) {
 		final ClassWriter writer = new ClassWriter(reader, 0);
 		final ClassVisitor visitor = createInstrumentingVisitor(
@@ -77,7 +75,6 @@ public class DataInstrumenter implements I_Instrumenter {
 	/* (non-Javadoc)
 	 * @see org.adligo.tests4j_4jacoco.plugin.instrumentation.I_I#instrument(byte[], java.lang.String)
 	 */
-	@Override
 	public byte[] instrument(final byte[] buffer, final String name)
 			throws IOException {
 		try {
@@ -91,7 +88,7 @@ public class DataInstrumenter implements I_Instrumenter {
 	 * @see org.adligo.tests4j_4jacoco.plugin.instrumentation.I_I#instrument(java.io.InputStream, java.lang.String)
 	 */
 	@Override
-	public byte[] instrument(final InputStream input, final String name)
+	public byte[] instrumentClass(final InputStream input, final String name)
 			throws IOException {
 		try {
 			return instrument(new ClassReader(input));
@@ -103,7 +100,6 @@ public class DataInstrumenter implements I_Instrumenter {
 	/* (non-Javadoc)
 	 * @see org.adligo.tests4j_4jacoco.plugin.instrumentation.I_I#instrument(java.io.InputStream, java.io.OutputStream, java.lang.String)
 	 */
-	@Override
 	public void instrument(final InputStream input, final OutputStream output,
 			final String name) throws IOException {
 		try {
@@ -124,7 +120,6 @@ public class DataInstrumenter implements I_Instrumenter {
 	/* (non-Javadoc)
 	 * @see org.adligo.tests4j_4jacoco.plugin.instrumentation.I_I#instrumentAll(java.io.InputStream, java.io.OutputStream, java.lang.String)
 	 */
-	@Override
 	public int instrumentAll(final InputStream input,
 			final OutputStream output, final String name) throws IOException {
 		final ContentTypeDetector detector = new ContentTypeDetector(input);

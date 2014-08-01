@@ -129,6 +129,12 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.xml.I_XML_Producer");
 		
 		toRet.add("org.adligo.tests4j.run.discovery.I_Dependency");
+		toRet.add("org.adligo.tests4j.run.discovery.I_ClassDependencies");
+		toRet.add("org.adligo.tests4j.run.discovery.I_ClassDependenciesCache");
+		toRet.add("org.adligo.tests4j.run.discovery.I_ClassFilter");
+		toRet.add("org.adligo.tests4j.run.discovery.I_ClassFilterModel");
+		toRet.add("org.adligo.tests4j.run.discovery.I_ClassReferences");
+		
 		toRet.add("org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader");
 		
 		toRet.add("org.adligo.tests4j.run.remote.socket_api.I_AfterMessageHandler");
@@ -145,6 +151,8 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ProbeIdGenerator");
 		
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.runtime.I_ProbeDataAccessorFactory");
+		
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.discovery.I_DiscoveryMemory");
 		
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.asm.I_StackHelper");
 		

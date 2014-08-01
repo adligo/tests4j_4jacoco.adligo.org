@@ -1,12 +1,12 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation.map;
 
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.AbstractProbeInserter;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.DataInstrumenter;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.ClassBytesInstrumenter;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassInstrumentationInfo;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_InstrumenterFactory;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ObtainProbesStrategy;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.ObtainProbesStrategyType;
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_Instrumenter;
+import org.adligo.tests4j_4jacoco.plugin.runtime.I_ClassBytesInstrumenter;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_ProbeDataAccessorFactory;
 import org.objectweb.asm.MethodVisitor;
 
@@ -43,7 +43,7 @@ public class MapInstrumenterFactory implements I_InstrumenterFactory {
 
 
 	@Override
-	public I_Instrumenter createInstrumenter() {
-		return  new DataInstrumenter(this);
+	public I_ClassBytesInstrumenter createInstrumenter() {
+		return  new ClassBytesInstrumenter(this);
 	}
 }

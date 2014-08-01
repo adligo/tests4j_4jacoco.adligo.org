@@ -10,7 +10,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AnalyzerAdapter;
 
-public class ClassInstrumenter extends ClassVisitor
+public class StrategySelectionInstrumenter extends ClassVisitor
 	implements I_ClassProbesVisitor, I_ClassInstrumentationInfo {
 
 		private final long id;
@@ -35,7 +35,7 @@ public class ClassInstrumenter extends ClassVisitor
 		 *            next delegate in the visitor chain will receive the
 		 *            instrumented class
 		 */
-		public ClassInstrumenter(final long id,
+		public StrategySelectionInstrumenter(final long id,
 				final I_InstrumenterFactory pInstrumenterFactory,
 				final ClassVisitor cv) {
 			super(ApiVersion.VERSION, cv);
