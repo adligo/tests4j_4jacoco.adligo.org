@@ -8,7 +8,6 @@ import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageRecorder;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j_4jacoco.plugin.discovery.ClassInstrumenter;
-import org.adligo.tests4j_4jacoco.plugin.discovery.TrialInstrumenter2;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_InstrumenterFactory;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_ClassBytesInstrumenter;
 
@@ -17,33 +16,11 @@ public abstract class AbstractPlugin implements I_Tests4J_CoveragePlugin {
 	private I_Tests4J_Log tests4jLogger;
 	private boolean writeOutInstrumentedClassFiles = false;
 	private AtomicBoolean firstRecorder = new AtomicBoolean(false);
-	private ThreadLocal<TrialInstrumenter2> trialIntrumenters2 = new ThreadLocal<TrialInstrumenter2>();
 	private ThreadLocal<TrialInstrumenter> trialIntrumenters = new ThreadLocal<TrialInstrumenter>();
 	
 
-	@Override
-	public Class<? extends I_AbstractTrial> instrument(Class<? extends I_AbstractTrial> trial) {
-		return instrument2(trial);
-	}
-	
-	public Class<? extends I_AbstractTrial> instrument1(Class<? extends I_AbstractTrial> trial) {
+	public Class<? extends I_AbstractTrial> instrument(Class<? extends I_AbstractTrial> trial)  {
 		if (trialIntrumenters.get() == null) {
-			TrialInstrumenter ti = new TrialInstrumenter();
-			ti.setWriteOutInstrumentedClassFiles(writeOutInstrumentedClassFiles);
-			ti.setTests4jLogger(tests4jLogger);
-			ti.setCachedClassLoader(memory.getCachedClassLoader());
-			ti.setInstrumentedClassLoader(memory.getInstrumentedClassLoader());
-			I_InstrumenterFactory instFact = memory.getInstrumenterFactory();
-			ti.setInstrumenter(instFact.createInstrumenter());
-			
-			trialIntrumenters.set(ti);
-		}
-		TrialInstrumenter ti = trialIntrumenters.get();
-		return ti.instrument(trial);
-	}
-	
-	public Class<? extends I_AbstractTrial> instrument2(Class<? extends I_AbstractTrial> trial)  {
-		if (trialIntrumenters2.get() == null) {
 			
 			ClassInstrumenter ci = new ClassInstrumenter();
 			ci.setInstrumentedClassLoader(memory.getInstrumentedClassLoader());
@@ -55,9 +32,9 @@ public abstract class AbstractPlugin implements I_Tests4J_CoveragePlugin {
 			ci.setLog(tests4jLogger);
 			ci.setup();
 			
-			trialIntrumenters2.set(new TrialInstrumenter2(ci, tests4jLogger, memory));
+			trialIntrumenters.set(new TrialInstrumenter(ci, tests4jLogger, memory));
 		}
-		TrialInstrumenter2 ti = trialIntrumenters2.get();
+		TrialInstrumenter ti = trialIntrumenters.get();
 		try {
 			return ti.instrument(trial);
 		} catch (ClassNotFoundException | IOException e) {
