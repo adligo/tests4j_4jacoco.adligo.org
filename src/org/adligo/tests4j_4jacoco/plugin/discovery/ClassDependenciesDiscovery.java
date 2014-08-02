@@ -98,6 +98,9 @@ public class ClassDependenciesDiscovery {
 		I_ClassDependencies toRet = dependencyCache.get(name);
 		//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
 		if (toRet != null) {
+			if (log.isLogEnabled(ClassDependenciesDiscovery.class)) {
+				log.log("ClassDependenciesDiscovery " + parentName + " got cache hit for " + name + " ");
+			}
 			return new ClassDependenciesMutant(toRet);
 		}
 		//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
@@ -127,6 +130,9 @@ public class ClassDependenciesDiscovery {
 	 * @param target
 	 */
 	private void doRecursion(I_ClassReferences refs, Stack<String> refTree, ClassDependenciesMutant target) {
+		if (refs == null) {
+			return;
+		}
 		String name = refs.getClassName();
 		if (refTree.contains(name)) {
 			//block stack overflow

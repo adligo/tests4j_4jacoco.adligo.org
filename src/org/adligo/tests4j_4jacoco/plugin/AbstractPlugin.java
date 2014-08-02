@@ -23,7 +23,7 @@ public abstract class AbstractPlugin implements I_Tests4J_CoveragePlugin {
 
 	@Override
 	public Class<? extends I_AbstractTrial> instrument(Class<? extends I_AbstractTrial> trial) {
-		return instrument1(trial);
+		return instrument2(trial);
 	}
 	
 	public Class<? extends I_AbstractTrial> instrument1(Class<? extends I_AbstractTrial> trial) {
@@ -55,7 +55,7 @@ public abstract class AbstractPlugin implements I_Tests4J_CoveragePlugin {
 			ci.setLog(tests4jLogger);
 			ci.setup();
 			
-			trialIntrumenters2.set(new TrialInstrumenter2(ci, tests4jLogger));
+			trialIntrumenters2.set(new TrialInstrumenter2(ci, tests4jLogger, memory));
 		}
 		TrialInstrumenter2 ti = trialIntrumenters2.get();
 		try {

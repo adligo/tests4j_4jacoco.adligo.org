@@ -1,13 +1,15 @@
 package org.adligo.tests4j_4jacoco.plugin;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
+import org.adligo.tests4j.run.discovery.ClassDependencies;
 import org.adligo.tests4j.run.discovery.ClassFilter;
+import org.adligo.tests4j.run.discovery.ClassFilterMutant;
 import org.adligo.tests4j.run.discovery.I_ClassDependencies;
-import org.adligo.tests4j.run.discovery.I_ClassDependenciesCache;
 import org.adligo.tests4j.run.discovery.I_ClassFilter;
 import org.adligo.tests4j.run.helpers.CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
@@ -28,7 +30,7 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 	 */
 	private I_CachedClassBytesClassLoader cachedClassLoader;
 	private ConcurrentHashMap<String, I_ClassDependencies> cache = new ConcurrentHashMap<String, I_ClassDependencies>();
-	private I_ClassFilter classFilter = new ClassFilter();
+	private I_ClassFilter classFilter;
 	
 	private I_Runtime runtime;
 	private I_InstrumenterFactory instrumenterFactory;
@@ -45,6 +47,15 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 				packagesWithoutWarning, classesWithoutWarning);
 		cachedClassLoader = new CachedClassBytesClassLoader(log, 
 				packagesWithoutWarning, classesWithoutWarning);
+		
+		ClassFilterMutant cfm = new ClassFilterMutant();
+		cfm.setIgnoredClassNames(SharedClassList.WHITELIST);
+		Set<String> pkgNames = cfm.getIgnoredPackageNames();
+		Set<String> pkgNamesToSet = new HashSet<String>(pkgNames);
+		pkgNamesToSet.add("org.jacoco.");
+		pkgNamesToSet.add("org.objectweb.");
+		cfm.setIgnoredPackageNames(pkgNamesToSet);
+		classFilter = new ClassFilter(cfm);
 	}
 	
 	
@@ -64,7 +75,7 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 
 	@Override
 	public void putIfAbsent(I_ClassDependencies p) {
-		cache.putIfAbsent(p.getClassName(), p);
+		cache.putIfAbsent(p.getClassName(), new ClassDependencies(p));
 	}
 
 	@Override

@@ -1,13 +1,12 @@
 package org.adligo.tests4j_4jacoco.plugin.discovery;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Set;
 
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.discovery.I_ClassDependencies;
-import org.adligo.tests4j.run.discovery.I_ClassDependenciesCache;
 import org.adligo.tests4j.run.discovery.I_Dependency;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_ClassBytesInstrumenter;
@@ -35,8 +34,6 @@ public class ClassInstrumenter {
 	private I_DiscoveryMemory memory;
 	private ClassDependenciesDiscovery classDependenciesDiscovery;
 	private I_ClassBytesInstrumenter classBytesInstrumenter;
-	private Set<String> ignoredClasses;
-	private Set<String> ignoredPackages;
 	
 	public void setup() {
 		classDependenciesDiscovery = new ClassDependenciesDiscovery(cleanClassLoader, log, memory);
@@ -48,9 +45,14 @@ public class ClassInstrumenter {
 		for (I_Dependency dep: deps) {
 			String clazzName = dep.getClassName();
 			if ( !instrumentedClassLoader.hasCache(clazzName)) {
+				if (log.isLogEnabled(ClassInstrumenter.class)) {
+					log.log("ClassInstrumenter instrumenting class " + clazzName);
+				}
 				InputStream bais = cleanClassLoader.getCachedBytesStream(clazzName);
+				
+				byte [] bytes = classBytesInstrumenter.instrumentClass(bais, clazzName);
 				//instrumentedClassLoader should close the input stream
-				instrumentedClassLoader.addCache(bais, clazzName);
+				instrumentedClassLoader.addCache(new ByteArrayInputStream(bytes), clazzName);
 			}
 		}
 		return instrumentedClassLoader.getCachedClass(c.getName());

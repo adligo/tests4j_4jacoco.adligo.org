@@ -47,9 +47,9 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_UniformAssertionEvaluator");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_UniformThrownAssertionCommand");
 		
-		toRet.add("org.adligo.tests4j.models.shared.common.TrialType");
+		toRet.add("org.adligo.tests4j.models.shared.common.I_TrialType");
 		toRet.add("org.adligo.tests4j.models.shared.common.I_Platform");
-		toRet.add("org.adligo.tests4j.models.shared.common.Platform");
+		toRet.add("org.adligo.tests4j.models.shared.common.I_PlatformContainer");
 		toRet.add("org.adligo.tests4j.models.shared.common.I_Immutable");
 		
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnits");
@@ -116,7 +116,6 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_MetaTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_SourceFileTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_UseCaseTrial");
-		
 		
 		toRet.add("org.adligo.tests4j.models.shared.trials.PackageScope");
 		toRet.add("org.adligo.tests4j.models.shared.trials.SourceFileScope");

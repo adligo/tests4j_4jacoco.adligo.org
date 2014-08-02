@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,7 +18,6 @@ import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.discovery.ClassReferences;
 import org.adligo.tests4j.run.discovery.ClassReferencesMutant;
 import org.adligo.tests4j.run.discovery.I_ClassDependencies;
-import org.adligo.tests4j.run.discovery.I_ClassDependenciesCache;
 import org.adligo.tests4j.run.discovery.I_ClassReferences;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.objectweb.asm.ClassReader;
@@ -77,6 +75,9 @@ public class ClassReferencesDiscovery {
 	 * @throws ClassNotFoundException
 	 */
 	private I_ClassReferences loadReferences(Class<?> c, Class<?> parent, Stack<Class<?>> recursionStack) throws IOException, ClassNotFoundException {
+		if (discoveryMemory.isFiltered(c)) {
+			return null;
+		}
 		String className = c.getName();
 		recursionStack.add(c);
 		if ( !classLoader.hasCache(className)) {
@@ -85,7 +86,11 @@ public class ClassReferencesDiscovery {
 			}
 			String resourceName = ClassMethods.toResource(className);
 			InputStream in = c.getResourceAsStream(resourceName);
-			classLoader.addCache(in, className);
+			if (in == null) {
+				log.log("Error loading class " + resourceName);
+			} else {
+				classLoader.addCache(in, className);
+			}
 		}
 		return loadAndFindAllRefs(c, recursionStack);
 	}
@@ -205,6 +210,7 @@ public class ClassReferencesDiscovery {
 				}
 			}
 		}
+		/*
 		if (log.isLogEnabled(ClassReferencesDiscovery.class)) {
 			Set<Entry<String,Integer>> entries = refCounts.entrySet();
 			StringBuilder sb = new StringBuilder();
@@ -216,6 +222,7 @@ public class ClassReferencesDiscovery {
 			}
 			log.log(sb.toString());
 		}
+		*/
 		int max = 0;
 		Collection<Integer> counts = refCounts.values();
 		for (Integer ct: counts) {

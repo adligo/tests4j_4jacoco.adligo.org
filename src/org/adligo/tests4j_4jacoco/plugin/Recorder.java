@@ -57,13 +57,18 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 					}
 					if (clazz.indexOf("$") == -1) {
 						Class<?> loadedClass = mcl.getCachedClass(clazz);
-						try {
-							Method jacocoInit = loadedClass.getMethod("$jacocoInit", new Class[] {});
-							jacocoInit.invoke(loadedClass, new Object[] {});
-						} catch (NoSuchMethodException x) {
-							//interfaces don't have it
-						} catch (Throwable e) {
-							throw new RuntimeException("Class " + clazz + " failed to call $jacocoInit.", e);
+						if (loadedClass != null) {
+							try {
+								Method jacocoInit = loadedClass.getMethod("$jacocoInit", new Class[] {});
+								
+								if (jacocoInit != null) {
+									jacocoInit.invoke(loadedClass, new Object[] {});
+								}
+							} catch (NoSuchMethodException x) {
+								//interfaces don't have it
+							} catch (Throwable e) {
+								throw new RuntimeException("Class " + clazz + " failed to call $jacocoInit.", e);
+							}
 						}
 					}
 				}
