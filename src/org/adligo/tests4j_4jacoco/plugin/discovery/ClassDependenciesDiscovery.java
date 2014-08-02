@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.discovery.ClassDependencies;
@@ -38,8 +39,6 @@ import org.objectweb.asm.Opcodes;
 public class ClassDependenciesDiscovery {
 	private I_Tests4J_Log log;
 	private I_DiscoveryMemory dependencyCache;
-	private Set<String> ignoredPackages = Collections.singleton("java.");
-	private Map<String,ClassReferencesMutant> refMap = new HashMap<String,ClassReferencesMutant>();
 	private ClassReferencesDiscovery classReferencesDiscovery;
 	
 	public ClassDependenciesDiscovery(I_CachedClassBytesClassLoader pClassLoader,
@@ -49,17 +48,44 @@ public class ClassDependenciesDiscovery {
 		classReferencesDiscovery = new ClassReferencesDiscovery(pClassLoader, pLog, dc);
 	}
 	
+	/**
+	 * @diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
+	 * 
+	 * @param c
+	 * @return
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	public I_ClassDependencies discoverAndLoad(Class<?> c) throws IOException, ClassNotFoundException {
-		List<String> refOrder = classReferencesDiscovery.discoverAndLoad(c);
-		
-		refOrder.remove(c.getName());
-		for (String className: refOrder) {
-			if (dependencyCache.get(className) == null) {
-				calcDependencies(className);
+		String name = c.getName();
+		//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
+		I_ClassDependencies toRet = dependencyCache.get(name);
+		//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
+		if (toRet == null) {
+			//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
+			ClassDependenciesMutant top = new ClassDependenciesMutant();
+			top.setClazzName(name);
+			//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
+			List<String> refOrder = classReferencesDiscovery.discoverAndLoad(c);
+			
+			refOrder.remove(name);
+			for (String className: refOrder) {
+				if (log.isLogEnabled(ClassDependenciesDiscovery.class)) {
+					log.log("ClassDependenciesDiscovery " + name + " calcDependencies on " + className + " ");
+				}
+				//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
+				ClassDependenciesMutant deps = calcDependencies(className, name);
+				top.add(deps);
 			}
+			DependencyMutant dm = new DependencyMutant();
+			dm.setClazzName(name);
+			top.addDependency(dm);
+			
+			toRet = new ClassDependencies(top);
+			dependencyCache.putIfAbsent(toRet);
 		}
-		//ok all dependencies are calculate except the input classes dependencies
-		return calcDependencies(c.getName());
+		
+		return toRet;
 	}
 
 	
@@ -67,114 +93,70 @@ public class ClassDependenciesDiscovery {
 	 * this caches dependencies 
 	 * @param name
 	 */
-	private I_ClassDependencies calcDependencies(String name) {
-		Set<String> working = new HashSet<String>();
-		
-		return calcDependencies(name, working);
+	private ClassDependenciesMutant calcDependencies(String name, String parentName) {
+		//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
+		I_ClassDependencies toRet = dependencyCache.get(name);
+		//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
+		if (toRet != null) {
+			return new ClassDependenciesMutant(toRet);
+		}
+		//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
+		ClassDependenciesMutant target = new ClassDependenciesMutant();
+		target.setClazzName(name);
+		if (log.isLogEnabled(ClassDependenciesDiscovery.class)) {
+			log.log("ClassDependenciesDiscovery " + parentName + " calcDependenciesFromReferences on " + name + " ");
+		}
+		calcDependenciesFromReferences(name, target);
+		dependencyCache.putIfAbsent(new ClassDependencies(target));
+		return target;
+	}
+	
+	private void calcDependenciesFromReferences(String name, ClassDependenciesMutant target) {
+		//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
+		I_ClassReferences crs =  classReferencesDiscovery.getReferences(name);
+		Stack<String> refTree = new Stack<String>();
+		doRecursion(crs, refTree, target);
 	}
 	
 	/**
-	 * a recursive method to try to correctly calculate
-	 * dependencies, of course there could be circular references in
-	 * here so the working set keeps stack overflows from occurring.
-	 * @param name
-	 * @param working
+	 * ok there wasn't one in cache add all 
+	 * references local and pass through references
+	 * to the target.   
+	 * @param refs
+	 * @param refTree
+	 * @param target
 	 */
-	private I_ClassDependencies calcDependencies(String name, Set<String> working) {
-		if (log.isLogEnabled(ClassDependenciesDiscovery.class)) {
-			log.log("calcDependencies " + name);
+	private void doRecursion(I_ClassReferences refs, Stack<String> refTree, ClassDependenciesMutant target) {
+		String name = refs.getClassName();
+		if (refTree.contains(name)) {
+			//block stack overflow
+			return;
 		}
-		working.add(name);
-		ClassDependenciesMutant cdm = new ClassDependenciesMutant();
-		cdm.setClazzName(name);
+		refTree.add(name);
 		
-		I_ClassReferences crm = refMap.get(name);
-		Set<String> topNames = crm.getReferences();
+		Set<String> references = refs.getReferences();
+		Set<String> refsLocal = new HashSet<String>(references);
+		refsLocal.remove(refs.getClassName());
 		
-		Set<String> topNamesClone = new HashSet<String>(topNames);
-		topNamesClone.remove(name);
-		for (String tn: topNamesClone) {
-			I_ClassDependencies classDeps =  dependencyCache.get(tn);
-			if (classDeps == null) {
-				 if (working.contains(tn)) {
-					//there is some sort of circular reference
-					 //in the reference, so crap in crap out
-					 //the dependency counts are not 100% accurate
-					 DependencyMutant dm = new DependencyMutant();
-					 dm.addReference();
-					 dm.setClazzName(tn);
-					 cdm.addDependency(dm);
-					 if (log.isLogEnabled(ClassDependenciesDiscovery.class)) {
-							log.log("calcDependencies circular ? " + name + " 2 " + tn);
-					  }
-				 } else {
-					 classDeps = calcDependencies(tn, working);
-				 }
-			}
-			if (classDeps != null) {
-				if (log.isLogEnabled(ClassDependenciesDiscovery.class)) {
-					log.log("calcDependencies adding " + name + " 2 " + tn);
-				 }
-				 
-				cdm.add(classDeps);
-			}
-		}
-		DependencyMutant dm = new DependencyMutant();
-		dm.setClazzName(name);
-		cdm.addDependency(dm);
-		
-		working.remove(name);
-		ClassDependencies toRet = new ClassDependencies(cdm);
-		dependencyCache.putIfAbsent(toRet);
-		return toRet;
-	}
-	
-
-
-	protected void addReflectionNames(Set<String> classNames, Class<?> clazz, ClassReferencesMutant classReferences) {
-		if (clazz != null) {
-			//don't add arrays
-			if (clazz.isArray()) {
-				Class<?> type = clazz.getComponentType();
-				addApprovedName(classNames, type, classReferences);
+		for (String ref: refsLocal) {
+			DependencyMutant dm =  target.getDependency(ref);
+			if (dm == null) {
+				dm = new DependencyMutant();
+				dm.setClazzName(ref);
+				dm.addReference();
+				target.addDependency(dm);
 			} else {
-				addApprovedName(classNames, clazz, classReferences);
+				dm.addReference();
 			}
+			I_ClassReferences refsRefs = classReferencesDiscovery.getReferences(ref);
+			doRecursion(refsRefs, refTree, target);
 		}
-	}
-	
-	protected void addApprovedName(Set<String> classNames, Class<?> clazz, ClassReferencesMutant classReferences) {
-		if (clazz != null) {
-			
-			if (isApprovedReferencedClass(clazz, classReferences)) {
-				classNames.add(clazz.getName());
-			}
-		}
-	}
-
-	protected boolean isApprovedReferencedClass(Class<?> clazz, ClassReferencesMutant classReferences) {
-		if (clazz != null) {
-			//always block primitives
-			if (!clazz.isPrimitive()) {
-				if (!dependencyCache.isFiltered(clazz)) {
-					String cn = clazz.getName();
-					if ( !"void".equals(cn)) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-	
-	public Set<String> getIgnoredPackages() {
-		return ignoredPackages;
-	}
-
-	public void setIgnoredPackages(Set<String> pIgnoredPackages) {
-		if (pIgnoredPackages != null) {
-			ignoredPackages.clear();
-			ignoredPackages.addAll(pIgnoredPackages);
-		}
+		DependencyMutant dm = target.getDependency(name);
+		if (dm == null) {
+			dm = new DependencyMutant();
+			dm.setClazzName(name);
+			target.addDependency(dm);
+		} 
+		refTree.remove(name);
 	}
 }

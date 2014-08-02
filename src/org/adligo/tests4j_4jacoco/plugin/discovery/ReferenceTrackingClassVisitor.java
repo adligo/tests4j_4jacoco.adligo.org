@@ -34,7 +34,7 @@ public class ReferenceTrackingClassVisitor extends ClassVisitor {
 	@Override
 	public void visit(int version, int access, String name, String signature,
 			String superName, String[] interfaces) {
-		className = name;
+		className = ClassMethods.fromTypeDescription(name);
 		if (log.isLogEnabled(ReferenceTrackingClassVisitor.class)) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(super.toString() + " in class " + name + 

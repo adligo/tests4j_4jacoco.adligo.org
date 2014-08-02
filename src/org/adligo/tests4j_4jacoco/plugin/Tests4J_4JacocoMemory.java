@@ -76,4 +76,10 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 	public boolean isFiltered(Class<?> clazz) {
 		return classFilter.isFiltered(clazz);
 	}
+
+
+	@Override
+	public boolean isFiltered(String className) {
+		return classFilter.isFiltered(className);
+	}
 }

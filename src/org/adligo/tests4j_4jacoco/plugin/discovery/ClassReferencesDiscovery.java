@@ -55,12 +55,14 @@ public class ClassReferencesDiscovery {
 		log = pLog;
 		discoveryMemory = dc;
 		cv = new ReferenceTrackingClassVisitor(Opcodes.ASM5, log);
+		cv.setClassFilter(dc);
 	}
 	
 	public List<String> discoverAndLoad(Class<?> c) throws IOException, ClassNotFoundException {
 		refMap.clear();
-		loadReferences(c, c, new Stack<Class<?>>());
-		List<String> refOrder = calcRefOrder(c.getName());
+		Stack<Class<?>> recStack = new Stack<Class<?>>();
+		loadReferences(c, c, recStack);
+		List<String> refOrder = calcRefOrder(c);
 		return refOrder;
 	}
 
@@ -75,9 +77,6 @@ public class ClassReferencesDiscovery {
 	 * @throws ClassNotFoundException
 	 */
 	private I_ClassReferences loadReferences(Class<?> c, Class<?> parent, Stack<Class<?>> recursionStack) throws IOException, ClassNotFoundException {
-		if (recursionStack.contains(c)) {
-			return null;
-		}
 		String className = c.getName();
 		recursionStack.add(c);
 		if ( !classLoader.hasCache(className)) {
@@ -88,7 +87,6 @@ public class ClassReferencesDiscovery {
 			InputStream in = c.getResourceAsStream(resourceName);
 			classLoader.addCache(in, className);
 		}
-		recursionStack.remove(c);
 		return loadAndFindAllRefs(c, recursionStack);
 	}
 	
@@ -98,11 +96,14 @@ public class ClassReferencesDiscovery {
 		//check cache, to keep ASM visitor calls down because they are expensive
 		I_ClassDependencies cdeps = discoveryMemory.get(className);
 		if (cdeps != null) {
-			return new ClassReferences(cdeps);
+			ClassReferences toRet = new ClassReferences(cdeps);
+			refMap.put(className, toRet);
+			return toRet;
 		}
 		//add references from ASM, byte code inspection
 		InputStream in = classLoader.getCachedBytesStream(className);
 		ClassReader classReader=new ClassReader(in);
+		cv.reset();
 		classReader.accept(cv, 0);
 		I_ClassReferences asmRefs = cv.getClassReferences();
 		Set<String> classNames = asmRefs.getReferences();
@@ -110,17 +111,28 @@ public class ClassReferencesDiscovery {
 		ClassReferencesMutant crm = readReflectionReferences(c, asmRefs,
 				classNames);
 		
-		doRecursion(c, className, classNames, recursionStack);
-		return new ClassReferences(crm);
+		classNames = crm.getReferences();
+		doRecursion(c, classNames, recursionStack);
+		ClassReferences toRet = new ClassReferences(crm);
+		refMap.put(className, toRet);
+		recursionStack.remove(c);
+		return toRet;
 	}
 
-	protected void doRecursion(Class<?> c, String className,
+	protected void doRecursion(Class<?> c, 
 			Set<String> classNames, Stack<Class<?>> recursionStack) throws ClassNotFoundException, IOException {
 		List<String> currentNames = new ArrayList<String>(classNames);
-		//remove this since we added the references for this;
-		currentNames.remove(className);
+
+		for (Class<?> clazz: recursionStack) {
+			currentNames.remove(clazz.getName());
+		}
 		for (String name: currentNames) {
-			if ( !classLoader.hasCache(name)) {
+			I_ClassDependencies cdeps = discoveryMemory.get(name);
+			if (cdeps != null) {
+				ClassReferences toRet = new ClassReferences(cdeps);
+				String className = c.getName();
+				refMap.put(className, toRet);
+			} else {
 				Class<?> child = Class.forName(name);
 				loadReferences(child, c, recursionStack);
 			}
@@ -160,17 +172,15 @@ public class ClassReferencesDiscovery {
 	 * This calculates a rough order of dependencies
 	 * @return
 	 */
-	private List<String> calcRefOrder(String topName) {
+	private List<String> calcRefOrder(Class<?> c) {
+		String topName = c.getName();
 		Map<String,Integer> refCounts = new HashMap<String,Integer>();
 		
 		Set<Entry<String, I_ClassReferences>> refs =  refMap.entrySet();
 		for (Entry<String,I_ClassReferences> e: refs) {
 			String className = e.getKey();
 			
-			if (className.indexOf(topName) == 0 && className.indexOf("$") != -1) {
-				//filter out the input top class, and $1, $2 exc
-				//it's
-			} else {
+			if (isNotClassOrInnerClass(className, topName)) {
 				Integer count = refCounts.get(className);
 				
 				if (count == null) {
@@ -183,13 +193,15 @@ public class ClassReferencesDiscovery {
 				I_ClassReferences crs = e.getValue();
 				Set<String> classNames = crs.getReferences();
 				for (String name: classNames) {
-					count = refCounts.get(name);
-					if (count == null) {
-						count = 1;
-					} else {
-						count = count + 1;
+					if (isNotClassOrInnerClass(name, topName)) {
+						count = refCounts.get(name);
+						if (count == null) {
+							count = 1;
+						} else {
+							count = count + 1;
+						}
+						refCounts.put(name, count);
 					}
-					refCounts.put(name, count);
 				}
 			}
 		}
@@ -224,41 +236,52 @@ public class ClassReferencesDiscovery {
 				}
 			}
 		}
-		
+		boolean adding = true;
+		int count = 1;
+		while (adding) {
+			if (refMap.containsKey(topName + "$" + count)) {
+				toRet.add(topName + "$" + count);
+			} else {
+				adding = false;
+			}
+			count++;
+		}
+		toRet.add(topName);
 		return toRet;
 	}
 	
+	private boolean isNotClassOrInnerClass(String className, String topName) {
+		if (className.equals(topName)) {
+			return false;
+		} else if (className.indexOf(topName + "$") == 0) {
+			return false;
+		}
+		return true;
+	}
 	protected void addReflectionNames(Set<String> classNames, Class<?> clazz, ClassReferencesMutant classReferences) {
 		if (clazz != null) {
 			//don't add arrays
 			if (clazz.isArray()) {
 				Class<?> type = clazz.getComponentType();
-				addApprovedName(classNames, type, classReferences);
+				if ( !discoveryMemory.isFiltered(type)) {
+					classReferences.addReference(type.getName());
+				}
 			} else {
-				addApprovedName(classNames, clazz, classReferences);
+				if ( !discoveryMemory.isFiltered(clazz)) {
+					classReferences.addReference(clazz.getName());
+				}
 			}
 		}
 	}
 	
-	protected void addApprovedName(Set<String> classNames, Class<?> clazz, ClassReferencesMutant classReferences) {
-		if (clazz != null) {
-			
-			if (isApprovedReferencedClass(clazz, classReferences)) {
-				classNames.add(clazz.getName());
-			}
-		}
-	}
-
-	protected boolean isApprovedReferencedClass(Class<?> clazz, ClassReferencesMutant classReferences) {
-		if (!discoveryMemory.isFiltered(clazz)) {
-			String cn = clazz.getName();
-			if ( !"void".equals(cn)) {
-				return true;
-			}
-		}
-		return false;
-	}
 	
+	/**
+	 * @diagram_sync with Discovery_ClassReferenceDiscovery.seq on 8/1/2014
+	 * @diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
+	 * 
+	 * @param className
+	 * @return
+	 */
 	public I_ClassReferences getReferences(String className) {
 		return refMap.get(className);
 	}
