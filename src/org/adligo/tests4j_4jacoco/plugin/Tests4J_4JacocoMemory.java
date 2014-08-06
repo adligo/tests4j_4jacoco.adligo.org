@@ -5,12 +5,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.adligo.tests4j.models.shared.dependency.ClassDependencies;
+import org.adligo.tests4j.models.shared.dependency.ClassFilter;
+import org.adligo.tests4j.models.shared.dependency.ClassFilterMutant;
+import org.adligo.tests4j.models.shared.dependency.I_ClassDependencies;
+import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
-import org.adligo.tests4j.run.discovery.ClassDependencies;
-import org.adligo.tests4j.run.discovery.ClassFilter;
-import org.adligo.tests4j.run.discovery.ClassFilterMutant;
-import org.adligo.tests4j.run.discovery.I_ClassDependencies;
-import org.adligo.tests4j.run.discovery.I_ClassFilter;
 import org.adligo.tests4j.run.helpers.CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j_4jacoco.plugin.discovery.I_DiscoveryMemory;

@@ -1,10 +1,10 @@
 package org.adligo.tests4j_4jacoco.plugin.discovery;
 
 import org.adligo.tests4j.models.shared.common.ClassMethods;
+import org.adligo.tests4j.models.shared.dependency.ClassReferencesMutant;
+import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
+import org.adligo.tests4j.models.shared.dependency.I_ClassReferences;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
-import org.adligo.tests4j.run.discovery.ClassReferencesMutant;
-import org.adligo.tests4j.run.discovery.I_ClassFilter;
-import org.adligo.tests4j.run.discovery.I_ClassReferences;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;

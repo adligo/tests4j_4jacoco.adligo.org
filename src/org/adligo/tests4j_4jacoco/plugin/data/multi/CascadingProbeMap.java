@@ -4,6 +4,25 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * this class cascades the probe states from one thread to another,
+ * this is because some code for a particular class
+ * can not be re-executed.   For instance consider the following;
+ * 
+ * public static final List<String> foo = getList();
+ * 
+ * private List<String> getList() {
+ *    return Collections.unmodifiableList(new ArrayList());
+ * }
+ * 
+ * The method getList() is only executed once per class instance 
+ * (where a class instance is a class in a class loader).  This
+ * class just saves the information that methods like getList()
+ * were executed.
+ * 
+ * @author scott
+ *
+ */
 public class CascadingProbeMap implements Map<Integer, Boolean> {
 	private boolean [] initalProbes;
 	private boolean [] backed;

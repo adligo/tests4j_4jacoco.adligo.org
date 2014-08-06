@@ -9,15 +9,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.adligo.tests4j.models.shared.dependency.ClassDependencies;
+import org.adligo.tests4j.models.shared.dependency.ClassDependenciesMutant;
+import org.adligo.tests4j.models.shared.dependency.ClassReferencesMutant;
+import org.adligo.tests4j.models.shared.dependency.DependencyMutant;
+import org.adligo.tests4j.models.shared.dependency.I_ClassDependencies;
+import org.adligo.tests4j.models.shared.dependency.I_ClassReferences;
+import org.adligo.tests4j.models.shared.dependency.I_Dependency;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
-import org.adligo.tests4j.run.discovery.ClassDependencies;
-import org.adligo.tests4j.run.discovery.ClassDependenciesMutant;
-import org.adligo.tests4j.run.discovery.ClassReferencesMutant;
-import org.adligo.tests4j.run.discovery.DependencyMutant;
-import org.adligo.tests4j.run.discovery.I_ClassDependencies;
 import org.adligo.tests4j.run.discovery.I_ClassDependenciesCache;
-import org.adligo.tests4j.run.discovery.I_ClassReferences;
-import org.adligo.tests4j.run.discovery.I_Dependency;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.objectweb.asm.Opcodes;
 

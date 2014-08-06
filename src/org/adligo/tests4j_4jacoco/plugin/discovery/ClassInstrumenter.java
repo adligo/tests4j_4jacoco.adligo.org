@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import org.adligo.tests4j.models.shared.dependency.I_ClassDependencies;
+import org.adligo.tests4j.models.shared.dependency.I_Dependency;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
-import org.adligo.tests4j.run.discovery.I_ClassDependencies;
-import org.adligo.tests4j.run.discovery.I_Dependency;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_ClassBytesInstrumenter;
 

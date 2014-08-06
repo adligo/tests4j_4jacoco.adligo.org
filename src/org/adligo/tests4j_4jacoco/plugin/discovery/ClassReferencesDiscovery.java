@@ -14,11 +14,11 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.adligo.tests4j.models.shared.common.ClassMethods;
+import org.adligo.tests4j.models.shared.dependency.ClassReferences;
+import org.adligo.tests4j.models.shared.dependency.ClassReferencesMutant;
+import org.adligo.tests4j.models.shared.dependency.I_ClassDependencies;
+import org.adligo.tests4j.models.shared.dependency.I_ClassReferences;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
-import org.adligo.tests4j.run.discovery.ClassReferences;
-import org.adligo.tests4j.run.discovery.ClassReferencesMutant;
-import org.adligo.tests4j.run.discovery.I_ClassDependencies;
-import org.adligo.tests4j.run.discovery.I_ClassReferences;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
