@@ -62,6 +62,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.common.I_Platform");
 		toRet.add("org.adligo.tests4j.models.shared.common.I_PlatformContainer");
 		toRet.add("org.adligo.tests4j.models.shared.common.I_Immutable");
+		toRet.add("org.adligo.tests4j.models.shared.common.I_System");
 		
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnits");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnitsContainer");
@@ -107,7 +108,6 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Params");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_RemoteInfo");
 		
-		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_System");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_TestFinishedListener");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_TrialList");
 		
