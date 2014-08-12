@@ -5,18 +5,16 @@ import org.adligo.tests4j.models.shared.dependency.ClassReferencesMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.I_ClassReferences;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Handle;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.TypePath;
-import org.objectweb.asm.Type;
 
 public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 
 	private ClassReferencesMutant classReferences;
 	private I_ClassFilter classFilter;
 	private I_Tests4J_Log log;
+	private String currentMethodName = "";
 	
 	public ReferenceTrackingMethodVisitor(int version, I_Tests4J_Log pLog) {
 		super(version);
@@ -35,6 +33,9 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 	public void visitFieldInsn(int opcode, String owner, String name,
 			String desc)  {
 		
+		if (currentMethodName.equals(MapInstrConstants.METHOD_NAME)) {
+			return;
+		}
 		String className = "L" + owner + ";";
 		className = ClassMethods.fromTypeDescription(className);
 		desc = ClassMethods.fromTypeDescription(desc);
@@ -60,6 +61,10 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 	public void visitLocalVariable(String name, String desc, String signature,
 			Label start, Label end, int index) {
 		
+		if (currentMethodName.equals(MapInstrConstants.METHOD_NAME)) {
+			return;
+		}
+		
 		desc = ClassMethods.fromTypeDescription(desc);
 		if (log.isLogEnabled(ReferenceTrackingMethodVisitor.class)) {
 			log.log(super.toString() + " visitLocalVariable " + name + " " + desc);
@@ -73,6 +78,10 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name,
 			String desc) {
+		
+		if (currentMethodName.equals(MapInstrConstants.METHOD_NAME)) {
+			return;
+		}
 		String className = "L" + owner + ";";
 		className = ClassMethods.fromTypeDescription(className);
 		
@@ -89,6 +98,9 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitTypeInsn(int opcode, String type) {
+		if (currentMethodName.equals(MapInstrConstants.METHOD_NAME)) {
+			return;
+		}
 		String className = "L" + type + ";";
 		className = ClassMethods.fromTypeDescription(className);
 		if (log.isLogEnabled(ReferenceTrackingMethodVisitor.class)) {
@@ -106,6 +118,9 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 	public void visitTryCatchBlock(Label start, Label end, Label handler,
 			String type) {
 
+		if (currentMethodName.equals(MapInstrConstants.METHOD_NAME)) {
+			return;
+		}
 		String className = "L" + type + ";";
 		className = ClassMethods.fromTypeDescription(className);
 		if (log.isLogEnabled(ReferenceTrackingMethodVisitor.class)) {
@@ -119,6 +134,9 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitLdcInsn(Object cst) {
+		if (currentMethodName.equals(MapInstrConstants.METHOD_NAME)) {
+			return;
+		}
 		String className = ClassMethods.fromTypeDescription(cst.toString());
 		if (log.isLogEnabled(ReferenceTrackingMethodVisitor.class)) {
 			log.log(super.toString() + " visitLdcInsn " + className + " " + cst.getClass().getName());
@@ -149,6 +167,14 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 
 	public void setClassFilter(I_ClassFilter classFilter) {
 		this.classFilter = classFilter;
+	}
+
+	public String getCurrentMethodName() {
+		return currentMethodName;
+	}
+
+	public void setCurrentMethodName(String currentMethodName) {
+		this.currentMethodName = currentMethodName;
 	}
 
 

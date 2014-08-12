@@ -31,6 +31,7 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 	private I_CachedClassBytesClassLoader cachedClassLoader;
 	private ConcurrentHashMap<String, I_ClassDependencies> cache = new ConcurrentHashMap<String, I_ClassDependencies>();
 	private I_ClassFilter classFilter;
+	private I_ClassFilter basicClassFilter;
 	
 	private I_Runtime runtime;
 	private I_InstrumenterFactory instrumenterFactory;
@@ -56,6 +57,10 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 		pkgNamesToSet.add("org.objectweb.");
 		cfm.setIgnoredPackageNames(pkgNamesToSet);
 		classFilter = new ClassFilter(cfm);
+		
+		ClassFilterMutant primitiveCFM = new ClassFilterMutant();
+		primitiveCFM.setIgnoredClassNames(new HashSet<String>());
+		basicClassFilter = new ClassFilter(primitiveCFM);
 	}
 	
 	
@@ -92,5 +97,10 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 	@Override
 	public boolean isFiltered(String className) {
 		return classFilter.isFiltered(className);
+	}
+
+
+	public I_ClassFilter getBasicClassFilter() {
+		return basicClassFilter;
 	}
 }

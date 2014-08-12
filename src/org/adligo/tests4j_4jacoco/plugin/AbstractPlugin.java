@@ -1,8 +1,12 @@
 package org.adligo.tests4j_4jacoco.plugin;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.adligo.tests4j.models.shared.dependency.ClassFilter;
+import org.adligo.tests4j.models.shared.dependency.ClassFilterMutant;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoveragePlugin;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageRecorder;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
@@ -30,7 +34,7 @@ public abstract class AbstractPlugin implements I_Tests4J_CoveragePlugin {
 			I_ClassBytesInstrumenter cbi = instFact.createInstrumenter();
 			ci.setClassBytesInstrumenter(cbi);
 			ci.setLog(tests4jLogger);
-			ci.setup();
+			
 			
 			trialIntrumenters.set(new TrialInstrumenter(ci, tests4jLogger, memory));
 		}

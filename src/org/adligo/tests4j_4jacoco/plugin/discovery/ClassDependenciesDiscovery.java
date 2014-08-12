@@ -14,6 +14,7 @@ import org.adligo.tests4j.models.shared.dependency.ClassDependenciesMutant;
 import org.adligo.tests4j.models.shared.dependency.ClassReferencesMutant;
 import org.adligo.tests4j.models.shared.dependency.DependencyMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependencies;
+import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.I_ClassReferences;
 import org.adligo.tests4j.models.shared.dependency.I_Dependency;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
@@ -165,4 +166,5 @@ public class ClassDependenciesDiscovery {
 		} 
 		refTree.remove(name);
 	}
+
 }

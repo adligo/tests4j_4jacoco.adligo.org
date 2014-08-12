@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -14,12 +15,16 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.adligo.tests4j.models.shared.common.ClassMethods;
+import org.adligo.tests4j.models.shared.dependency.ClassFilter;
+import org.adligo.tests4j.models.shared.dependency.ClassFilterMutant;
 import org.adligo.tests4j.models.shared.dependency.ClassReferences;
 import org.adligo.tests4j.models.shared.dependency.ClassReferencesMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependencies;
+import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.I_ClassReferences;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 
@@ -45,6 +50,7 @@ public class ClassReferencesDiscovery {
 	private I_Tests4J_Log log;
 	private ReferenceTrackingClassVisitor cv;
 	private I_DiscoveryMemory discoveryMemory;
+	private I_ClassFilter basicClassFilter;
 	private Map<String, I_ClassReferences> refMap = new HashMap<String,I_ClassReferences>();
 	
 	public ClassReferencesDiscovery(I_CachedClassBytesClassLoader pClassLoader,
@@ -52,13 +58,16 @@ public class ClassReferencesDiscovery {
 		classLoader = pClassLoader;
 		log = pLog;
 		discoveryMemory = dc;
+		basicClassFilter = dc.getBasicClassFilter();
 		cv = new ReferenceTrackingClassVisitor(Opcodes.ASM5, log);
-		cv.setClassFilter(dc);
+		cv.setInstrumentClassFilter(dc);
+		
+		cv.setBasicClassFilter(dc.getBasicClassFilter());
 	}
 	
 	public List<String> discoverAndLoad(Class<?> c) throws IOException, ClassNotFoundException {
 		refMap.clear();
-		Stack<Class<?>> recStack = new Stack<Class<?>>();
+		Stack<String> recStack = new Stack<String>();
 		loadReferences(c, c, recStack);
 		List<String> refOrder = calcRefOrder(c);
 		return refOrder;
@@ -66,23 +75,62 @@ public class ClassReferencesDiscovery {
 
 	
 	/**
-	 * load the class into the shared class loader and
-	 * find references, put them in the refMap
+	 * This is a method which is recursed to.
+	 * It load the class into the shared class loader and
+	 * find references, put them in the refMap.
 	 * 
 	 * @param c
-	 * @param parent
+	 * @param referencingClass only for the log, the referencingClass
+	 * @param recursionStack this includes any class names who's references are currently getting
+	 * calculated by this method.  This is passed as a Stack of Strings so that classloading
+	 * issues will not appear.
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	private I_ClassReferences loadReferences(Class<?> c, Class<?> parent, Stack<Class<?>> recursionStack) throws IOException, ClassNotFoundException {
+	private I_ClassReferences loadReferences(Class<?> c, Class<?> referencingClass, Stack<String> recursionStack) 
+		throws IOException, ClassNotFoundException {
+		
 		if (discoveryMemory.isFiltered(c)) {
 			return null;
 		}
 		String className = c.getName();
-		recursionStack.add(c);
+		recursionStack.add(className);
+		
+		
 		if ( !classLoader.hasCache(className)) {
+			Class<?> realParent = c.getSuperclass();
+			if (realParent != null) {
+				//load parents first 
+				String realParentName = realParent.getName();
+				if (!Object.class.getName().equals(realParentName)) {
+					if ( !recursionStack.contains(realParentName)) {
+						if ( !classLoader.hasCache(realParentName)) {
+							loadReferences(realParent, realParent.getSuperclass(),recursionStack);
+						}
+					}
+				}
+			}
+			
+
+			if (c.isInterface()) {
+				Class<?>[] interfaces =  c.getInterfaces();
+				for (int i = 0; i < interfaces.length; i++) {
+					Class<?> face = interfaces[i];
+					if ( !recursionStack.contains(face.getClass().getName())) {
+						loadReferences(face, face.getSuperclass(), recursionStack);
+					}
+				}
+			}
 			if (log.isLogEnabled(ClassReferencesDiscovery.class)) {
-				log.log("Loading " + parent.getName() + " reference " + className);
+				StringBuilder sb = new StringBuilder();
+				sb.append("Loading ");
+				if (referencingClass != null) {
+					sb.append(" reference from ");
+					sb.append(referencingClass.getName());
+					sb.append(" to ");
+				}
+				sb.append(className);
+				log.log(sb.toString());
 			}
 			String resourceName = ClassMethods.toResource(className);
 			InputStream in = c.getResourceAsStream(resourceName);
@@ -92,10 +140,23 @@ public class ClassReferencesDiscovery {
 				classLoader.addCache(in, className);
 			}
 		}
-		return loadAndFindAllRefs(c, recursionStack);
+		return findAllRefs(c, recursionStack);
 	}
 	
-	private I_ClassReferences loadAndFindAllRefs(Class<?> c, Stack<Class<?>> recursionStack) throws IOException, ClassNotFoundException {
+	/**
+	 * Do not use this method for recursion!
+	 * you want loadReferences(Class<?> c, Class<?> parent, Stack<String> recursionStack);
+	 * 
+	 * This method finds references from this class to other classes (at a simple 1 teir level),
+	 * and then calls doRecursion()
+	 * 
+	 * @param c
+	 * @param recursionStack
+	 * @return
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	private I_ClassReferences findAllRefs(Class<?> c, Stack<String> recursionStack) throws IOException, ClassNotFoundException {
 		String className = c.getName();
 		
 		//check cache, to keep ASM visitor calls down because they are expensive
@@ -105,66 +166,128 @@ public class ClassReferencesDiscovery {
 			refMap.put(className, toRet);
 			return toRet;
 		}
+		
 		//add references from ASM, byte code inspection
 		InputStream in = classLoader.getCachedBytesStream(className);
 		ClassReader classReader=new ClassReader(in);
 		cv.reset();
 		classReader.accept(cv, 0);
 		I_ClassReferences asmRefs = cv.getClassReferences();
-		Set<String> classNames = asmRefs.getReferences();
 		
-		ClassReferencesMutant crm = readReflectionReferences(c, asmRefs,
-				classNames);
+		ClassReferencesMutant crm = readReflectionReferences(c, asmRefs);
 		
-		classNames = crm.getReferences();
-		doRecursion(c, classNames, recursionStack);
+		doRecursion( crm, c, recursionStack);
 		ClassReferences toRet = new ClassReferences(crm);
 		refMap.put(className, toRet);
 		recursionStack.remove(c);
 		return toRet;
 	}
 
-	protected void doRecursion(Class<?> c, 
-			Set<String> classNames, Stack<Class<?>> recursionStack) throws ClassNotFoundException, IOException {
-		List<String> currentNames = new ArrayList<String>(classNames);
+	/**
+	 * this should recurse up the references tree
+	 * @param c
+	 * @param classNames
+	 * @param recursionStack
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
+	protected void doRecursion(ClassReferencesMutant oneTeir, Class<?> referencingClass,  Stack<String> recursionStack) throws ClassNotFoundException, IOException {
+		List<String> currentNames = new ArrayList<String>(oneTeir.getReferences());
 
-		for (Class<?> clazz: recursionStack) {
-			currentNames.remove(clazz.getName());
+		for (String className: recursionStack) {
+			currentNames.remove(className);
 		}
 		for (String name: currentNames) {
-			I_ClassDependencies cdeps = discoveryMemory.get(name);
-			if (cdeps != null) {
-				ClassReferences toRet = new ClassReferences(cdeps);
-				String className = c.getName();
-				refMap.put(className, toRet);
+			I_ClassReferences refs = refMap.get(name);
+			if (refs == null) {
+					I_ClassDependencies cdeps = discoveryMemory.get(name);
+					if (cdeps != null) {
+						refs = new ClassReferences(cdeps);
+					}
+			}
+			if (refs == null) {
+				Class<?> referencedClass = Class.forName(name);
+				if ( !Object.class.getName().equals(referencedClass.getName())) {
+					refs = loadReferences(referencedClass, referencingClass, recursionStack);
+				}
+			}
+			if (refs != null) {
+				//it was completely calculated earlier on in the process
+				Set<String> crefs  = refs.getReferences();
+				for (String ref: crefs) {
+					oneTeir.addReference(ref);
+				}
 			} else {
-				Class<?> child = Class.forName(name);
-				loadReferences(child, c, recursionStack);
+				oneTeir.addReference(name);
 			}
 		}
 	}
 
-	protected ClassReferencesMutant readReflectionReferences(Class<?> c,
-			I_ClassReferences asmRefs, Set<String> classNames) {
+	/**
+	 * this reads the method parameter and return types
+	 * for interfaces, and the super types for interfaces, and classes
+	 * @param c
+	 * @param asmRefs
+	 * @param classNames
+	 * @return
+	 */
+	protected ClassReferencesMutant readReflectionReferences(Class<?> c, I_ClassReferences asmRefs) 
+		throws ClassNotFoundException, IOException {
+		
 		ClassReferencesMutant crm = new ClassReferencesMutant(asmRefs);
+		
+		Class<?> realParent = c.getSuperclass();
+		if (realParent != null) {
+			String realParentName = realParent.getName();
+			//ok the parent should have been cached already, and have all of its refs calculated
+			
+			I_ClassReferences parentRefs = refMap.get(realParentName);
+			if (parentRefs != null) {
+				for (String pr: parentRefs.getReferences()) {
+					crm.addReference(pr);
+				}
+			} else {
+				crm.addReference(realParentName);
+			}
+		}
+		if (c.isInterface()) {
+			//add a self reference, so the counts don't get screwed up
+			crm.addReference(c.getName());
+			
+			Class<?>[] interfaces = c.getInterfaces();
+			for (int i = 0; i < interfaces.length; i++) {
+				Class<?> face = interfaces[i];
+				String interfaceName = face.getName();
+				I_ClassReferences parentRefs = refMap.get(interfaceName);
+				if (parentRefs != null) {
+					for (String pr: parentRefs.getReferences()) {
+						crm.addReference(pr);
+					}
+				}
+			}
+		}
 		
 		//add references from reflection, for abstract methods, with no byte code
 		Method [] methods =  c.getDeclaredMethods();
 		for (int i = 0; i < methods.length; i++) {
+			
 			Method m = methods[i];
-			Class<?> returnClazz =  m.getReturnType();
-			addReflectionNames(classNames, returnClazz, crm);
-			Class<?> [] exceptions = m.getExceptionTypes();
-			for (int j = 0; j < exceptions.length; j++) {
-				Class<?> e = exceptions[j];
-				addReflectionNames(classNames, e, crm);
-			}
-			Class<?> [] params =  m.getParameterTypes();
-			for (int j = 0; j < params.length; j++) {
-				Class<?> p = params[j];
-				addReflectionNames(classNames, p, crm);
+			if ( !MapInstrConstants.METHOD_NAME.equals(m.getName())) {
+				Class<?> returnClazz =  m.getReturnType();
+				addReflectionNames(returnClazz, c, crm);
+				Class<?> [] exceptions = m.getExceptionTypes();
+				for (int j = 0; j < exceptions.length; j++) {
+					Class<?> e = exceptions[j];
+					addReflectionNames(e, c, crm);
+				}
+				Class<?> [] params =  m.getParameterTypes();
+				for (int j = 0; j < params.length; j++) {
+					Class<?> p = params[j];
+					addReflectionNames(p, c,  crm);
+				}
 			}
 		}
+		
 		return crm;
 	}
 	
@@ -184,9 +307,12 @@ public class ClassReferencesDiscovery {
 		Set<Entry<String, I_ClassReferences>> refs =  refMap.entrySet();
 		for (Entry<String,I_ClassReferences> e: refs) {
 			String className = e.getKey();
+			I_ClassReferences crs = e.getValue();
+			Set<String> classNames = crs.getReferences();
+			
+			Integer count = refCounts.get(className);
 			
 			if (isNotClassOrInnerClass(className, topName)) {
-				Integer count = refCounts.get(className);
 				
 				if (count == null) {
 					count = 1;
@@ -195,10 +321,20 @@ public class ClassReferencesDiscovery {
 				}
 				refCounts.put(className, count);
 				
-				I_ClassReferences crs = e.getValue();
-				Set<String> classNames = crs.getReferences();
 				for (String name: classNames) {
-					if (isNotClassOrInnerClass(name, topName)) {
+					if (isNotClassOrInnerClass(name, className)) {
+						count = refCounts.get(name);
+						if (count == null) {
+							count = 1;
+						} else {
+							count = count + 1;
+						}
+						refCounts.put(name, count);
+					}
+				}
+			} else {
+				for (String name: classNames) {
+					if (isNotClassOrInnerClass(name, className)) {
 						count = refCounts.get(name);
 						if (count == null) {
 							count = 1;
@@ -210,19 +346,7 @@ public class ClassReferencesDiscovery {
 				}
 			}
 		}
-		/*
-		if (log.isLogEnabled(ClassReferencesDiscovery.class)) {
-			Set<Entry<String,Integer>> entries = refCounts.entrySet();
-			StringBuilder sb = new StringBuilder();
-			sb.append("reference counts are as follows;" + log.getLineSeperator());
-			for (Entry<String,Integer> e: entries) {
-				sb.append("" + e.getKey() + "=" + e.getValue()
-						+ log.getLineSeperator());
-				
-			}
-			log.log(sb.toString());
-		}
-		*/
+		
 		int max = 0;
 		Collection<Integer> counts = refCounts.values();
 		for (Integer ct: counts) {
@@ -253,7 +377,9 @@ public class ClassReferencesDiscovery {
 			}
 			count++;
 		}
-		toRet.add(topName);
+		if (!toRet.contains(topName)) {
+			toRet.add(topName);
+		}
 		return toRet;
 	}
 	
@@ -265,16 +391,17 @@ public class ClassReferencesDiscovery {
 		}
 		return true;
 	}
-	protected void addReflectionNames(Set<String> classNames, Class<?> clazz, ClassReferencesMutant classReferences) {
+	protected void addReflectionNames( Class<?> clazz, Class<?> referencingClass, 
+			ClassReferencesMutant classReferences) throws ClassNotFoundException, IOException {
 		if (clazz != null) {
 			//don't add arrays
 			if (clazz.isArray()) {
 				Class<?> type = clazz.getComponentType();
-				if ( !discoveryMemory.isFiltered(type)) {
+				if ( !basicClassFilter.isFiltered(type)) {
 					classReferences.addReference(type.getName());
 				}
 			} else {
-				if ( !discoveryMemory.isFiltered(clazz)) {
+				if (  !basicClassFilter.isFiltered(clazz)) {
 					classReferences.addReference(clazz.getName());
 				}
 			}
@@ -291,5 +418,13 @@ public class ClassReferencesDiscovery {
 	 */
 	public I_ClassReferences getReferences(String className) {
 		return refMap.get(className);
+	}
+
+	public I_ClassFilter getPrimitiveClassFilter() {
+		return cv.getBasicClassFilter();
+	}
+
+	public void setPrimitiveClassFilter(I_ClassFilter primitiveClassFilter) {
+		cv.setBasicClassFilter(primitiveClassFilter);
 	}
 }

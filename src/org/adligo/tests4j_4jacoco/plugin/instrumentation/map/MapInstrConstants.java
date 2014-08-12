@@ -5,6 +5,8 @@ import org.objectweb.asm.Opcodes;
 //import org.objectweb.asm.Type;
 
 public class MapInstrConstants {
+	public static final String FIELD_NAME = "$jacocoData";
+	public static final String METHOD_NAME = "$jacocoInit";
 	public static final int DATAFIELD_ACC = Opcodes.ACC_SYNTHETIC
 			//| Opcodes.ACC_PUBLIC 
 			| Opcodes.ACC_PRIVATE 
@@ -24,4 +26,6 @@ public class MapInstrConstants {
 
 	public static final Object[] DATAFIELD_INSTANCE = new Object[] { 
 		DATAFIELD_DESC};
+	
+	
 }

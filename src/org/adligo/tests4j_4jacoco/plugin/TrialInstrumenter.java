@@ -1,7 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
@@ -22,6 +21,7 @@ public class TrialInstrumenter {
 		instrumenter = pInstrumenter;
 		log = pLog;
 		memory = pMemory;
+		instrumenter.setup();
 	}
 	
 	@SuppressWarnings("unchecked")
