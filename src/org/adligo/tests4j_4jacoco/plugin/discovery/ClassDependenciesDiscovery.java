@@ -1,26 +1,22 @@
 package org.adligo.tests4j_4jacoco.plugin.discovery;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import org.adligo.tests4j.models.shared.dependency.ClassDependencies;
 import org.adligo.tests4j.models.shared.dependency.ClassDependenciesMutant;
-import org.adligo.tests4j.models.shared.dependency.ClassReferencesMutant;
+import org.adligo.tests4j.models.shared.dependency.Dependency;
 import org.adligo.tests4j.models.shared.dependency.DependencyMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependencies;
-import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.I_ClassReferences;
 import org.adligo.tests4j.models.shared.dependency.I_Dependency;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
-import org.adligo.tests4j.run.discovery.I_ClassDependenciesCache;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
-import org.objectweb.asm.Opcodes;
 
 /**
  * a model like (non thread safe) class that loads classes into
@@ -39,13 +35,15 @@ import org.objectweb.asm.Opcodes;
  */
 public class ClassDependenciesDiscovery {
 	private I_Tests4J_Log log;
-	private I_DiscoveryMemory dependencyCache;
+	private I_DiscoveryMemory memory;
 	private ClassReferencesDiscovery classReferencesDiscovery;
+	private List<String> depsToFind = new ArrayList<String>();
+	private Map<String,I_ClassDependencies> localDeps = new HashMap<String,I_ClassDependencies>();
 	
 	public ClassDependenciesDiscovery(I_CachedClassBytesClassLoader pClassLoader,
 			I_Tests4J_Log pLog,  I_DiscoveryMemory dc) {
 		log = pLog;
-		dependencyCache = dc;
+		memory = dc;
 		classReferencesDiscovery = new ClassReferencesDiscovery(pClassLoader, pLog, dc);
 	}
 	
@@ -58,113 +56,115 @@ public class ClassDependenciesDiscovery {
 	 * @throws ClassNotFoundException
 	 */
 	public I_ClassDependencies discoverAndLoad(Class<?> c) throws IOException, ClassNotFoundException {
+		
+		depsToFind.clear();
+		localDeps.clear();
 		String name = c.getName();
 		//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
-		I_ClassDependencies toRet = dependencyCache.get(name);
+		I_ClassDependencies toRet = memory.getDependencies(name);
 		//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
 		if (toRet == null) {
-			//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
-			ClassDependenciesMutant top = new ClassDependenciesMutant();
-			top.setClazzName(name);
+			if (log.isLogEnabled(ClassDependenciesDiscovery.class)) {
+				log.log("ClassDependenciesDiscovery.discoverAndLoad " + c.getName());
+			}
 			//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
 			List<String> refOrder = classReferencesDiscovery.discoverAndLoad(c);
-			
-			refOrder.remove(name);
-			for (String className: refOrder) {
-				if (log.isLogEnabled(ClassDependenciesDiscovery.class)) {
-					log.log("ClassDependenciesDiscovery " + name + " calcDependencies on " + className + " ");
+			I_ClassReferences classRefs = classReferencesDiscovery.getReferences(name);
+			for (String ro: refOrder) {
+				if (!memory.isFiltered(ro)) {
+					depsToFind.add(ro);
 				}
-				//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
-				ClassDependenciesMutant deps = calcDependencies(className, name);
-				top.add(deps);
 			}
-			DependencyMutant dm = new DependencyMutant();
-			dm.setClazzName(name);
-			top.addDependency(dm);
-			
-			toRet = new ClassDependencies(top);
-			dependencyCache.putIfAbsent(toRet);
+			depsToFind.remove(name);
+			if (depsToFind.size() >= 1) {
+				findOrCreateRefDeps();
+			}
+			//the dependency for the param class may have been 
+			// created as part of the findOrCreateRefDeps (when there are circular refs)
+			toRet = localDeps.get(name);
+			if (toRet == null) {
+				toRet = createDependencies(name, refOrder, classRefs);
+			} else if (toRet.hasCircularReferences()) {
+				//cache the circular dependency
+				memory.putDependenciesIfAbsent(toRet);
+			}
 		}
-		
 		return toRet;
 	}
 
-	
-	/**
-	 * this caches dependencies 
-	 * @param name
-	 */
-	private ClassDependenciesMutant calcDependencies(String name, String parentName) {
-		//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
-		I_ClassDependencies toRet = dependencyCache.get(name);
-		//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
-		if (toRet != null) {
-			if (log.isLogEnabled(ClassDependenciesDiscovery.class)) {
-				log.log("ClassDependenciesDiscovery " + parentName + " got cache hit for " + name + " ");
-			}
-			return new ClassDependenciesMutant(toRet);
-		}
-		//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
-		ClassDependenciesMutant target = new ClassDependenciesMutant();
-		target.setClazzName(name);
-		if (log.isLogEnabled(ClassDependenciesDiscovery.class)) {
-			log.log("ClassDependenciesDiscovery " + parentName + " calcDependenciesFromReferences on " + name + " ");
-		}
-		calcDependenciesFromReferences(name, target);
-		dependencyCache.putIfAbsent(new ClassDependencies(target));
-		return target;
-	}
-	
-	private void calcDependenciesFromReferences(String name, ClassDependenciesMutant target) {
-		//@diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
-		I_ClassReferences crs =  classReferencesDiscovery.getReferences(name);
-		Stack<String> refTree = new Stack<String>();
-		doRecursion(crs, refTree, target);
-	}
-	
-	/**
-	 * ok there wasn't one in cache add all 
-	 * references local and pass through references
-	 * to the target.   
-	 * @param refs
-	 * @param refTree
-	 * @param target
-	 */
-	private void doRecursion(I_ClassReferences refs, Stack<String> refTree, ClassDependenciesMutant target) {
-		if (refs == null) {
-			return;
-		}
-		String name = refs.getClassName();
-		if (refTree.contains(name)) {
-			//block stack overflow
-			return;
-		}
-		refTree.add(name);
+	private I_ClassDependencies createDependencies(String name,
+			List<String> refOrder, I_ClassReferences classRefs) {
+		I_ClassDependencies toRet;
+		refOrder.remove(name);
 		
-		Set<String> references = refs.getReferences();
-		Set<String> refsLocal = new HashSet<String>(references);
-		refsLocal.remove(refs.getClassName());
-		
-		for (String ref: refsLocal) {
-			DependencyMutant dm =  target.getDependency(ref);
-			if (dm == null) {
-				dm = new DependencyMutant();
-				dm.setClazzName(ref);
-				dm.addReference();
-				target.addDependency(dm);
+		ClassDependenciesMutant cdm = new ClassDependenciesMutant();
+		cdm.setClassName(name);
+		if (classRefs.hasCircularReferences()) {
+			cdm.setCircularReferences(classRefs.getCircularReferences());
+		}
+		for (String ref: refOrder) {
+			I_ClassDependencies cds =  localDeps.get(ref);
+			if (cds == null) {
+				DependencyMutant dm = (DependencyMutant) cdm.getDependency(ref);
+				if (dm != null) {
+					dm.addReference();
+				} else {
+					dm = new DependencyMutant();
+					dm.setClassName(ref);
+					dm.addReference();
+					cdm.addDependency(dm);
+				}
 			} else {
-				dm.addReference();
+				List<I_Dependency> cdDeps = cds.getDependencies();
+				for (I_Dependency d: cdDeps) {
+					if (ref.equals(d.getClassName())) {
+						DependencyMutant dm = new DependencyMutant(d);
+						dm.addReference();
+						d = dm;
+					}
+					cdm.addDependency(d);
+				}
 			}
-			I_ClassReferences refsRefs = classReferencesDiscovery.getReferences(ref);
-			doRecursion(refsRefs, refTree, target);
 		}
-		DependencyMutant dm = target.getDependency(name);
-		if (dm == null) {
-			dm = new DependencyMutant();
-			dm.setClazzName(name);
-			target.addDependency(dm);
-		} 
-		refTree.remove(name);
+		if (cdm.getDependency(name) == null) {
+			DependencyMutant dm = new DependencyMutant();
+			dm.setClassName(name);
+			cdm.addDependency(dm);
+		}
+		toRet = new ClassDependencies(cdm);
+		localDeps.put(name, toRet);
+		if (!toRet.hasCircularReferences()) {
+			memory.putDependenciesIfAbsent(toRet);
+		}
+		return toRet;
+	}
+
+	private void findOrCreateRefDeps() throws ClassNotFoundException,
+			IOException {
+		while (depsToFind.size() >= 1) {
+			String dep = depsToFind.get(0);
+			
+			I_ClassDependencies icd = localDeps.get(dep);
+			if (icd == null) {
+				icd = memory.getDependencies(dep);
+				if (icd == null) {
+					Class<?> depClass = Class.forName(dep);
+					List<String>  depOrder = classReferencesDiscovery.discoverAndLoad(depClass);
+					for (String depO: depOrder){
+						if (!depsToFind.contains(depO)) {
+							if (!localDeps.containsKey(depO)) {
+								if ( !memory.isFiltered(depO)) {
+									depsToFind.add(depO);
+								}
+							}
+						}
+					}
+					I_ClassReferences refs = classReferencesDiscovery.getReferences(dep);
+					createDependencies(dep, depOrder, refs);
+				}
+				depsToFind.remove(dep);
+			}
+		}
 	}
 
 }

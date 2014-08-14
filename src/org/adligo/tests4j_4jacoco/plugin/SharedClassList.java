@@ -71,11 +71,15 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_PackageCoverage");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage");
 		
+		
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassDependencies");
+		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassFilter");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassFilterModel");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassReferences");
+		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassReferencesCache");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_Dependency");
+		
 		
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_SourceInfoMetadata");
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TestMetadata");
@@ -144,10 +148,8 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.xml.I_XML_Consumer");
 		toRet.add("org.adligo.tests4j.models.shared.xml.I_XML_Producer");
 		
-		toRet.add("org.adligo.tests4j.run.discovery.I_ClassDependenciesCache");
-		
-		
 		toRet.add("org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader");
+		toRet.add("org.adligo.tests4j.run.helpers.I_Tests4J_Memory");
 		
 		toRet.add("org.adligo.tests4j.run.remote.socket_api.I_AfterMessageHandler");
 		

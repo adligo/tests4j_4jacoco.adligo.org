@@ -10,6 +10,8 @@ import org.adligo.tests4j.models.shared.dependency.ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.ClassFilterMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependencies;
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
+import org.adligo.tests4j.models.shared.dependency.I_ClassReferences;
+import org.adligo.tests4j.models.shared.dependency.I_ClassReferencesCache;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.helpers.CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
@@ -30,6 +32,8 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 	 */
 	private I_CachedClassBytesClassLoader cachedClassLoader;
 	private ConcurrentHashMap<String, I_ClassDependencies> cache = new ConcurrentHashMap<String, I_ClassDependencies>();
+	private ConcurrentHashMap<String, I_ClassReferences> refCache = new ConcurrentHashMap<String, I_ClassReferences>();
+	
 	private I_ClassFilter classFilter;
 	private I_ClassFilter basicClassFilter;
 	
@@ -79,15 +83,16 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 	}
 
 	@Override
-	public void putIfAbsent(I_ClassDependencies p) {
+	public void putDependenciesIfAbsent(I_ClassDependencies p) {
 		cache.putIfAbsent(p.getClassName(), new ClassDependencies(p));
 	}
 
 	@Override
-	public I_ClassDependencies get(String name) {
+	public I_ClassDependencies getDependencies(String name) {
 		return cache.get(name);
 	}
 
+	
 	@Override
 	public boolean isFiltered(Class<?> clazz) {
 		return classFilter.isFiltered(clazz);
@@ -102,5 +107,17 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 
 	public I_ClassFilter getBasicClassFilter() {
 		return basicClassFilter;
+	}
+
+
+	@Override
+	public void putReferencesIfAbsent(I_ClassReferences p) {
+		refCache.putIfAbsent(p.getClassName(), p);
+	}
+
+
+	@Override
+	public I_ClassReferences getReferences(String name) {
+		return refCache.get(name);
 	}
 }
