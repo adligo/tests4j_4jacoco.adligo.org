@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import org.adligo.tests4j.models.shared.dependency.I_ClassDependencies;
-import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
-import org.adligo.tests4j.models.shared.dependency.I_Dependency;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_ClassBytesInstrumenter;
@@ -33,34 +30,37 @@ public class ClassInstrumenter {
 	private I_CachedClassBytesClassLoader cleanClassLoader;
 	private I_Tests4J_Log log;
 	private I_DiscoveryMemory memory;
-	private ClassDependenciesDiscovery classDependenciesDiscovery;
+	//private ClassDependenciesDiscovery classDependenciesDiscovery;
+	private ClassReferencesDiscovery classReferencesDiscovery;
 	private I_ClassBytesInstrumenter classBytesInstrumenter;
 	
 	public void setup() {
-		classDependenciesDiscovery = new ClassDependenciesDiscovery(cleanClassLoader, log, memory);
+		//classDependenciesDiscovery = new ClassDependenciesDiscovery(cleanClassLoader, log, memory);
+		classReferencesDiscovery = new ClassReferencesDiscovery(cleanClassLoader, log, memory);
 	}
 	
 	public Class<?> instrumentClass(Class<?> c) throws ClassNotFoundException, IOException {
-		I_ClassDependencies cd = classDependenciesDiscovery.discoverAndLoad(c);
-		List<I_Dependency> deps =  cd.getDependencies();
-		for (I_Dependency dep: deps) {
-			String clazzName = dep.getClassName();
-			if ( !memory.isFiltered(clazzName)) {
-				if ( !instrumentedClassLoader.hasCache(clazzName)) {
+		String className = c.getName();
+		if (log.isLogEnabled(ClassInstrumenter.class)) {
+			log.log("ClassInstrumenter instrumenting class " + className);
+		}
+		List<String> refs = classReferencesDiscovery.findOrLoad(c);
+		for (String dep: refs) {
+			if ( !memory.isFiltered(dep)) {
+				if ( !instrumentedClassLoader.hasCache(dep)) {
 					if (log.isLogEnabled(ClassInstrumenter.class)) {
-						log.log("ClassInstrumenter instrumenting class " + clazzName);
+						log.log("ClassInstrumenter " + className + " instrumenting delegate " + dep);
 					}
-					InputStream bais = cleanClassLoader.getCachedBytesStream(clazzName);
+					InputStream bais = cleanClassLoader.getCachedBytesStream(dep);
 					
-					byte [] bytes = classBytesInstrumenter.instrumentClass(bais, clazzName);
+					byte [] bytes = classBytesInstrumenter.instrumentClass(bais, dep);
 					//instrumentedClassLoader should close the input stream
-					instrumentedClassLoader.addCache(new ByteArrayInputStream(bytes), clazzName);
+					instrumentedClassLoader.addCache(new ByteArrayInputStream(bytes), dep);
 				}
 			}
 		}
 		return instrumentedClassLoader.getCachedClass(c.getName());
 	}
-
 
 	public I_CachedClassBytesClassLoader getInstrumentedClassLoader() {
 		return instrumentedClassLoader;

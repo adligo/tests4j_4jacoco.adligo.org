@@ -34,6 +34,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_SimpleAssertCommand");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_SimpleCompareAssertCommand");
 		
+		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_AssertType");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_TestFailure");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_TestFailureType");
 		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_ThrowableInfo");
@@ -71,15 +72,18 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_PackageCoverage");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage");
 		
-		
-		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassDependencies");
-		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache");
+		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassAlias");
+		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassAliasLocal");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassFilter");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassFilterModel");
+		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassParents");
+		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassParentsCache");
+		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassReferences");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassReferencesCache");
+		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassReferencesLocal");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_Dependency");
-		
+		toRet.add("org.adligo.tests4j.models.shared.dependency.I_DependencyGroup");
 		
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_SourceInfoMetadata");
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TestMetadata");

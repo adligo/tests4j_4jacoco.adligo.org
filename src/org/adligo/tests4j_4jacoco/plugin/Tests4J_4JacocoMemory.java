@@ -5,13 +5,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.adligo.tests4j.models.shared.dependency.ClassDependencies;
 import org.adligo.tests4j.models.shared.dependency.ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.ClassFilterMutant;
-import org.adligo.tests4j.models.shared.dependency.I_ClassDependencies;
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
+import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
 import org.adligo.tests4j.models.shared.dependency.I_ClassReferences;
-import org.adligo.tests4j.models.shared.dependency.I_ClassReferencesCache;
+import org.adligo.tests4j.models.shared.dependency.I_ClassReferencesLocal;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.helpers.CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
@@ -31,8 +30,8 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 	 * getResourceAsStream seems to cause ThreadSafty issues
 	 */
 	private I_CachedClassBytesClassLoader cachedClassLoader;
-	private ConcurrentHashMap<String, I_ClassDependencies> cache = new ConcurrentHashMap<String, I_ClassDependencies>();
-	private ConcurrentHashMap<String, I_ClassReferences> refCache = new ConcurrentHashMap<String, I_ClassReferences>();
+	private ConcurrentHashMap<String, I_ClassReferencesLocal> refCache = new ConcurrentHashMap<String, I_ClassReferencesLocal>();
+	private ConcurrentHashMap<String, I_ClassParentsLocal> parentsCache = new ConcurrentHashMap<String, I_ClassParentsLocal>();
 	
 	private I_ClassFilter classFilter;
 	private I_ClassFilter basicClassFilter;
@@ -46,12 +45,15 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 		instrumenterFactory = pInstrumenterFactory;
 		log = pLog;
 		
-		Set<String> packagesWithoutWarning = Collections.singleton("java.");
-		Set<String> classesWithoutWarning = SharedClassList.WHITELIST;
+		Set<String> packagesNotRequired = new HashSet<String>();
+		packagesNotRequired.add("java.");
+		packagesNotRequired.add("org.jacoco.");
+		packagesNotRequired.add("org.objectweb.");
+		Set<String> classesNotRequired = SharedClassList.WHITELIST;
 		instrumentedClassLoader = new CachedClassBytesClassLoader(log, 
-				packagesWithoutWarning, classesWithoutWarning);
+				packagesNotRequired, classesNotRequired);
 		cachedClassLoader = new CachedClassBytesClassLoader(log, 
-				packagesWithoutWarning, classesWithoutWarning);
+				packagesNotRequired, classesNotRequired);
 		
 		ClassFilterMutant cfm = new ClassFilterMutant();
 		cfm.setIgnoredClassNames(SharedClassList.WHITELIST);
@@ -83,17 +85,6 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 	}
 
 	@Override
-	public void putDependenciesIfAbsent(I_ClassDependencies p) {
-		cache.putIfAbsent(p.getClassName(), new ClassDependencies(p));
-	}
-
-	@Override
-	public I_ClassDependencies getDependencies(String name) {
-		return cache.get(name);
-	}
-
-	
-	@Override
 	public boolean isFiltered(Class<?> clazz) {
 		return classFilter.isFiltered(clazz);
 	}
@@ -111,13 +102,25 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 
 
 	@Override
-	public void putReferencesIfAbsent(I_ClassReferences p) {
-		refCache.putIfAbsent(p.getClassName(), p);
+	public void putReferencesIfAbsent(I_ClassReferencesLocal p) {
+		refCache.putIfAbsent(p.getName(), p);
 	}
 
 
 	@Override
-	public I_ClassReferences getReferences(String name) {
+	public I_ClassReferencesLocal getReferences(String name) {
 		return refCache.get(name);
+	}
+
+
+	@Override
+	public void putParentsIfAbsent(I_ClassParentsLocal p) {
+		parentsCache.putIfAbsent(p.getName(), p);
+	}
+
+
+	@Override
+	public I_ClassParentsLocal getParents(String name) {
+		return parentsCache.get(name);
 	}
 }

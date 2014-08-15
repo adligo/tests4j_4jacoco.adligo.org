@@ -1,9 +1,9 @@
 package org.adligo.tests4j_4jacoco.plugin.discovery;
 
+import java.util.Set;
+
 import org.adligo.tests4j.models.shared.common.ClassMethods;
-import org.adligo.tests4j.models.shared.dependency.ClassReferencesMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
-import org.adligo.tests4j.models.shared.dependency.I_ClassReferences;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.objectweb.asm.Label;
@@ -11,7 +11,7 @@ import org.objectweb.asm.MethodVisitor;
 
 public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 
-	private ClassReferencesMutant classReferences;
+	private Set<String> classReferences;
 	private I_ClassFilter classFilter;
 	private I_Tests4J_Log log;
 	private String currentMethodName = "";
@@ -21,11 +21,11 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 		log = pLog;
 	}
 
-	public I_ClassReferences getClassReferences() {
+	public Set<String> getClassReferences() {
 		return classReferences;
 	}
 
-	public void setClassReferences(ClassReferencesMutant classReferences) {
+	public void setClassReferences(Set<String> classReferences) {
 		this.classReferences = classReferences;
 	}
 
@@ -43,10 +43,10 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 			log.log(super.toString() + " visitFieldInsn " + desc + "   " + className);
 		}
 		if ( !classFilter.isFiltered(desc)) {
-			classReferences.addReference(desc);
+			classReferences.add(desc);
 		}
 		if ( !classFilter.isFiltered(className)) {
-			classReferences.addReference(className);
+			classReferences.add(className);
 		}
 	}
 
@@ -70,7 +70,7 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 			log.log(super.toString() + " visitLocalVariable " + name + " " + desc);
 		}
 		if ( !classFilter.isFiltered(desc)) {
-			classReferences.addReference(desc);
+			classReferences.add(desc);
 		}
 	}
 
@@ -89,7 +89,7 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 			log.log(super.toString() + " visitMethodInsn " + className);
 		}
 		if ( !classFilter.isFiltered(className)) {
-			classReferences.addReference(className);
+			classReferences.add(className);
 		}
 	}
 
@@ -107,7 +107,7 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 			log.log(super.toString() + " visitTypeInsn " + className);
 		}
 		if ( !classFilter.isFiltered(className)) {
-			classReferences.addReference(className);
+			classReferences.add(className);
 		}
 		super.visitTypeInsn(opcode, type);
 	}
@@ -127,7 +127,7 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 			log.log(super.toString() + " visitTryCatchBlock " + className);
 		}
 		if ( !classFilter.isFiltered(className)) {
-			classReferences.addReference(className);
+			classReferences.add(className);
 		}
 		super.visitTryCatchBlock(start, end, handler, type);
 	}
@@ -155,7 +155,7 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 			 //if (cst instanceof Type) or other
 			 //else if (cst instanceof Handle)
 			if ( !classFilter.isFiltered(className)) {
-				classReferences.addReference(className);
+				classReferences.add(className);
 			}
 		 }
 		 
@@ -176,12 +176,5 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 	public void setCurrentMethodName(String currentMethodName) {
 		this.currentMethodName = currentMethodName;
 	}
-
-
-	
-
-
-
-
 
 }
