@@ -4,9 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.adligo.tests4j.models.shared.common.ClassMethods;
-import org.adligo.tests4j.models.shared.dependency.ClassReferencesLocalMutant;
-import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
-import org.adligo.tests4j.models.shared.dependency.I_ClassReferences;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.objectweb.asm.ClassVisitor;
@@ -19,8 +16,6 @@ public class ReferenceTrackingClassVisitor extends ClassVisitor {
 	private Set<String> classReferences;
 	
 	private ReferenceTrackingMethodVisitor mv;
-	private I_ClassFilter instrumentClassFilter;
-	private I_ClassFilter basicClassFilter;
 	private String className;
 	
 	public ReferenceTrackingClassVisitor(int version, I_Tests4J_Log pLog) {
@@ -38,8 +33,11 @@ public class ReferenceTrackingClassVisitor extends ClassVisitor {
 	@Override
 	public void visit(int version, int access, String name, String signature,
 			String superName, String[] interfaces) {
+		
 		className = ClassMethods.fromTypeDescription(name);
+		
 		if (log.isLogEnabled(ReferenceTrackingClassVisitor.class)) {
+			
 			StringBuilder sb = new StringBuilder();
 			sb.append(super.toString() + " in class " + name + 
 					" signature is " + signature);
@@ -56,11 +54,8 @@ public class ReferenceTrackingClassVisitor extends ClassVisitor {
 	public FieldVisitor visitField(int access, String name, String desc,
 			String signature, Object value) {
 		
-		desc = ClassMethods.fromTypeDescription(desc);
 		if (!name.equals(MapInstrConstants.FIELD_NAME)) {
-			if (!basicClassFilter.isFiltered(desc)) {
-				classReferences.add(desc);
-			}
+			classReferences.add(desc);
 		}
 		return super.visitField(access, name, desc, signature, value);
 	}
@@ -93,23 +88,6 @@ public class ReferenceTrackingClassVisitor extends ClassVisitor {
 		return classReferences;
 	}
 
-	public I_ClassFilter getInstrumentClassFilter() {
-		return instrumentClassFilter;
-	}
 
-	public I_ClassFilter getBasicClassFilter() {
-		return basicClassFilter;
-	}
-
-	public void setInstrumentClassFilter(I_ClassFilter recursionClassFilter) {
-		this.instrumentClassFilter = recursionClassFilter;
-	}
-
-	public void setBasicClassFilter(I_ClassFilter p) {
-		this.basicClassFilter = p;
-		mv.setClassFilter(p);
-	}
-
-	
 
 }

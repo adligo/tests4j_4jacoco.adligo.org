@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.adligo.tests4j.models.shared.asserts.AssertionProcessor;
+import org.adligo.tests4j.models.shared.common.ClassMethods;
 import org.adligo.tests4j.models.shared.dependency.ClassAlias;
 import org.adligo.tests4j.models.shared.dependency.ClassAliasLocal;
 import org.adligo.tests4j.models.shared.dependency.ClassReferencesLocal;
@@ -64,10 +65,8 @@ public class ClassReferencesDiscovery {
 		discoveryMemory = dc;
 		basicClassFilter = dc.getBasicClassFilter();
 		cv = new ReferenceTrackingClassVisitor(Opcodes.ASM5, log);
-		cv.setInstrumentClassFilter(dc);
 		cpd = new ClassParentsDiscovery(pClassLoader, pLog, dc);
 		
-		cv.setBasicClassFilter(dc.getBasicClassFilter());
 	}
 	
 	public List<String> findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
@@ -207,9 +206,15 @@ public class ClassReferencesDiscovery {
 		classReader.accept(cv, 0);
 		Set<String> asmRefs = cv.getClassReferences();
 		for (String asmRef: asmRefs ) {
-			Class<?> asmClass = Class.forName(asmRef);
-			I_ClassParentsLocal cps = cpd.findOrLoad(asmClass);
-			crm.addReference(cps);
+			if (log.isLogEnabled(ClassReferencesDiscovery.class)) {
+				log.log("ClassReferencesDiscovery reading asmRef " + asmRef);
+			}
+			String asmRefName = ClassMethods.fromTypeDescription(asmRef);
+			if ( !basicClassFilter.isFiltered(asmRefName)) {
+				Class<?> asmClass = Class.forName(asmRefName);
+				I_ClassParentsLocal cps = cpd.findOrLoad(asmClass);
+				crm.addReference(cps);
+			}
 		}
 		
 		readReflectionReferences(c, crm);
@@ -522,14 +527,6 @@ public class ClassReferencesDiscovery {
 		return refMap.get(alias);
 	}
 
-	public I_ClassFilter getPrimitiveClassFilter() {
-		return cv.getBasicClassFilter();
-	}
-
-	public void setPrimitiveClassFilter(I_ClassFilter primitiveClassFilter) {
-		cv.setBasicClassFilter(primitiveClassFilter);
-	}
-	
 	/**
 	 * note this is separated out so that
 	 * the circular dependencies are calculated
