@@ -10,10 +10,12 @@ import org.adligo.tests4j.models.shared.dependency.ClassFilterMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
 import org.adligo.tests4j.models.shared.dependency.I_ClassReferences;
+import org.adligo.tests4j.models.shared.dependency.I_ClassReferencesCache;
 import org.adligo.tests4j.models.shared.dependency.I_ClassReferencesLocal;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.helpers.CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
+import org.adligo.tests4j_4jacoco.plugin.discovery.ClassReferencesCache;
 import org.adligo.tests4j_4jacoco.plugin.discovery.I_DiscoveryMemory;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_InstrumenterFactory;
 import org.adligo.tests4j_4jacoco.plugin.runtime.I_Runtime;
@@ -32,6 +34,7 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 	private I_CachedClassBytesClassLoader cachedClassLoader;
 	private ConcurrentHashMap<String, I_ClassReferencesLocal> refCache = new ConcurrentHashMap<String, I_ClassReferencesLocal>();
 	private ConcurrentHashMap<String, I_ClassParentsLocal> parentsCache = new ConcurrentHashMap<String, I_ClassParentsLocal>();
+	private ClassReferencesCache initalReferencesCache = new ClassReferencesCache();
 	
 	private I_ClassFilter classFilter;
 	private I_ClassFilter basicClassFilter;
@@ -47,6 +50,7 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 		
 		Set<String> packagesNotRequired = new HashSet<String>();
 		packagesNotRequired.add("java.");
+		packagesNotRequired.add("sun.");
 		packagesNotRequired.add("org.jacoco.");
 		packagesNotRequired.add("org.objectweb.");
 		Set<String> classesNotRequired = SharedClassList.WHITELIST;
@@ -59,6 +63,8 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 		cfm.setIgnoredClassNames(SharedClassList.WHITELIST);
 		Set<String> pkgNames = cfm.getIgnoredPackageNames();
 		Set<String> pkgNamesToSet = new HashSet<String>(pkgNames);
+		pkgNamesToSet.add("java.");
+		pkgNamesToSet.add("sun.");
 		pkgNamesToSet.add("org.jacoco.");
 		pkgNamesToSet.add("org.objectweb.");
 		cfm.setIgnoredPackageNames(pkgNamesToSet);
@@ -122,5 +128,11 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 	@Override
 	public I_ClassParentsLocal getParents(String name) {
 		return parentsCache.get(name);
+	}
+
+
+	@Override
+	public I_ClassReferencesCache getInitialReferencesCache() {
+		return initalReferencesCache;
 	}
 }

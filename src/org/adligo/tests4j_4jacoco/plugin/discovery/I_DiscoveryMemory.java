@@ -11,4 +11,5 @@ public interface I_DiscoveryMemory extends I_ClassFilter, I_ClassParentsCache, I
 	 * @return
 	 */
 	public I_ClassFilter getBasicClassFilter();
+	public I_ClassReferencesCache getInitialReferencesCache();
 }

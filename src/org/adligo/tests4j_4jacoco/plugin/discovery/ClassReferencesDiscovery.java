@@ -57,6 +57,7 @@ public class ClassReferencesDiscovery {
 	private List<I_ClassAliasLocal> initalRefsToIdentify = new ArrayList<I_ClassAliasLocal>();
 	private Map<I_ClassAliasLocal, I_ClassReferencesLocal> refMap = new HashMap<I_ClassAliasLocal,I_ClassReferencesLocal>();
 	private ClassParentsDiscovery cpd;
+	private ClassInitialReferencesDiscovery cird;
 	
 	public ClassReferencesDiscovery(I_CachedClassBytesClassLoader pClassLoader,
 			I_Tests4J_Log pLog,  I_DiscoveryMemory dc) {
@@ -66,7 +67,7 @@ public class ClassReferencesDiscovery {
 		basicClassFilter = dc.getBasicClassFilter();
 		cv = new ReferenceTrackingClassVisitor(Opcodes.ASM5, log);
 		cpd = new ClassParentsDiscovery(pClassLoader, pLog, dc);
-		
+		cird = new ClassInitialReferencesDiscovery(pClassLoader, pLog, dc);
 	}
 	
 	public List<String> findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
@@ -164,65 +165,17 @@ public class ClassReferencesDiscovery {
 		I_ClassParentsLocal cps = cpd.findOrLoad(c);
 		List<I_ClassParentsLocal> parents = cps.getParentsLocal();
 		for (I_ClassParentsLocal p: parents) {
-			if ( !discoveryMemory.isFiltered(p.getTarget())) {
-				findInitalRefs(p.getTarget(), p, newRefs);
+			Class<?> target = p.getTarget();
+			if ( !discoveryMemory.isFiltered(target)) {
+				I_ClassReferencesLocal crl = cird.findOrLoad(target);
+				newRefs.put(new ClassAliasLocal(crl), crl);
 			}
 		}
-		findInitalRefs(c, cps, newRefs);
+		I_ClassReferencesLocal crl = cird.findOrLoad(c);
+		newRefs.put(new ClassAliasLocal(crl), crl);
 		return newRefs;
 	}
 	
-	/**
-	 * Do not use this method for recursion!
-	 * you want loadReferences(Class<?> c, Class<?> parent, Stack<String> recursionStack);
-	 * 
-	 * This method finds references from this class to other classes (at a simple 1 teir level),
-	 * and then calls doRecursion()
-	 * 
-	 * @param c
-	 * @param recursionStack
-	 * @return
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
-	private I_ClassReferencesLocal findInitalRefs(Class<?> c, I_ClassParentsLocal parents,
-			Map<I_ClassAliasLocal, I_ClassReferencesLocal> newRefs) 
-			throws IOException, ClassNotFoundException {
-		
-		String className = c.getName();
-		
-		//check cache, to keep ASM visitor calls down because they are expensive
-		I_ClassReferencesLocal crefs =  discoveryMemory.getReferences(className);
-		if (crefs != null) {
-			newRefs.put(new ClassAliasLocal(crefs), crefs);
-			return crefs;
-		}
-		
-		ClassReferencesLocalMutant crm = new ClassReferencesLocalMutant(parents);
-		//add references from ASM, byte code inspection
-		InputStream in = classLoader.getCachedBytesStream(className);
-		ClassReader classReader=new ClassReader(in);
-		cv.reset();
-		classReader.accept(cv, 0);
-		Set<String> asmRefs = cv.getClassReferences();
-		for (String asmRef: asmRefs ) {
-			if (log.isLogEnabled(ClassReferencesDiscovery.class)) {
-				log.log("ClassReferencesDiscovery reading asmRef " + asmRef);
-			}
-			String asmRefName = ClassMethods.fromTypeDescription(asmRef);
-			if ( !basicClassFilter.isFiltered(asmRefName)) {
-				Class<?> asmClass = Class.forName(asmRefName);
-				I_ClassParentsLocal cps = cpd.findOrLoad(asmClass);
-				crm.addReference(cps);
-			}
-		}
-		
-		readReflectionReferences(c, crm);
-		
-		ClassReferencesLocal crl = new ClassReferencesLocal(crm);
-		newRefs.put(new ClassAliasLocal(crl), crl);
-		return crl;
-	}
 
 	/**
 	 * this should recurse up the references tree
@@ -257,47 +210,7 @@ public class ClassReferencesDiscovery {
 		}
 	}
 
-	/**
-	 * this reads the method parameter and return types
-	 * for interfaces, and the super types for interfaces, and classes
-	 * @param c
-	 * @param asmRefs
-	 * @param classNames
-	 * @return
-	 */
-	protected void readReflectionReferences(Class<?> c, ClassReferencesLocalMutant crm) 
-		throws ClassNotFoundException, IOException {
-		
-		
-		if (c.isInterface()) {
-			//add a self reference, so the counts don't get screwed up
-			I_ClassParentsLocal cps =  cpd.findOrLoad(c);
-			crm.addReference(cps);
-		}	
-		//TODO annotations, and their references
-		
-		
-		//add references from reflection, for abstract methods, with no byte code
-		Method [] methods =  c.getDeclaredMethods();
-		for (int i = 0; i < methods.length; i++) {
-			
-			Method m = methods[i];
-			if ( !MapInstrConstants.METHOD_NAME.equals(m.getName())) {
-				Class<?> returnClazz =  m.getReturnType();
-				addReflectionNames(returnClazz, c, crm);
-				Class<?> [] exceptions = m.getExceptionTypes();
-				for (int j = 0; j < exceptions.length; j++) {
-					Class<?> e = exceptions[j];
-					addReflectionNames(e, c, crm);
-				}
-				Class<?> [] params =  m.getParameterTypes();
-				for (int j = 0; j < params.length; j++) {
-					Class<?> p = params[j];
-					addReflectionNames(p, c,  crm);
-				}
-			}
-		}
-	}
+
 	
 	/**
 	 * ok at this point either we have 
@@ -454,24 +367,6 @@ public class ClassReferencesDiscovery {
 			return false;
 		}
 		return true;
-	}
-	protected void addReflectionNames( Class<?> clazz, Class<?> referencingClass, 
-			ClassReferencesLocalMutant classReferences) throws ClassNotFoundException, IOException {
-		if (clazz != null) {
-			//don't add arrays
-			if (clazz.isArray()) {
-				Class<?> type = clazz.getComponentType();
-				if ( !basicClassFilter.isFiltered(type)) {
-					I_ClassParentsLocal cps = cpd.findOrLoad(type);
-					classReferences.addReference(cps);
-				}
-			} else {
-				if (  !basicClassFilter.isFiltered(clazz)) {
-					I_ClassParentsLocal cps = cpd.findOrLoad(clazz);
-					classReferences.addReference(cps);
-				}
-			}
-		}
 	}
 	private void rebuildRefMapWithAllReferences() throws IOException, ClassNotFoundException {
 		Map<I_ClassAliasLocal, I_ClassReferencesLocal> newRefMap = new HashMap<I_ClassAliasLocal, I_ClassReferencesLocal>();
