@@ -35,6 +35,7 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 	private ConcurrentHashMap<String, I_ClassReferencesLocal> refCache = new ConcurrentHashMap<String, I_ClassReferencesLocal>();
 	private ConcurrentHashMap<String, I_ClassParentsLocal> parentsCache = new ConcurrentHashMap<String, I_ClassParentsLocal>();
 	private ClassReferencesCache initalReferencesCache = new ClassReferencesCache();
+	private ClassReferencesCache preCirclesReferencesCache = new ClassReferencesCache();
 	
 	private I_ClassFilter classFilter;
 	private I_ClassFilter basicClassFilter;
@@ -134,5 +135,11 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 	@Override
 	public I_ClassReferencesCache getInitialReferencesCache() {
 		return initalReferencesCache;
+	}
+
+
+	@Override
+	public I_ClassReferencesCache getPreCirclesReferencesCache() {
+		return preCirclesReferencesCache;
 	}
 }

@@ -18,5 +18,4 @@ public class ClassReferencesCache implements I_ClassReferencesCache {
 	public I_ClassReferencesLocal getReferences(String name) {
 		return refs.get(name);
 	}
-	
 }

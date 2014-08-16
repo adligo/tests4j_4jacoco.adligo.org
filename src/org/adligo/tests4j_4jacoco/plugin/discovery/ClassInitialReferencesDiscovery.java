@@ -48,6 +48,7 @@ public class ClassInitialReferencesDiscovery {
 	private I_ClassReferencesCache initalRefsCache;
 	private I_ClassFilter basicClassFilter;
 	private ClassParentsDiscovery cpd;
+	private I_ClassFilter classFilter;
 	
 	public ClassInitialReferencesDiscovery(I_CachedClassBytesClassLoader pClassLoader,
 			I_Tests4J_Log pLog,  I_DiscoveryMemory dc) {
@@ -57,7 +58,7 @@ public class ClassInitialReferencesDiscovery {
 		basicClassFilter = dc.getBasicClassFilter();
 		cv = new ReferenceTrackingClassVisitor(Opcodes.ASM5, log);
 		cpd = new ClassParentsDiscovery(pClassLoader, pLog, dc);
-		
+		classFilter = dc;
 	}
 	
 	public I_ClassReferencesLocal findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
@@ -105,6 +106,9 @@ public class ClassInitialReferencesDiscovery {
 	private ClassReferencesLocal findInitalRefs(Class<?> c, I_ClassParentsLocal parents) 
 			throws IOException, ClassNotFoundException {
 		
+		if (classFilter.isFiltered(c)) {
+			return new ClassReferencesLocal(cpd.findOrLoad(c));
+		}
 		String className = c.getName();
 		
 		ClassReferencesLocalMutant crm = new ClassReferencesLocalMutant(parents);

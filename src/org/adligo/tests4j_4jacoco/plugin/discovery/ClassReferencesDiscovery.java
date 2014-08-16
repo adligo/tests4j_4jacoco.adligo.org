@@ -1,8 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.discovery;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,23 +11,16 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.adligo.tests4j.models.shared.asserts.AssertionProcessor;
-import org.adligo.tests4j.models.shared.common.ClassMethods;
 import org.adligo.tests4j.models.shared.dependency.ClassAlias;
 import org.adligo.tests4j.models.shared.dependency.ClassAliasLocal;
 import org.adligo.tests4j.models.shared.dependency.ClassReferencesLocal;
-import org.adligo.tests4j.models.shared.dependency.ClassReferencesLocalMutant;
 import org.adligo.tests4j.models.shared.dependency.DependencyMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassAliasLocal;
-import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
 import org.adligo.tests4j.models.shared.dependency.I_ClassReferencesLocal;
 import org.adligo.tests4j.models.shared.dependency.I_Dependency;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Opcodes;
 
 /**
  * a model like (non thread safe) class that loads classes into
@@ -49,25 +40,18 @@ import org.objectweb.asm.Opcodes;
  *
  */
 public class ClassReferencesDiscovery {
-	private I_CachedClassBytesClassLoader classLoader;
 	private I_Tests4J_Log log;
-	private ReferenceTrackingClassVisitor cv;
 	private I_DiscoveryMemory discoveryMemory;
-	private I_ClassFilter basicClassFilter;
-	private List<I_ClassAliasLocal> initalRefsToIdentify = new ArrayList<I_ClassAliasLocal>();
 	private Map<I_ClassAliasLocal, I_ClassReferencesLocal> refMap = new HashMap<I_ClassAliasLocal,I_ClassReferencesLocal>();
-	private ClassParentsDiscovery cpd;
 	private ClassInitialReferencesDiscovery cird;
+	private ClassFullReferencesDiscovery cfrdFull;
 	
 	public ClassReferencesDiscovery(I_CachedClassBytesClassLoader pClassLoader,
 			I_Tests4J_Log pLog,  I_DiscoveryMemory dc) {
-		classLoader = pClassLoader;
 		log = pLog;
 		discoveryMemory = dc;
-		basicClassFilter = dc.getBasicClassFilter();
-		cv = new ReferenceTrackingClassVisitor(Opcodes.ASM5, log);
-		cpd = new ClassParentsDiscovery(pClassLoader, pLog, dc);
 		cird = new ClassInitialReferencesDiscovery(pClassLoader, pLog, dc);
+		cfrdFull = new ClassFullReferencesDiscovery(pClassLoader, pLog, dc);
 	}
 	
 	public List<String> findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
@@ -79,138 +63,52 @@ public class ClassReferencesDiscovery {
 		I_ClassReferencesLocal crefs =  discoveryMemory.getReferences(className);
 		if (crefs != null) {
 			refMap.put(new ClassAliasLocal(crefs), crefs);
-			Set<I_ClassParentsLocal> refs = crefs.getReferencesLocal();
-			for (I_ClassAliasLocal alias: refs) {
-				I_ClassReferencesLocal crefRef = discoveryMemory.getReferences(alias.getName());
-				if (crefRef != null) {
-					refMap.put(alias, crefRef);
-				} else {
-					Map<I_ClassAliasLocal, I_ClassReferencesLocal> newRefs = loadInitalReferences(alias.getTarget(), c);
-					refMap.putAll(newRefs);
-				}
-			}
+			fillRefMapFromFullRef(crefs);
 		} else {
-			Map<I_ClassAliasLocal, I_ClassReferencesLocal> newRefs = loadInitalReferences(c, c);
-			refMap.putAll(newRefs);
-			crefs = refMap.get(new ClassAlias(c));
-		}
-		Set<Entry<I_ClassAliasLocal, I_ClassReferencesLocal>> entries = refMap.entrySet();
-		for (Entry<I_ClassAliasLocal, I_ClassReferencesLocal> e: entries) {
-			I_ClassReferencesLocal val = e.getValue();
-			Set<I_ClassParentsLocal> refs = val.getReferencesLocal();
-			for (I_ClassAliasLocal alias: refs) {
-				String ref = alias.getName();
-				if (!className.equals(ref)) {
-					if ( !discoveryMemory.isFiltered(ref)) {
-						initalRefsToIdentify.add(alias);
-					}
-				}
-			}
+			fillRefMapFromClass(c);
 		}
 		
-		initalRefsToIdentify.removeAll(refMap.keySet());
-		while (initalRefsToIdentify.size() >= 1) {
-			I_ClassAliasLocal next = initalRefsToIdentify.get(0);
-			Class<?> nextClass = next.getTarget();
-			Map<I_ClassAliasLocal, I_ClassReferencesLocal> newRefs = loadInitalReferences(nextClass, c);
-			refMap.putAll(newRefs);
-			Set<Entry<I_ClassAliasLocal, I_ClassReferencesLocal>> newEntries = newRefs.entrySet();
-			for (Entry<I_ClassAliasLocal, I_ClassReferencesLocal> e: newEntries) {
-				I_ClassReferencesLocal val = e.getValue();
-				Set<I_ClassParentsLocal> delRs = val.getReferencesLocal();
-				for (I_ClassAliasLocal alias: delRs) {
-					String ref = alias.getName();
-					//check local caches first
-					if (!initalRefsToIdentify.contains(ref)) {
-						if ( !discoveryMemory.isFiltered(ref)) {
-							initalRefsToIdentify.add(alias);
-						}
-					}
-				}
-			}
-			initalRefsToIdentify.removeAll(refMap.keySet());
-		}
-		//ok all of the initial references should be loaded in the refMap
-		rebuildRefMapWithAllReferences();
-		//ok all references are loaded
-		calcCircles();
-		addToRefsCache();
 		List<String> refOrder = calcRefOrder(c);
 		return refOrder;
 	}
 
-	/**
-	 * This loads the initial one tier references
-	 * into the refMap.
-	 * 
-	 * @param c
-	 * @param referencingClass only for the log, the referencingClass
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
-	private Map<I_ClassAliasLocal, I_ClassReferencesLocal> loadInitalReferences(Class<?> c, Class<?> referencingClass) 
-		throws IOException, ClassNotFoundException {
-		
-		
-		Map<I_ClassAliasLocal, I_ClassReferencesLocal> newRefs = new HashMap<I_ClassAliasLocal, I_ClassReferencesLocal>();
-		I_ClassReferencesLocal refs = discoveryMemory.getReferences(c.getName());
-		if (refs != null) {
-			newRefs.put(refs, refs);
-			return newRefs;
-		}
-		if (discoveryMemory.isFiltered(c)) {
-			return newRefs;
-		}
-		
-		I_ClassParentsLocal cps = cpd.findOrLoad(c);
-		List<I_ClassParentsLocal> parents = cps.getParentsLocal();
-		for (I_ClassParentsLocal p: parents) {
-			Class<?> target = p.getTarget();
-			if ( !discoveryMemory.isFiltered(target)) {
-				I_ClassReferencesLocal crl = cird.findOrLoad(target);
-				newRefs.put(new ClassAliasLocal(crl), crl);
-			}
-		}
-		I_ClassReferencesLocal crl = cird.findOrLoad(c);
-		newRefs.put(new ClassAliasLocal(crl), crl);
-		return newRefs;
-	}
-	
-
-	/**
-	 * this should recurse up the references tree
-	 * @param c
-	 * @param classNames
-	 * @param recursionStack
-	 * @throws ClassNotFoundException
-	 * @throws IOException
-	 */
-	protected void addRefAndRecurse(ClassReferencesLocalMutant cplm, I_ClassAliasLocal alias,  Set<I_ClassParentsLocal> done) 
-			throws IOException, ClassNotFoundException {
-		
-		I_ClassParentsLocal cps = cpd.findOrLoad(alias.getTarget());
-		cplm.addReference(cps);
-		
-		I_ClassReferencesLocal initalRef =  refMap.get(alias);
-		if (initalRef == null) {
-			if (discoveryMemory.isFiltered(alias.getTarget())) {
-				//its a filtered class
-				return;
-			} else {
-				throw new IllegalStateException("hmm no refMap entry for " + alias);
-			}
-		}
-		done.add(initalRef);
-		List<I_ClassParentsLocal> currentNames = new ArrayList<I_ClassParentsLocal>(initalRef.getReferencesLocal());
-
-		currentNames.removeAll(done);
-		
-		for (I_ClassParentsLocal cpl: currentNames) {
-			addRefAndRecurse(cplm,cpl, done);
+	private void fillRefMapFromFullRef(I_ClassReferencesLocal full) throws ClassNotFoundException, IOException {
+		Set<I_ClassParentsLocal> refs = full.getReferencesLocal();
+		for (I_ClassParentsLocal ref: refs) {
+			I_ClassReferencesLocal refLoc = cfrdFull.findOrLoad(ref.getTarget());
+			refMap.put(refLoc, refLoc);
 		}
 	}
 
-
+	private void fillRefMapFromClass(Class<?> c) throws ClassNotFoundException, IOException {
+		I_ClassReferencesLocal initial = cird.findOrLoad(c);
+		
+		List<I_ClassParentsLocal> parents =  initial.getParentsLocal();
+		for (I_ClassParentsLocal cpl : parents) {
+			I_ClassReferencesLocal parentFull = cfrdFull.findOrLoad(cpl.getTarget());
+			refMap.put(parentFull, parentFull);
+		}
+		
+		Set<I_ClassParentsLocal> refs = initial.getReferencesLocal();
+		Set<I_ClassParentsLocal> refsCopy = new HashSet<I_ClassParentsLocal>(refs);
+		refsCopy.removeAll(parents);
+		for (I_ClassParentsLocal ref : refsCopy) {
+			I_ClassReferencesLocal refFull = cfrdFull.findOrLoad(ref.getTarget());
+			refMap.put(refFull, refFull);
+		}
+		
+		I_ClassReferencesLocal full = cfrdFull.findOrLoad(c);
+		refMap.put(full, full);
+		Set<I_ClassParentsLocal> fullRefs = full.getReferencesLocal();
+		Set<I_ClassParentsLocal> fullRefsCopy = new HashSet<I_ClassParentsLocal>(fullRefs);
+		fullRefsCopy.removeAll(parents);
+		fullRefsCopy.removeAll(refsCopy);
+		for (I_ClassParentsLocal ref : fullRefsCopy) {
+			I_ClassReferencesLocal refFull = cfrdFull.findOrLoad(ref.getTarget());
+			refMap.put(refFull, refFull);
+		}
+		
+	}
 	
 	/**
 	 * ok at this point either we have 
@@ -368,48 +266,8 @@ public class ClassReferencesDiscovery {
 		}
 		return true;
 	}
-	private void rebuildRefMapWithAllReferences() throws IOException, ClassNotFoundException {
-		Map<I_ClassAliasLocal, I_ClassReferencesLocal> newRefMap = new HashMap<I_ClassAliasLocal, I_ClassReferencesLocal>();
-		Set<Entry<I_ClassAliasLocal, I_ClassReferencesLocal>> entries = refMap.entrySet();
-		for (Entry<I_ClassAliasLocal, I_ClassReferencesLocal> e: entries) {
-			I_ClassAliasLocal key = e.getKey();
-			I_ClassReferencesLocal val = e.getValue();
-			ClassReferencesLocalMutant crm = new ClassReferencesLocalMutant(val);
-			
-			Set<I_ClassParentsLocal> refs = val.getReferencesLocal();
-			Set<I_ClassParentsLocal> done = new HashSet<I_ClassParentsLocal>();
-			for (I_ClassParentsLocal ref: refs) {
-				addRefAndRecurse(crm, ref, done);
-			}
-			newRefMap.put(new ClassAliasLocal(key), new ClassReferencesLocal(crm));
-		}
-		refMap = newRefMap;
-	}
-	private void calcCircles() {
-		Map<I_ClassAliasLocal, I_ClassReferencesLocal> newRefMap = new HashMap<I_ClassAliasLocal, I_ClassReferencesLocal>();
-		Set<Entry<I_ClassAliasLocal, I_ClassReferencesLocal>> entries = refMap.entrySet();
-		for (Entry<I_ClassAliasLocal, I_ClassReferencesLocal> e: entries) {
-			I_ClassAliasLocal key = e.getKey();
-			String name = key.getName();
-			I_ClassReferencesLocal cr =  e.getValue();
-			ClassReferencesLocalMutant crm = new ClassReferencesLocalMutant(cr);
-			Set<I_ClassParentsLocal> refs =  cr.getReferencesLocal();
-			for (I_ClassParentsLocal ref: refs) {
-				if (!name.equals(ref.getName())) {
-					I_ClassReferencesLocal refRef = refMap.get(ref);
-					if (refRef != null) {
-						Set<I_ClassParentsLocal> refRefRef = refRef.getReferencesLocal();
-						if (refRefRef.contains(cr)) {
-							crm.addCircularReferences(refRef);
-						}
-					}
-				}
-			}
-			
-			newRefMap.put(new ClassAliasLocal(key), new ClassReferencesLocal(crm));
-		}
-		refMap = newRefMap;
-	}
+
+
 	
 	/**
 	 * @diagram_sync with Discovery_ClassReferenceDiscovery.seq on 8/1/2014
@@ -422,16 +280,4 @@ public class ClassReferencesDiscovery {
 		return refMap.get(alias);
 	}
 
-	/**
-	 * note this is separated out so that
-	 * the circular dependencies are calculated
-	 * which require all down stream references to be 
-	 * calculated first
-	 */
-	private void addToRefsCache() {
-		Set<Entry<I_ClassAliasLocal, I_ClassReferencesLocal>> entries = refMap.entrySet();
-		for (Entry<I_ClassAliasLocal, I_ClassReferencesLocal> e: entries) {
-			discoveryMemory.putReferencesIfAbsent(e.getValue());
-		}
-	}
 }
