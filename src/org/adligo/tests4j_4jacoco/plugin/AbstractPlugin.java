@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.adligo.tests4j.models.shared.dependency.ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.ClassFilterMutant;
+import org.adligo.tests4j.models.shared.dependency.I_ClassReferencesLocal;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoveragePlugin;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageRecorder;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
@@ -83,4 +84,17 @@ public abstract class AbstractPlugin implements I_Tests4J_CoveragePlugin {
 		this.writeOutInstrumentedClassFiles = writeOutInstrumentedClassFiles;
 	}
 
+
+	@Override
+	public void instrumentationComplete() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public I_ClassReferencesLocal getClassReferences(String className) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

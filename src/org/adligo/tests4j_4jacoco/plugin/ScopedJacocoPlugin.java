@@ -1,5 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin;
 
+import org.adligo.tests4j.models.shared.dependency.I_ClassReferencesLocal;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.data.multi.MultiProbeDataStoreAdaptor;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
@@ -34,5 +35,7 @@ public class ScopedJacocoPlugin extends AbstractPlugin {
 	public boolean canThreadGroupLocalRecord() {
 		return true;
 	}
+
+
 
 }

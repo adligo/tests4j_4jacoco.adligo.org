@@ -1,15 +1,14 @@
 package org.adligo.tests4j_4jacoco.plugin;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.adligo.tests4j.models.shared.common.CacheControl;
 import org.adligo.tests4j.models.shared.dependency.ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.ClassFilterMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
-import org.adligo.tests4j.models.shared.dependency.I_ClassReferences;
 import org.adligo.tests4j.models.shared.dependency.I_ClassReferencesCache;
 import org.adligo.tests4j.models.shared.dependency.I_ClassReferencesLocal;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
@@ -34,8 +33,9 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 	private I_CachedClassBytesClassLoader cachedClassLoader;
 	private ConcurrentHashMap<String, I_ClassReferencesLocal> refCache = new ConcurrentHashMap<String, I_ClassReferencesLocal>();
 	private ConcurrentHashMap<String, I_ClassParentsLocal> parentsCache = new ConcurrentHashMap<String, I_ClassParentsLocal>();
-	private ClassReferencesCache initalReferencesCache = new ClassReferencesCache();
-	private ClassReferencesCache preCirclesReferencesCache = new ClassReferencesCache();
+	private CacheControl cacheControl = new CacheControl();
+	private ClassReferencesCache initalReferencesCache = new ClassReferencesCache(cacheControl);
+	private ClassReferencesCache preCirclesReferencesCache = new ClassReferencesCache(cacheControl);
 	
 	private I_ClassFilter classFilter;
 	private I_ClassFilter basicClassFilter;
@@ -56,9 +56,9 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 		packagesNotRequired.add("org.objectweb.");
 		Set<String> classesNotRequired = SharedClassList.WHITELIST;
 		instrumentedClassLoader = new CachedClassBytesClassLoader(log, 
-				packagesNotRequired, classesNotRequired);
+				packagesNotRequired, classesNotRequired, null);
 		cachedClassLoader = new CachedClassBytesClassLoader(log, 
-				packagesNotRequired, classesNotRequired);
+				packagesNotRequired, classesNotRequired, cacheControl);
 		
 		ClassFilterMutant cfm = new ClassFilterMutant();
 		cfm.setIgnoredClassNames(SharedClassList.WHITELIST);
@@ -141,5 +141,9 @@ public class Tests4J_4JacocoMemory implements I_DiscoveryMemory {
 	@Override
 	public I_ClassReferencesCache getPreCirclesReferencesCache() {
 		return preCirclesReferencesCache;
+	}
+	
+	public void clearTemporaryCaches() {
+		cacheControl.clear();
 	}
 }
