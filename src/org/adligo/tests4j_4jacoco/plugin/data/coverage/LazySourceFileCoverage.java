@@ -28,8 +28,7 @@ public class LazySourceFileCoverage extends CoverageUnitContinerMutant implement
 	}
 	@Override
 	public String getClassName() {
-		// TODO Auto-generated method stub
-		return null;
+		return className;
 	}
 
 	@Override

@@ -8,12 +8,12 @@ import java.lang.reflect.Method;
 import java.util.Set;
 
 import org.adligo.tests4j.models.shared.common.ClassMethods;
-import org.adligo.tests4j.models.shared.dependency.ClassReferencesLocal;
-import org.adligo.tests4j.models.shared.dependency.ClassReferencesLocalMutant;
+import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocal;
+import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocalMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
-import org.adligo.tests4j.models.shared.dependency.I_ClassReferencesCache;
-import org.adligo.tests4j.models.shared.dependency.I_ClassReferencesLocal;
+import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache;
+import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
@@ -41,33 +41,28 @@ import org.objectweb.asm.Opcodes;
  * @author scott
  *
  */
-public class ClassInitialReferencesDiscovery {
+public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 	private I_CachedClassBytesClassLoader classLoader;
 	private I_Tests4J_Log log;
-	private ReferenceTrackingClassVisitor cv;
-	private I_ClassReferencesCache initalRefsCache;
+	private AbstractReferenceTrackingClassVisitor classVisitor;
+	private I_ClassDependenciesCache cache;
 	private I_ClassFilter basicClassFilter;
-	private ClassParentsDiscovery cpd;
+	private I_ClassParentsDiscovery classParentsDiscovery;
 	private I_ClassFilter classFilter;
 	
-	public ClassInitialReferencesDiscovery(I_CachedClassBytesClassLoader pClassLoader,
-			I_Tests4J_Log pLog,  I_DiscoveryMemory dc) {
-		classLoader = pClassLoader;
-		log = pLog;
-		initalRefsCache = dc.getInitialReferencesCache();
-		basicClassFilter = dc.getBasicClassFilter();
-		cv = new ReferenceTrackingClassVisitor(Opcodes.ASM5, log);
-		cpd = new ClassParentsDiscovery(pClassLoader, pLog, dc);
-		classFilter = dc;
-	}
+	public InitialDependenciesDiscovery(){}
 	
-	public I_ClassReferencesLocal findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
+	/* (non-Javadoc)
+	 * @see org.adligo.tests4j_4jacoco.plugin.discovery.I_ClassDependenciesDiscovery#findOrLoad(java.lang.Class)
+	 */
+	@Override
+	public I_ClassDependenciesLocal findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
 		String className = c.getName();
-		I_ClassReferencesLocal refs = initalRefsCache.getReferences(className);
+		I_ClassDependenciesLocal refs = cache.getDependencies(className);
 		if (refs != null) {
 			return refs;
 		}
-		if (log.isLogEnabled(ClassInitialReferencesDiscovery.class)) {
+		if (log.isLogEnabled(InitialDependenciesDiscovery.class)) {
 			log.log(this.getClass().getSimpleName() + ".findOrLoad ... " + c.getName());
 		}
 		
@@ -83,13 +78,13 @@ public class ClassInitialReferencesDiscovery {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	private I_ClassReferencesLocal loadInitalReferences(Class<?> c) 
+	private I_ClassDependenciesLocal loadInitalReferences(Class<?> c) 
 		throws IOException, ClassNotFoundException {
 		
 		
-		I_ClassParentsLocal cps = cpd.findOrLoad(c);
-		ClassReferencesLocal result = findInitalRefs(c, cps);
-		initalRefsCache.putReferencesIfAbsent(result);
+		I_ClassParentsLocal cps = classParentsDiscovery.findOrLoad(c);
+		ClassDependenciesLocal result = findInitalRefs(c, cps);
+		cache.putDependenciesIfAbsent(result);
 		return result;
 	}
 	
@@ -103,36 +98,36 @@ public class ClassInitialReferencesDiscovery {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	private ClassReferencesLocal findInitalRefs(Class<?> c, I_ClassParentsLocal parents) 
+	private ClassDependenciesLocal findInitalRefs(Class<?> c, I_ClassParentsLocal parents) 
 			throws IOException, ClassNotFoundException {
 		
 		if (classFilter.isFiltered(c)) {
-			return new ClassReferencesLocal(cpd.findOrLoad(c));
+			return new ClassDependenciesLocal(classParentsDiscovery.findOrLoad(c));
 		}
 		String className = c.getName();
 		
-		ClassReferencesLocalMutant crm = new ClassReferencesLocalMutant(parents);
+		ClassDependenciesLocalMutant crm = new ClassDependenciesLocalMutant(parents);
 		//add references from ASM, byte code inspection
 		InputStream in = classLoader.getCachedBytesStream(className);
 		ClassReader classReader=new ClassReader(in);
-		cv.reset();
-		classReader.accept(cv, 0);
-		Set<String> asmRefs = cv.getClassReferences();
+		classVisitor.reset();
+		classReader.accept(classVisitor, 0);
+		Set<String> asmRefs = classVisitor.getClassReferences();
 		for (String asmRef: asmRefs ) {
-			if (log.isLogEnabled(ClassInitialReferencesDiscovery.class)) {
+			if (log.isLogEnabled(InitialDependenciesDiscovery.class)) {
 				log.log(this.getClass().getSimpleName() + ".findInitalRefs reading asmRef " + asmRef);
 			}
 			String asmRefName = ClassMethods.fromTypeDescription(asmRef);
 			if ( !basicClassFilter.isFiltered(asmRefName)) {
 				Class<?> asmClass = Class.forName(asmRefName);
-				I_ClassParentsLocal cps = cpd.findOrLoad(asmClass);
+				I_ClassParentsLocal cps = classParentsDiscovery.findOrLoad(asmClass);
 				crm.addReference(cps);
 			}
 		}
 		
 		readReflectionReferences(c, crm);
 		
-		return new ClassReferencesLocal(crm);
+		return new ClassDependenciesLocal(crm);
 	}
 
 	/**
@@ -143,13 +138,13 @@ public class ClassInitialReferencesDiscovery {
 	 * @param classNames
 	 * @return
 	 */
-	protected void readReflectionReferences(Class<?> c, ClassReferencesLocalMutant crm) 
+	protected void readReflectionReferences(Class<?> c, ClassDependenciesLocalMutant crm) 
 		throws ClassNotFoundException, IOException {
 		
 		
 		if (c.isInterface()) {
 			//add a self reference, so the counts don't get screwed up
-			I_ClassParentsLocal cps =  cpd.findOrLoad(c);
+			I_ClassParentsLocal cps =  classParentsDiscovery.findOrLoad(c);
 			crm.addReference(cps);
 		}	
 		Annotation [] annotations =  c.getAnnotations();
@@ -189,21 +184,78 @@ public class ClassInitialReferencesDiscovery {
 	}
 	
 	protected void addReflectionNames( Class<?> clazz, Class<?> referencingClass, 
-			ClassReferencesLocalMutant classReferences) throws ClassNotFoundException, IOException {
+			ClassDependenciesLocalMutant classReferences) throws ClassNotFoundException, IOException {
 		if (clazz != null) {
 			//don't add arrays
 			if (clazz.isArray()) {
 				Class<?> type = clazz.getComponentType();
 				if ( !basicClassFilter.isFiltered(type)) {
-					I_ClassParentsLocal cps = cpd.findOrLoad(type);
+					I_ClassParentsLocal cps = classParentsDiscovery.findOrLoad(type);
 					classReferences.addReference(cps);
 				}
 			} else {
 				if (  !basicClassFilter.isFiltered(clazz)) {
-					I_ClassParentsLocal cps = cpd.findOrLoad(clazz);
+					I_ClassParentsLocal cps = classParentsDiscovery.findOrLoad(clazz);
 					classReferences.addReference(cps);
 				}
 			}
 		}
+	}
+
+	public I_CachedClassBytesClassLoader getClassLoader() {
+		return classLoader;
+	}
+
+	public I_Tests4J_Log getLog() {
+		return log;
+	}
+
+	public AbstractReferenceTrackingClassVisitor getClassVisitor() {
+		return classVisitor;
+	}
+
+	public I_ClassDependenciesCache getCache() {
+		return cache;
+	}
+
+	public I_ClassFilter getBasicClassFilter() {
+		return basicClassFilter;
+	}
+
+	public I_ClassParentsDiscovery getClassParentsDiscovery() {
+		return classParentsDiscovery;
+	}
+
+	public I_ClassFilter getClassFilter() {
+		return classFilter;
+	}
+
+	public void setClassLoader(I_CachedClassBytesClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
+
+	public void setLog(I_Tests4J_Log log) {
+		this.log = log;
+	}
+
+	public void setClassVisitor(AbstractReferenceTrackingClassVisitor classVisitor) {
+		this.classVisitor = classVisitor;
+	}
+
+	public void setCache(I_ClassDependenciesCache cache) {
+		this.cache = cache;
+	}
+
+	public void setBasicClassFilter(I_ClassFilter basicClassFilter) {
+		this.basicClassFilter = basicClassFilter;
+	}
+
+	public void setClassParentsDiscovery(
+			I_ClassParentsDiscovery classParentsDiscovery) {
+		this.classParentsDiscovery = classParentsDiscovery;
+	}
+
+	public void setClassFilter(I_ClassFilter classFilter) {
+		this.classFilter = classFilter;
 	}
 }

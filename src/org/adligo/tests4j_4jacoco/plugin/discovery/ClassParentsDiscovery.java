@@ -11,7 +11,8 @@ import java.util.TreeMap;
 import org.adligo.tests4j.models.shared.common.ClassMethods;
 import org.adligo.tests4j.models.shared.dependency.ClassParentsLocal;
 import org.adligo.tests4j.models.shared.dependency.ClassParentsLocalMutant;
-import org.adligo.tests4j.models.shared.dependency.I_ClassParents;
+import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
+import org.adligo.tests4j.models.shared.dependency.I_ClassParentsCache;
 import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
@@ -24,33 +25,25 @@ import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
  * @author scott
  *
  */
-public class ClassParentsDiscovery {
+public class ClassParentsDiscovery implements I_ClassParentsDiscovery {
 	private I_CachedClassBytesClassLoader classLoader;
 	private I_Tests4J_Log log;
-	private I_DiscoveryMemory discoveryMemory;
+	private I_ClassFilter classFilter;
+	private I_ClassParentsCache cache;
 	
-	public ClassParentsDiscovery(I_CachedClassBytesClassLoader pClassLoader,
-			I_Tests4J_Log pLog,  I_DiscoveryMemory dc) {
-		classLoader = pClassLoader;
-		log = pLog;
-		discoveryMemory = dc;
-	}
+	public ClassParentsDiscovery(){}
 	
-	/**
-	 * returns a ordered list of class names
-	 * that 
-	 * @param c
-	 * @return
-	 * @throws IOException
-	 * @throws ClassNotFoundException
+	/* (non-Javadoc)
+	 * @see org.adligo.tests4j_4jacoco.plugin.discovery.I_ClassParentsDiscovery#findOrLoad(java.lang.Class)
 	 */
+	@Override
 	public I_ClassParentsLocal findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
 		String className = c.getName();
 		if (log.isLogEnabled(ClassParentsDiscovery.class)) {
 			log.log("ClassBytesDiscovery.findOrLoad " + className);
 		}
 		
-		I_ClassParentsLocal toRet = discoveryMemory.getParents(className);
+		I_ClassParentsLocal toRet = cache.getParents(className);
 		if (toRet != null) {
 			return toRet;
 		}
@@ -60,7 +53,7 @@ public class ClassParentsDiscovery {
 		
 		
 		toRet = new ClassParentsLocal(cpm);
-		discoveryMemory.putParentsIfAbsent(toRet);
+		cache.putParentsIfAbsent(toRet);
 		loadClassBytes(c);
 		return toRet;
 	}
@@ -93,7 +86,7 @@ public class ClassParentsDiscovery {
 		
 		for (Class<?> p: parents) {
 			String parentName = p.getName();
-			I_ClassParentsLocal cp = discoveryMemory.getParents(parentName);
+			I_ClassParentsLocal cp = cache.getParents(parentName);
 			if (cp != null) {
 				cpm.addParent(cp);
 			} else {
@@ -106,7 +99,7 @@ public class ClassParentsDiscovery {
 			throws ClassNotFoundException, IOException {
 		
 		String className = c.getName();
-		if ( !discoveryMemory.isFiltered(c)) {
+		if ( !classFilter.isFiltered(c)) {
 			if ( !classLoader.hasCache(className)) {
 				if (log.isLogEnabled(ClassParentsDiscovery.class)) {
 					log.log("ClassBytesCacheHelper.loadClassBytes " + className);
@@ -121,6 +114,38 @@ public class ClassParentsDiscovery {
 				}
 			}
 		}
+	}
+
+	public I_CachedClassBytesClassLoader getClassLoader() {
+		return classLoader;
+	}
+
+	public I_Tests4J_Log getLog() {
+		return log;
+	}
+
+	public I_ClassFilter getClassFilter() {
+		return classFilter;
+	}
+
+	public I_ClassParentsCache getCache() {
+		return cache;
+	}
+
+	public void setClassLoader(I_CachedClassBytesClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
+
+	public void setLog(I_Tests4J_Log log) {
+		this.log = log;
+	}
+
+	public void setClassFilter(I_ClassFilter classFilter) {
+		this.classFilter = classFilter;
+	}
+
+	public void setCache(I_ClassParentsCache cache) {
+		this.cache = cache;
 	}
 
 	

@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.asm;
+package org.adligo.tests4j_4jacoco.plugin.common;
 
 public interface I_StackHelper {
 

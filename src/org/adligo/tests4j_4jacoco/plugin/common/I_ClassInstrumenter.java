@@ -1,15 +1,13 @@
-package org.adligo.tests4j_4jacoco.plugin.runtime;
+package org.adligo.tests4j_4jacoco.plugin.common;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
-import org.objectweb.asm.ClassReader;
-
-public interface I_ClassBytesInstrumenter {
+public interface I_ClassInstrumenter {
 
 	/**
 	 * Creates a instrumented version of the given class if possible.
+	 * @diagram_sync with InstrumentationOverview.sql on 8/14/2014
 	 * 
 	 * @param input
 	 *            stream to read class definition from

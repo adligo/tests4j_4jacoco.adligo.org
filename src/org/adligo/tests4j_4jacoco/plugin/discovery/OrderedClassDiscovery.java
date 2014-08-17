@@ -13,14 +13,15 @@ import java.util.TreeSet;
 
 import org.adligo.tests4j.models.shared.dependency.ClassAlias;
 import org.adligo.tests4j.models.shared.dependency.ClassAliasLocal;
-import org.adligo.tests4j.models.shared.dependency.ClassReferencesLocal;
 import org.adligo.tests4j.models.shared.dependency.DependencyMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassAliasLocal;
+import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache;
+import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
+import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
-import org.adligo.tests4j.models.shared.dependency.I_ClassReferencesLocal;
 import org.adligo.tests4j.models.shared.dependency.I_Dependency;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
-import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
+import org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscovery;
 
 /**
  * a model like (non thread safe) class that loads classes into
@@ -39,28 +40,27 @@ import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
  * @author scott
  *
  */
-public class ClassReferencesDiscovery {
+public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 	private I_Tests4J_Log log;
-	private I_DiscoveryMemory discoveryMemory;
-	private Map<I_ClassAliasLocal, I_ClassReferencesLocal> refMap = new HashMap<I_ClassAliasLocal,I_ClassReferencesLocal>();
-	private ClassInitialReferencesDiscovery cird;
-	private ClassFullReferencesDiscovery cfrdFull;
+	private I_ClassFilter classFilter;
+	private I_ClassDependenciesCache cache;
+	private Map<I_ClassAliasLocal, I_ClassDependenciesLocal> refMap = new HashMap<I_ClassAliasLocal,I_ClassDependenciesLocal>();
+	private I_ClassDependenciesDiscovery fullDependenciesDiscovery;
+	private I_ClassDependenciesDiscovery circularDependenciesDiscovery;
 	
-	public ClassReferencesDiscovery(I_CachedClassBytesClassLoader pClassLoader,
-			I_Tests4J_Log pLog,  I_DiscoveryMemory dc) {
-		log = pLog;
-		discoveryMemory = dc;
-		cird = new ClassInitialReferencesDiscovery(pClassLoader, pLog, dc);
-		cfrdFull = new ClassFullReferencesDiscovery(pClassLoader, pLog, dc);
-	}
+	public OrderedClassDiscovery() {}
 	
+	/* (non-Javadoc)
+	 * @see org.adligo.tests4j_4jacoco.plugin.discovery.I_OrderedClassDependenciesDiscovery#findOrLoad(java.lang.Class)
+	 */
+	@Override
 	public List<String> findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
-		if (log.isLogEnabled(ClassReferencesDiscovery.class)) {
+		if (log.isLogEnabled(OrderedClassDiscovery.class)) {
 			log.log("ClassReferencesDiscovery.discoverAndLoad " + c.getName());
 		}
 		String className = c.getName();
 		refMap.clear();
-		I_ClassReferencesLocal crefs =  discoveryMemory.getReferences(className);
+		I_ClassDependenciesLocal crefs =  cache.getDependencies(className);
 		if (crefs != null) {
 			refMap.put(new ClassAliasLocal(crefs), crefs);
 			fillRefMapFromFullRef(crefs);
@@ -72,39 +72,39 @@ public class ClassReferencesDiscovery {
 		return refOrder;
 	}
 
-	private void fillRefMapFromFullRef(I_ClassReferencesLocal full) throws ClassNotFoundException, IOException {
-		Set<I_ClassParentsLocal> refs = full.getReferencesLocal();
+	private void fillRefMapFromFullRef(I_ClassDependenciesLocal full) throws ClassNotFoundException, IOException {
+		Set<I_ClassParentsLocal> refs = full.getDependenciesLocal();
 		for (I_ClassParentsLocal ref: refs) {
-			I_ClassReferencesLocal refLoc = cfrdFull.findOrLoad(ref.getTarget());
+			I_ClassDependenciesLocal refLoc = circularDependenciesDiscovery.findOrLoad(ref.getTarget());
 			refMap.put(refLoc, refLoc);
 		}
 	}
 
 	private void fillRefMapFromClass(Class<?> c) throws ClassNotFoundException, IOException {
-		I_ClassReferencesLocal initial = cird.findOrLoad(c);
+		I_ClassDependenciesLocal initial = fullDependenciesDiscovery.findOrLoad(c);
 		
 		List<I_ClassParentsLocal> parents =  initial.getParentsLocal();
 		for (I_ClassParentsLocal cpl : parents) {
-			I_ClassReferencesLocal parentFull = cfrdFull.findOrLoad(cpl.getTarget());
+			I_ClassDependenciesLocal parentFull = circularDependenciesDiscovery.findOrLoad(cpl.getTarget());
 			refMap.put(parentFull, parentFull);
 		}
 		
-		Set<I_ClassParentsLocal> refs = initial.getReferencesLocal();
+		Set<I_ClassParentsLocal> refs = initial.getDependenciesLocal();
 		Set<I_ClassParentsLocal> refsCopy = new HashSet<I_ClassParentsLocal>(refs);
 		refsCopy.removeAll(parents);
 		for (I_ClassParentsLocal ref : refsCopy) {
-			I_ClassReferencesLocal refFull = cfrdFull.findOrLoad(ref.getTarget());
+			I_ClassDependenciesLocal refFull = circularDependenciesDiscovery.findOrLoad(ref.getTarget());
 			refMap.put(refFull, refFull);
 		}
 		
-		I_ClassReferencesLocal full = cfrdFull.findOrLoad(c);
+		I_ClassDependenciesLocal full = circularDependenciesDiscovery.findOrLoad(c);
 		refMap.put(full, full);
-		Set<I_ClassParentsLocal> fullRefs = full.getReferencesLocal();
+		Set<I_ClassParentsLocal> fullRefs = full.getDependenciesLocal();
 		Set<I_ClassParentsLocal> fullRefsCopy = new HashSet<I_ClassParentsLocal>(fullRefs);
 		fullRefsCopy.removeAll(parents);
 		fullRefsCopy.removeAll(refsCopy);
 		for (I_ClassParentsLocal ref : fullRefsCopy) {
-			I_ClassReferencesLocal refFull = cfrdFull.findOrLoad(ref.getTarget());
+			I_ClassDependenciesLocal refFull = circularDependenciesDiscovery.findOrLoad(ref.getTarget());
 			refMap.put(refFull, refFull);
 		}
 		
@@ -134,21 +134,21 @@ public class ClassReferencesDiscovery {
 				List<String> parentNames = alias.getParentNames();
 				if (parentNames.size() == 0 || toRet.containsAll(parentNames)) {
 					Class<?> dc = alias.getTarget();
-					if (discoveryMemory.isFiltered(dc)) {
+					if (classFilter.isFiltered(dc)) {
 						if (!toRet.contains(depName)) {
 							toRet.add(depName);
 						}
 						it.remove();
 					} else {
-						I_ClassReferencesLocal local = refMap.get(alias);
+						I_ClassDependenciesLocal local = refMap.get(alias);
 						if (local == null) {
 							throw new NullPointerException("problem finding refs for " + depName 
 									+ " on " + c);
 						}
-						Set<String> refNames =  local.getReferenceNames();
+						Set<String> refNames =  local.getDependencyNames();
 						refNames = new HashSet<String>(refNames);
-						if (local.hasCircularReferences()) {
-							refNames.removeAll(local.getCircularReferenceNames());
+						if (local.hasCircularDependencies()) {
+							refNames.removeAll(local.getCircularDependenciesNames());
 						} 
 						refNames.remove(depName);
 						if (refNames.size() == 0 || toRet.containsAll(refNames)) {
@@ -165,16 +165,16 @@ public class ClassReferencesDiscovery {
 					for (I_ClassParentsLocal parent: parents) {
 						String parentName = parent.getName();
 						Class<?> pc = parent.getTarget();
-						if (discoveryMemory.isFiltered(pc)) {
+						if (classFilter.isFiltered(pc)) {
 							if (!toRet.contains(parentName)) {
 								 toRet.add(parentName);
 							 }
 						} else {
-							I_ClassReferencesLocal local = refMap.get(alias);
-							Set<String> refNames =  local.getReferenceNames();
+							I_ClassDependenciesLocal local = refMap.get(alias);
+							Set<String> refNames =  local.getDependencyNames();
 							refNames = new HashSet<String>(refNames);
-							if (local.hasCircularReferences()) {
-								refNames.removeAll(local.getCircularReferenceNames());
+							if (local.hasCircularDependencies()) {
+								refNames.removeAll(local.getCircularDependenciesNames());
 							}
 							refNames.remove(depName);
 							if (refNames.size() == 0 || toRet.containsAll(refNames)) {
@@ -212,12 +212,12 @@ public class ClassReferencesDiscovery {
 	public Set<I_Dependency> toDependencies(String topName) {
 		Map<String,DependencyMutant> refCounts = new HashMap<String,DependencyMutant>();
 		
-		Set<Entry<I_ClassAliasLocal, I_ClassReferencesLocal>> refs =  refMap.entrySet();
-		for (Entry<I_ClassAliasLocal,I_ClassReferencesLocal> e: refs) {
+		Set<Entry<I_ClassAliasLocal, I_ClassDependenciesLocal>> refs =  refMap.entrySet();
+		for (Entry<I_ClassAliasLocal,I_ClassDependenciesLocal> e: refs) {
 			I_ClassAliasLocal key = e.getKey();
 			String className = key.getName();
-			I_ClassReferencesLocal crs = e.getValue();
-			Set<I_ClassParentsLocal> classes = crs.getReferencesLocal();
+			I_ClassDependenciesLocal crs = e.getValue();
+			Set<I_ClassParentsLocal> classes = crs.getDependenciesLocal();
 			
 			DependencyMutant count = null;
 			if (isNotClassOrInnerClass(crs, topName)) {
@@ -276,8 +276,50 @@ public class ClassReferencesDiscovery {
 	 * @param className
 	 * @return
 	 */
-	public I_ClassReferencesLocal getReferences(I_ClassAliasLocal alias) {
+	public I_ClassDependenciesLocal getReferences(I_ClassAliasLocal alias) {
 		return refMap.get(alias);
+	}
+
+	public I_Tests4J_Log getLog() {
+		return log;
+	}
+
+	public I_ClassFilter getClassFilter() {
+		return classFilter;
+	}
+
+	public I_ClassDependenciesCache getCache() {
+		return cache;
+	}
+
+	public I_ClassDependenciesDiscovery getFullDependenciesDiscovery() {
+		return fullDependenciesDiscovery;
+	}
+
+	public I_ClassDependenciesDiscovery getCircularDependenciesDiscovery() {
+		return circularDependenciesDiscovery;
+	}
+
+	public void setLog(I_Tests4J_Log log) {
+		this.log = log;
+	}
+
+	public void setClassFilter(I_ClassFilter classFilter) {
+		this.classFilter = classFilter;
+	}
+
+	public void setCache(I_ClassDependenciesCache cache) {
+		this.cache = cache;
+	}
+
+	public void setFullDependenciesDiscovery(
+			I_ClassDependenciesDiscovery classDependenciesDiscovery) {
+		this.fullDependenciesDiscovery = classDependenciesDiscovery;
+	}
+
+	public void setCircularDependenciesDiscovery(
+			I_ClassDependenciesDiscovery circularDependenciesDiscovery) {
+		this.circularDependenciesDiscovery = circularDependenciesDiscovery;
 	}
 
 }

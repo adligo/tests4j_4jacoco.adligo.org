@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
+package org.adligo.tests4j_4jacoco.plugin.instrumentation;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,7 +10,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_ClassBytesInstrumenter;
+import org.adligo.tests4j_4jacoco.plugin.common.I_ClassInstrumenter;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.ClassProbesAdapter;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.StrategySelectionInstrumenter;
 import org.jacoco.core.internal.ContentTypeDetector;
 import org.jacoco.core.internal.Pack200Streams;
 import org.jacoco.core.internal.data.CRC64;
@@ -21,9 +23,9 @@ import org.objectweb.asm.ClassWriter;
 /**
  * Several APIs to instrument Java class definitions for coverage tracing.
  */
-public class ClassBytesInstrumenter implements I_ClassBytesInstrumenter {
+public class ClassInstrumenter implements I_ClassInstrumenter {
 
-	private final I_InstrumenterFactory instrumenterFactory;
+	private final I_ProbeInserterFactory instrumenterFactory;
 
 	private final SignatureRemover signatureRemover;
 	
@@ -33,7 +35,7 @@ public class ClassBytesInstrumenter implements I_ClassBytesInstrumenter {
 	 * @param runtime
 	 *            runtime used by the instrumented classes
 	 */
-	public ClassBytesInstrumenter(final I_InstrumenterFactory pInstrumenterFactory) {
+	public ClassInstrumenter(final I_ProbeInserterFactory pInstrumenterFactory) {
 		instrumenterFactory = pInstrumenterFactory;
 		this.signatureRemover = new SignatureRemover();
 	}

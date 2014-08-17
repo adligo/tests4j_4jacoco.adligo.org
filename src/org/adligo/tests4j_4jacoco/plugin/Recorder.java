@@ -8,18 +8,19 @@ import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageRecorder;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
+import org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory;
+import org.adligo.tests4j_4jacoco.plugin.common.I_Runtime;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.coverage.LazyPackageCoverageFactory;
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_Runtime;
 
 public class Recorder implements I_Tests4J_CoverageRecorder {
 	protected I_Tests4J_Log reporter;
-	protected Tests4J_4JacocoMemory memory;
+	protected I_CoveragePluginMemory memory;
 	private boolean root;
 	private I_Runtime runtime;
 	private boolean jacocoInitOnFirstRecording = true;
 	
-	public Recorder(Tests4J_4JacocoMemory pMemory, I_Tests4J_Log pLog) {
+	public Recorder(I_CoveragePluginMemory pMemory, I_Tests4J_Log pLog) {
 		memory = pMemory;
 		reporter = pLog;
 		runtime = memory.getRuntime();
@@ -90,7 +91,7 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 		*/
 		I_ProbesDataStore executionData = runtime.end(root);
 		
-		return LazyPackageCoverageFactory.create(executionData, memory.getInstrumentedClassLoader(), memory.getCachedClassLoader());
+		return LazyPackageCoverageFactory.create(executionData, memory);
 	}
 
 

@@ -3,6 +3,10 @@ package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
 import org.adligo.tests4j.run.Tests4J_UncaughtExceptionHandler;
 import org.adligo.tests4j_4jacoco.plugin.asm.ApiVersion;
 import org.adligo.tests4j_4jacoco.plugin.asm.BytecodeInjectionDebuger;
+import org.adligo.tests4j_4jacoco.plugin.common.I_ClassInstrumenterFactory;
+import org.adligo.tests4j_4jacoco.plugin.common.I_ObtainProbesStrategy;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.AbstractProbeInserter;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_ProbeInserterFactory;
 import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -17,7 +21,7 @@ public class StrategySelectionInstrumenter extends ClassVisitor
 
 
 		private I_ObtainProbesStrategy probeArrayStrategy;
-		private I_InstrumenterFactory instrumenterFactory;
+		private I_ProbeInserterFactory instrumenterFactory;
 		private String className;
 
 		private boolean withFrames;
@@ -36,7 +40,7 @@ public class StrategySelectionInstrumenter extends ClassVisitor
 		 *            instrumented class
 		 */
 		public StrategySelectionInstrumenter(final long id,
-				final I_InstrumenterFactory pInstrumenterFactory,
+				final I_ProbeInserterFactory pInstrumenterFactory,
 				final ClassVisitor cv) {
 			super(ApiVersion.VERSION, cv);
 			this.id = id;

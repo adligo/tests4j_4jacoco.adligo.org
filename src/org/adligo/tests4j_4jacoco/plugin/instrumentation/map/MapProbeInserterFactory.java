@@ -1,19 +1,17 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation.map;
 
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.AbstractProbeInserter;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.ClassBytesInstrumenter;
+import org.adligo.tests4j_4jacoco.plugin.common.I_ObtainProbesStrategy;
+import org.adligo.tests4j_4jacoco.plugin.common.I_ProbeDataAccessorFactory;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.AbstractProbeInserter;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_ProbeInserterFactory;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassInstrumentationInfo;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_InstrumenterFactory;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ObtainProbesStrategy;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.ObtainProbesStrategyType;
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_ClassBytesInstrumenter;
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_ProbeDataAccessorFactory;
 import org.objectweb.asm.MethodVisitor;
 
-public class MapInstrumenterFactory implements I_InstrumenterFactory {
+public class MapProbeInserterFactory implements I_ProbeInserterFactory {
 	private I_ProbeDataAccessorFactory accessorFactory;
 
-	public MapInstrumenterFactory(I_ProbeDataAccessorFactory pAccessorFactory) {
+	public MapProbeInserterFactory(I_ProbeDataAccessorFactory pAccessorFactory) {
 		accessorFactory = pAccessorFactory;
 	}
 	
@@ -22,7 +20,6 @@ public class MapInstrumenterFactory implements I_InstrumenterFactory {
 		return accessorFactory;
 	}
 
-	@Override
 	public I_ObtainProbesStrategy createObtainProbesStrategy(
 			ObtainProbesStrategyType type, I_ClassInstrumentationInfo classInfo) {
 		
@@ -34,16 +31,9 @@ public class MapInstrumenterFactory implements I_InstrumenterFactory {
 		}
 	}
 
-
-	@Override
 	public AbstractProbeInserter createProbeInserter(int access, String desc,
 			MethodVisitor mv, I_ObtainProbesStrategy arrayStrategy) {
 		return new MapProbeInserter(access, desc, mv, arrayStrategy);
 	}
 
-
-	@Override
-	public I_ClassBytesInstrumenter createInstrumenter() {
-		return  new ClassBytesInstrumenter(this);
-	}
 }

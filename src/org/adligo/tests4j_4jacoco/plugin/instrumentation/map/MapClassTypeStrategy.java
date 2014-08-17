@@ -1,12 +1,12 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation.map;
 
 import org.adligo.tests4j_4jacoco.plugin.asm.BytecodeInjectionDebuger;
-import org.adligo.tests4j_4jacoco.plugin.asm.I_StackHelper;
 import org.adligo.tests4j_4jacoco.plugin.asm.StackHelper;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.AbstractObtainProbesStrategy;
+import org.adligo.tests4j_4jacoco.plugin.common.I_ObtainProbesStrategy;
+import org.adligo.tests4j_4jacoco.plugin.common.I_ProbeDataAccessorFactory;
+import org.adligo.tests4j_4jacoco.plugin.common.I_StackHelper;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.AbstractObtainProbesStrategy;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassInstrumentationInfo;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ObtainProbesStrategy;
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_ProbeDataAccessorFactory;
 import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;

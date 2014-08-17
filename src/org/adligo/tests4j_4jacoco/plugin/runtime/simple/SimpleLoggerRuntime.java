@@ -5,10 +5,10 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.adligo.tests4j_4jacoco.plugin.common.I_LoggerDataAccessorFactory;
+import org.adligo.tests4j_4jacoco.plugin.common.I_Runtime;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStoreAdaptor;
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_LoggerDataAccessorFactory;
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_Runtime;
 import org.jacoco.core.internal.instr.InstrSupport;
 
 public class SimpleLoggerRuntime implements I_Runtime {

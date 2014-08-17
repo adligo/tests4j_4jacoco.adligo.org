@@ -14,7 +14,6 @@ public class LazyPackageCoverageInput {
 	 */
 	private List<String> classNames = new ArrayList<String>();
 	private I_ProbesDataStore probeData;
-	private I_CachedClassBytesClassLoader classLoader;
 	
 	public String getPackageName() {
 		return packageName;
@@ -34,12 +33,6 @@ public class LazyPackageCoverageInput {
 	}
 	public void setProbeData(I_ProbesDataStore probeData) {
 		this.probeData = probeData;
-	}
-	public I_CachedClassBytesClassLoader getClassLoader() {
-		return classLoader;
-	}
-	public void setClassLoader(I_CachedClassBytesClassLoader classLoader) {
-		this.classLoader = classLoader;
 	}
 	
 }

@@ -16,8 +16,11 @@ import org.adligo.tests4j.models.shared.coverage.CoverageUnits;
 import org.adligo.tests4j.models.shared.coverage.I_CoverageUnits;
 import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
 import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage;
+import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageMutant;
+import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j_4jacoco.plugin.analysis.common.CoverageAnalyzer;
+import org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.analysis.ISourceFileCoverage;
@@ -44,11 +47,14 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 	private CoverageUnitContinerMutant countTotals = new CoverageUnitContinerMutant();
 	private CoverageUnitContinerMutant counts = new CoverageUnitContinerMutant();
 	private I_CachedClassBytesClassLoader classLoader;
+	private I_Tests4J_Log log;
 	
-	public LazyPackageCoverage(LazyPackageCoverageInput input) {
+	public LazyPackageCoverage(LazyPackageCoverageInput input, I_CoveragePluginMemory memory) {
 		packageName = input.getPackageName();
 		probeData = input.getProbeData();
-		classLoader = input.getClassLoader();
+		classLoader = memory.getCachedClassLoader();
+		
+		log = memory.getLog();
 		
 		Set<String> subPackages = new HashSet<String>();
 		
@@ -69,11 +75,54 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 		
 		for (String subPkgName: subPackages) {
 			input.setPackageName(subPkgName);
-			children.add(new LazyPackageCoverage(input));
+			children.add(new LazyPackageCoverage(input, memory));
 		}
 	}
 	
-	private  Map<String,I_SourceFileCoverage> getOrLoadSourceFileCoverage() {
+	private I_SourceFileCoverage getOrLoadSourceFileCoverage(String classSimpleName) {
+		I_SourceFileCoverage toRet = sourceCoverage.get(classSimpleName);
+		if (toRet != null) {
+			return toRet;
+		}
+		CoverageBuilder coverageBuilder = new CoverageBuilder();
+		CoverageAnalyzer analyzer = new CoverageAnalyzer(probeData, coverageBuilder);
+		
+		String fullName = packageName  + "." + classSimpleName;
+		
+		try {	
+			Class<?> c =  Class.forName(fullName);
+			if (c.isInterface()) {
+				SourceFileCoverageMutant sfcm = new SourceFileCoverageMutant();
+				sfcm.setClassName(classSimpleName);
+				sfcm.setCoverageUnits(new CoverageUnits(0));
+				sfcm.setCoveredCoverageUnits(new CoverageUnits(0));
+				sourceCoverage.put(classSimpleName, sfcm);
+				return sfcm;
+			}
+			analyzer.analyzeClass(classLoader.getCachedBytesStream(fullName), fullName);
+		} catch (ClassNotFoundException x) {
+			log.onThrowable(x);
+			return null;
+		} catch (IOException x) {
+			log.onThrowable(x);
+			return null;
+		}
+		
+		Collection<ISourceFileCoverage> sourceCoverages = coverageBuilder.getSourceFiles();
+		if (sourceCoverages.size() != 1) {
+			throw new RuntimeException("problem loading coverage for " + fullName);
+		}
+		ISourceFileCoverage sfc = sourceCoverages.iterator().next();
+		String shortName = sfc.getName();
+		int lastDot = shortName.lastIndexOf(".");
+		shortName = shortName.substring(0, lastDot);
+		
+		LazySourceFileCoverage lsfc = new LazySourceFileCoverage(sfc);
+		sourceCoverage.put(shortName, lsfc);
+		return lsfc;
+		
+	}
+	private  Map<String,I_SourceFileCoverage> getOrLoadAllCoverage() {
 		if (loadedAllSourceFiles.get()) {
 			return sourceCoverage;
 		} else {
@@ -84,11 +133,13 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 			CoverageAnalyzer analyzer = new CoverageAnalyzer(probeData, coverageBuilder);
 			
 			for (String fileName: classNames) {
-				String fullName = packageName  + "." + fileName;
-				try {
-					analyzer.analyzeClass(classLoader.getCachedBytesStream(fullName), fullName);
-				} catch (IOException x) {
-					x.printStackTrace();
+				if (!sourceCoverage.containsKey(fileName)) {
+					String fullName = packageName  + "." + fileName;
+					try {	
+						analyzer.analyzeClass(classLoader.getCachedBytesStream(fullName), fullName);
+					} catch (IOException x) {
+						log.onThrowable(x);
+					}
 				}
 			}
 			Collection<ISourceFileCoverage> sourceCoverages = coverageBuilder.getSourceFiles();
@@ -98,19 +149,20 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 				shortName = shortName.substring(0, lastDot);
 				
 				LazySourceFileCoverage lsfc = new LazySourceFileCoverage(sfc);
-				cus = cus + lsfc.getCoverageUnits().get();
-				covered_cus = covered_cus + lsfc.getCoveredCoverageUnits().get();
-				
 				sourceCoverage.put(shortName, lsfc);
 			}
-			
+			Collection<I_SourceFileCoverage> entries = sourceCoverage.values();
+			for (I_SourceFileCoverage sfc: entries) {
+				cus = cus + sfc.getCoverageUnits().get();
+				covered_cus = covered_cus + sfc.getCoveredCoverageUnits().get();
+			}
 			counts.setCoverageUnits(new CoverageUnits(cus));
 			counts.setCoveredCoverageUnits(new CoverageUnits(covered_cus));
 			int total_cus = cus;
 			int total_covered_cus = covered_cus;
 			
 			for (LazyPackageCoverage child: children) {
-				child.getOrLoadSourceFileCoverage();
+				child.getOrLoadAllCoverage();
 				total_cus = total_cus + child.getCoverageUnits().get();
 				total_covered_cus = total_covered_cus + child.getCoveredCoverageUnits().get();
 			}
@@ -122,25 +174,25 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 	
 	@Override
 	public I_CoverageUnits getCoverageUnits() {
-		getOrLoadSourceFileCoverage();
+		getOrLoadAllCoverage();
 		return counts.getCoverageUnits();
 	}
 
 	@Override
 	public I_CoverageUnits getCoveredCoverageUnits() {
-		getOrLoadSourceFileCoverage();
+		getOrLoadAllCoverage();
 		return counts.getCoveredCoverageUnits();
 	}
 
 	@Override
 	public BigDecimal getPercentageCovered() {
-		getOrLoadSourceFileCoverage();
+		getOrLoadAllCoverage();
 		return counts.getPercentageCovered();
 	}
 
 	@Override
 	public double getPercentageCoveredDouble() {
-		getOrLoadSourceFileCoverage();
+		getOrLoadAllCoverage();
 		return counts.getPercentageCoveredDouble();
 	}
 
@@ -151,8 +203,7 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 
 	@Override
 	public I_SourceFileCoverage getCoverage(String sourceFileName) {
-		getOrLoadSourceFileCoverage();
-		return sourceCoverage.get(sourceFileName);
+		return getOrLoadSourceFileCoverage(sourceFileName);
 	}
 
 	@Override

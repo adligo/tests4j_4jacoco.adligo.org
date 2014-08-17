@@ -79,9 +79,9 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassParents");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassParentsCache");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal");
-		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassReferences");
-		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassReferencesCache");
-		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassReferencesLocal");
+		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassDependencies");
+		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache");
+		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_Dependency");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_DependencyGroup");
 		
@@ -106,6 +106,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Controls");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_CoveragePlugin");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageRecorder");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_CoveragePluginParams");
 		
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Delegate");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_DelegateFactory");
@@ -168,20 +169,25 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_MethodProbesVisitor");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ProbeIdGenerator");
 		
-		toRet.add("org.adligo.tests4j_4jacoco.plugin.runtime.I_ProbeDataAccessorFactory");
-		
-		toRet.add("org.adligo.tests4j_4jacoco.plugin.discovery.I_DiscoveryMemory");
-		
-		toRet.add("org.adligo.tests4j_4jacoco.plugin.asm.I_StackHelper");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_ProbeDataAccessorFactory");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_StackHelper");
 		
 		for (String clazz: toRet) {
-			try {
-				//actually load all of the classes using the default classloader here
-				Class.forName(clazz);
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
-			}
+			checkClass(clazz);
 		}
 		return Collections.unmodifiableSet(toRet);
+	}
+
+	/**
+	 * extracted so it can be tested for the runtime exception
+	 * @param clazz
+	 */
+	public static void checkClass(String clazz) {
+		try {
+			//actually load all of the classes using the default classloader here
+			Class.forName(clazz, false, ClassLoader.getSystemClassLoader());
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

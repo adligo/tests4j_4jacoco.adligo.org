@@ -1,6 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
 
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_ProbeDataAccessorFactory;
+import org.adligo.tests4j_4jacoco.plugin.common.I_ProbeDataAccessorFactory;
 
 /**
  * Information about the class getting instrumented

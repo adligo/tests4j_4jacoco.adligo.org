@@ -8,15 +8,17 @@ import java.util.Set;
 
 import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
+import org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 
 public class LazyPackageCoverageFactory {
 
-	public static List<I_PackageCoverage> create(I_ProbesDataStore data, I_CachedClassBytesClassLoader cc, I_CachedClassBytesClassLoader classLoader) {
+	public static List<I_PackageCoverage> create(I_ProbesDataStore data, I_CoveragePluginMemory memory) {
 		List<I_PackageCoverage> toRet = new ArrayList<I_PackageCoverage>();
 		
 		Set<String> allPackages  = new HashSet<String>();
-		List<String> classNames = cc.getAllCachedClasses();
+		I_CachedClassBytesClassLoader classLoader = memory.getCachedClassLoader();
+		List<String> classNames = classLoader.getAllCachedClasses();
 		
 		for (String className: classNames) {
 			int lastDot = className.lastIndexOf(".");
@@ -42,8 +44,7 @@ public class LazyPackageCoverageFactory {
 			input.setClassNames(classNames);
 			input.setProbeData(data);
 			input.setPackageName(pkg);
-			input.setClassLoader(classLoader);
-			LazyPackageCoverage toAdd = new LazyPackageCoverage(input);
+			LazyPackageCoverage toAdd = new LazyPackageCoverage(input, memory);
 			toRet.add(toAdd);
 		}
 		return toRet;

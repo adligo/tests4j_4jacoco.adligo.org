@@ -1,7 +1,5 @@
-package org.adligo.tests4j_4jacoco.plugin.runtime;
+package org.adligo.tests4j_4jacoco.plugin.common;
 
-import org.adligo.tests4j_4jacoco.plugin.asm.I_StackHelper;
-import org.jacoco.core.runtime.IExecutionDataAccessorGenerator;
 import org.objectweb.asm.MethodVisitor;
 
 /**

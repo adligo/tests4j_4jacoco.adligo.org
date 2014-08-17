@@ -6,12 +6,11 @@ import java.util.Set;
 import org.adligo.tests4j.models.shared.common.ClassMethods;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
-import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 
 
-public class ReferenceTrackingClassVisitor extends ClassVisitor {
+public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClassVisitor {
 	private I_Tests4J_Log log;
 	private Set<String> classReferences;
 	

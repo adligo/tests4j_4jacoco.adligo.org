@@ -1,11 +1,11 @@
-package org.adligo.tests4j_4jacoco.plugin.runtime.simple;
+package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
 
 import org.adligo.tests4j_4jacoco.plugin.asm.BytecodeInjectionDebuger;
 import org.adligo.tests4j_4jacoco.plugin.asm.ClassCoverageDataParamFactory;
-import org.adligo.tests4j_4jacoco.plugin.asm.I_StackHelper;
 import org.adligo.tests4j_4jacoco.plugin.asm.StackHelper;
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_LoggerDataAccessorFactory;
-import org.adligo.tests4j_4jacoco.plugin.runtime.I_ProbeDataAccessorFactory;
+import org.adligo.tests4j_4jacoco.plugin.common.I_LoggerDataAccessorFactory;
+import org.adligo.tests4j_4jacoco.plugin.common.I_ProbeDataAccessorFactory;
+import org.adligo.tests4j_4jacoco.plugin.common.I_StackHelper;
 import org.jacoco.core.runtime.IExecutionDataAccessorGenerator;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;

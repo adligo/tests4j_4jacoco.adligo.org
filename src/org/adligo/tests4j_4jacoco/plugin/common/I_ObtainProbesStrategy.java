@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
+package org.adligo.tests4j_4jacoco.plugin.common;
 
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;

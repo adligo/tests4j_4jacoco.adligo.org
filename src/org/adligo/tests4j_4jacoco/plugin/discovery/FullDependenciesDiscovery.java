@@ -9,13 +9,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.adligo.tests4j.models.shared.dependency.ClassAliasLocal;
-import org.adligo.tests4j.models.shared.dependency.ClassReferencesLocal;
-import org.adligo.tests4j.models.shared.dependency.ClassReferencesLocalMutant;
+import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocal;
+import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocalMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassAliasLocal;
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
-import org.adligo.tests4j.models.shared.dependency.I_ClassReferencesCache;
-import org.adligo.tests4j.models.shared.dependency.I_ClassReferencesLocal;
+import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache;
+import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 
@@ -36,28 +36,22 @@ import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
  * @author scott
  *
  */
-public class ClassPreCirclesReferencesDiscovery {
+public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 	private I_Tests4J_Log log;
 	private I_ClassFilter classFilter;
-	private I_ClassReferencesCache preCirclesCache;
+	private I_ClassDependenciesCache cache;
 	/**
 	 * this contains the initial references
 	 */
-	private Map<I_ClassAliasLocal, I_ClassReferencesLocal> refMap = new HashMap<I_ClassAliasLocal,I_ClassReferencesLocal>();
+	private Map<I_ClassAliasLocal, I_ClassDependenciesLocal> refMap = new HashMap<I_ClassAliasLocal,I_ClassDependenciesLocal>();
 	private Set<I_ClassParentsLocal> initalRefsToIdentify = new HashSet<I_ClassParentsLocal>();
 	private Set<I_ClassParentsLocal> fullRefsFound = new HashSet<I_ClassParentsLocal>();
-	private ClassInitialReferencesDiscovery cird;
+	private I_ClassDependenciesDiscovery initialDependenciesDiscovery;
 	
-	public ClassPreCirclesReferencesDiscovery(I_CachedClassBytesClassLoader pClassLoader,
-			I_Tests4J_Log pLog,  I_DiscoveryMemory dc) {
-		log = pLog;
-		classFilter = dc;
-		preCirclesCache = dc.getPreCirclesReferencesCache();
-		cird = new ClassInitialReferencesDiscovery(pClassLoader, pLog, dc);
-	}
+	public FullDependenciesDiscovery() {}
 	
-	public I_ClassReferencesLocal findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
-		if (log.isLogEnabled(ClassPreCirclesReferencesDiscovery.class)) {
+	public I_ClassDependenciesLocal findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
+		if (log.isLogEnabled(FullDependenciesDiscovery.class)) {
 			log.log(".discoverAndLoad " + c.getName());
 		}
 		
@@ -66,40 +60,40 @@ public class ClassPreCirclesReferencesDiscovery {
 		initalRefsToIdentify.clear();
 		fullRefsFound.clear();
 		
-		I_ClassReferencesLocal crefs =  preCirclesCache.getReferences(className);
+		I_ClassDependenciesLocal crefs =  cache.getDependencies(className);
 		if (crefs != null) {
 			return crefs;
 		}
 		if (classFilter.isFiltered(c)) {
-			I_ClassReferencesLocal toRet = new ClassReferencesLocal(cird.findOrLoad(c));
-			preCirclesCache.putReferencesIfAbsent(toRet);
+			I_ClassDependenciesLocal toRet = new ClassDependenciesLocal(initialDependenciesDiscovery.findOrLoad(c));
+			cache.putDependenciesIfAbsent(toRet);
 			return toRet;
 		}
-		I_ClassReferencesLocal initalRefs = cird.findOrLoad(c);
+		I_ClassDependenciesLocal initalRefs = initialDependenciesDiscovery.findOrLoad(c);
 		refMap.put(new ClassAliasLocal(initalRefs), initalRefs);
 		
 		//ok get the parent inital references
 		List<I_ClassParentsLocal> parents = initalRefs.getParentsLocal();
 		for (I_ClassParentsLocal parent: parents) {
 			Class<?> pc = parent.getTarget();
-			I_ClassReferencesLocal parentRefs = cird.findOrLoad(pc);
+			I_ClassDependenciesLocal parentRefs = initialDependenciesDiscovery.findOrLoad(pc);
 			refMap.put(new ClassAliasLocal(parent), parentRefs);
 			
-			I_ClassReferencesLocal prefs =  preCirclesCache.getReferences(className);
+			I_ClassDependenciesLocal prefs =  cache.getDependencies(className);
 			if (prefs != null) {
 				fullRefsFound.add(prefs);
 				refMap.put(prefs, prefs);
 			} else if (classFilter.isFiltered(pc)) {
-				prefs = new ClassReferencesLocal(cird.findOrLoad(pc));
-				preCirclesCache.putReferencesIfAbsent(prefs);
+				prefs = new ClassDependenciesLocal(initialDependenciesDiscovery.findOrLoad(pc));
+				cache.putDependenciesIfAbsent(prefs);
 				fullRefsFound.add(prefs);
 				refMap.put(prefs, prefs);
 			} else {
 				fill(parentRefs);
 			}
 		}
-		ClassReferencesLocal toRet = fill(initalRefs);
-		preCirclesCache.putReferencesIfAbsent(toRet);
+		ClassDependenciesLocal toRet = fill(initalRefs);
+		cache.putDependenciesIfAbsent(toRet);
 		return toRet;
 	}
 
@@ -117,11 +111,11 @@ public class ClassPreCirclesReferencesDiscovery {
 	 * @throws IOException 
 	 * @throws ClassNotFoundException 
 	 */
-	private ClassReferencesLocal fill(I_ClassReferencesLocal initalRefs) throws ClassNotFoundException, IOException {
+	private ClassDependenciesLocal fill(I_ClassDependenciesLocal initalRefs) throws ClassNotFoundException, IOException {
 	
 		
 		//should include the parents at this point in the references
-		Set<I_ClassParentsLocal> refs =   initalRefs.getReferencesLocal();
+		Set<I_ClassParentsLocal> refs =   initalRefs.getDependenciesLocal();
 		if (refs != null) {
 			for (I_ClassParentsLocal ref: refs){
 				initalRefsToIdentify.add(ref);
@@ -130,19 +124,19 @@ public class ClassPreCirclesReferencesDiscovery {
 		while (initalRefsToIdentify.size() >= 1) {
 			I_ClassParentsLocal ref = initalRefsToIdentify.iterator().next();
 			
-			I_ClassReferencesLocal cached = preCirclesCache.getReferences(ref.getName());
+			I_ClassDependenciesLocal cached = cache.getDependencies(ref.getName());
 			if (cached != null) {
 				refMap.put(ref, cached);
 				fullRefsFound.add(ref);
 				initalRefsToIdentify.remove(0);
 			}
 			if (cached == null) {
-				I_ClassReferencesLocal initalDelRefs = refMap.get(ref);
+				I_ClassDependenciesLocal initalDelRefs = refMap.get(ref);
 				if (initalDelRefs == null) {
-					initalDelRefs = cird.findOrLoad(ref.getTarget());
+					initalDelRefs = initialDependenciesDiscovery.findOrLoad(ref.getTarget());
 					refMap.put(initalDelRefs, initalDelRefs);
 				}
-				Set<I_ClassParentsLocal> delRefsRefs = initalDelRefs.getReferencesLocal();
+				Set<I_ClassParentsLocal> delRefsRefs = initalDelRefs.getDependenciesLocal();
 				if (delRefsRefs != null) {
 					for (I_ClassParentsLocal cpl: delRefsRefs) {
 						if (!fullRefsFound.contains(cpl)) {
@@ -162,15 +156,48 @@ public class ClassPreCirclesReferencesDiscovery {
 	 * refMap;
 	 * @return
 	 */
-	private ClassReferencesLocal build(I_ClassReferencesLocal initalRefs) {
-		ClassReferencesLocalMutant crlm = new ClassReferencesLocalMutant(initalRefs);
+	private ClassDependenciesLocal build(I_ClassDependenciesLocal initalRefs) {
+		ClassDependenciesLocalMutant crlm = new ClassDependenciesLocalMutant(initalRefs);
 		
-		Set<Entry<I_ClassAliasLocal, I_ClassReferencesLocal>> entries = refMap.entrySet();
-		for (Entry<I_ClassAliasLocal, I_ClassReferencesLocal> e: entries) {
-			I_ClassReferencesLocal refs = e.getValue();
-			crlm.addReferences(refs.getReferencesLocal());
+		Set<Entry<I_ClassAliasLocal, I_ClassDependenciesLocal>> entries = refMap.entrySet();
+		for (Entry<I_ClassAliasLocal, I_ClassDependenciesLocal> e: entries) {
+			I_ClassDependenciesLocal refs = e.getValue();
+			crlm.addReferences(refs.getDependenciesLocal());
 		}
-		return new ClassReferencesLocal(crlm);
+		return new ClassDependenciesLocal(crlm);
+	}
+
+	public I_Tests4J_Log getLog() {
+		return log;
+	}
+
+	public I_ClassFilter getClassFilter() {
+		return classFilter;
+	}
+
+	public I_ClassDependenciesCache getCache() {
+		return cache;
+	}
+
+	public I_ClassDependenciesDiscovery getInitialDependenciesDiscovery() {
+		return initialDependenciesDiscovery;
+	}
+
+	public void setLog(I_Tests4J_Log log) {
+		this.log = log;
+	}
+
+	public void setClassFilter(I_ClassFilter classFilter) {
+		this.classFilter = classFilter;
+	}
+
+	public void setCache(I_ClassDependenciesCache cache) {
+		this.cache = cache;
+	}
+
+	public void setInitialDependenciesDiscovery(
+			I_ClassDependenciesDiscovery classDependenciesDiscovery) {
+		this.initialDependenciesDiscovery = classDependenciesDiscovery;
 	}
 
 }

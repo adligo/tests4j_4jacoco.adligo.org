@@ -1,4 +1,4 @@
-package org.adligo.tests4j_4jacoco.plugin.runtime;
+package org.adligo.tests4j_4jacoco.plugin.common;
 
 /**
  * Implementations provide a way to pass around coverage data

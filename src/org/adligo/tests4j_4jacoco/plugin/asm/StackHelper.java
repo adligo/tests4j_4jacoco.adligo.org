@@ -1,5 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin.asm;
 
+import org.adligo.tests4j_4jacoco.plugin.common.I_StackHelper;
+
 
 public class StackHelper implements I_StackHelper {
 	public static final String STACK_SIZE_CAN_T_BE_LESS_THAN_0 = "Stack Size can't be less than 0";

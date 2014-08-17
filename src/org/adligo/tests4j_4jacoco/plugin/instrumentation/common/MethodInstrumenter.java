@@ -3,6 +3,7 @@ package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
 import org.adligo.tests4j_4jacoco.plugin.asm.ApiVersion;
 import org.adligo.tests4j_4jacoco.plugin.asm.BytecodeInjectionDebuger;
 import org.adligo.tests4j_4jacoco.plugin.asm.StackHelper;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.AbstractProbeInserter;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.jacoco.core.internal.flow.IFrame;
 import org.jacoco.core.internal.flow.LabelInfo;

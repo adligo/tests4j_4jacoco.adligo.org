@@ -1,6 +1,7 @@
-package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
+package org.adligo.tests4j_4jacoco.plugin.instrumentation;
 
 import org.adligo.tests4j_4jacoco.plugin.asm.ApiVersion;
+import org.adligo.tests4j_4jacoco.plugin.common.I_ObtainProbesStrategy;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
