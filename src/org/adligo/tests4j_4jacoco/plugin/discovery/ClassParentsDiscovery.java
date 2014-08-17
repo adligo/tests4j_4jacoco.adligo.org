@@ -33,7 +33,8 @@ public class ClassParentsDiscovery implements I_ClassParentsDiscovery {
 	
 	public ClassParentsDiscovery(){}
 	
-	/* (non-Javadoc)
+	/** 
+	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
 	 * @see org.adligo.tests4j_4jacoco.plugin.discovery.I_ClassParentsDiscovery#findOrLoad(java.lang.Class)
 	 */
 	@Override
@@ -58,6 +59,13 @@ public class ClassParentsDiscovery implements I_ClassParentsDiscovery {
 		return toRet;
 	}
 	
+	/**
+	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
+	 * @param cpm
+	 * @param c
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	private void doInterfaces(ClassParentsLocalMutant cpm, Class<?> c) throws IOException, ClassNotFoundException {
 		Class<?> [] interfaces =  c.getInterfaces();
 		
@@ -75,7 +83,13 @@ public class ClassParentsDiscovery implements I_ClassParentsDiscovery {
 	}
 
 	
-	
+	/**
+	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
+	 * @param cpm
+	 * @param c
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	private void doSuperclasses(ClassParentsLocalMutant cpm, Class<?> c) throws IOException, ClassNotFoundException {
 		Stack<Class<?>> parents = new Stack<Class<?>>();
 		Class<?> parent = c.getSuperclass();
@@ -95,6 +109,12 @@ public class ClassParentsDiscovery implements I_ClassParentsDiscovery {
 			}
 		}
 	}
+	/**
+	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
+	 * @param c
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
 	private void loadClassBytes(Class<?> c)
 			throws ClassNotFoundException, IOException {
 		
@@ -110,6 +130,7 @@ public class ClassParentsDiscovery implements I_ClassParentsDiscovery {
 				if (in == null) {
 					log.log("Error loading class " + resourceName);
 				} else {
+					//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
 					classLoader.addCache(in, className);
 				}
 			}

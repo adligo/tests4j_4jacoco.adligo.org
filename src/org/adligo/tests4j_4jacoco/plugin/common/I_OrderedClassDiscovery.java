@@ -13,7 +13,8 @@ import java.util.List;
 public interface I_OrderedClassDiscovery {
 
 	/**
-	 * @diagram_sync with Overview.seq on 8/14/2014
+	 * @diagram_sync with InstrumentationOverview.seq on 8/17/2014
+	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
 	 * 
 	 * @param c
 	 * @return A ordered list of class names, where the following conditions 

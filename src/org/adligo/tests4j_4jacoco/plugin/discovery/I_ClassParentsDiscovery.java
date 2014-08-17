@@ -9,6 +9,8 @@ public interface I_ClassParentsDiscovery {
 	/**
 	 * returns a ordered list of class names
 	 * that 
+	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
+	 * 
 	 * @param c
 	 * @return
 	 * @throws IOException

@@ -7,6 +7,14 @@ import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
+/**
+ * This class reads java byte code scanning for 
+ * java types.
+ * 
+ * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
+ * @author scott
+ *
+ */
 public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 
 	private Set<String> classReferences;

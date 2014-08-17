@@ -50,6 +50,10 @@ public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 	
 	public FullDependenciesDiscovery() {}
 	
+	/**
+	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
+	 * @see I_ClassDependenciesDiscovery#findOrLoad(Class)
+	 */
 	public I_ClassDependenciesLocal findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
 		if (log.isLogEnabled(FullDependenciesDiscovery.class)) {
 			log.log(".discoverAndLoad " + c.getName());
@@ -72,6 +76,22 @@ public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 		I_ClassDependenciesLocal initalRefs = initialDependenciesDiscovery.findOrLoad(c);
 		refMap.put(new ClassAliasLocal(initalRefs), initalRefs);
 		
+		fillRefMapWithParents(className, initalRefs);
+		ClassDependenciesLocal toRet = fillRefMap(initalRefs);
+		cache.putDependenciesIfAbsent(toRet);
+		return toRet;
+	}
+
+	/**
+	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
+	 * @param className
+	 * @param initalRefs
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	protected void fillRefMapWithParents(String className,
+			I_ClassDependenciesLocal initalRefs) throws IOException,
+			ClassNotFoundException {
 		//ok get the parent inital references
 		List<I_ClassParentsLocal> parents = initalRefs.getParentsLocal();
 		for (I_ClassParentsLocal parent: parents) {
@@ -89,12 +109,9 @@ public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 				fullRefsFound.add(prefs);
 				refMap.put(prefs, prefs);
 			} else {
-				fill(parentRefs);
+				fillRefMap(parentRefs);
 			}
 		}
-		ClassDependenciesLocal toRet = fill(initalRefs);
-		cache.putDependenciesIfAbsent(toRet);
-		return toRet;
 	}
 
 	/**
@@ -107,11 +124,12 @@ public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 	 * delegateReferences
 	 * it also may add initial references to the refMap
 	 * 
+	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
 	 * @param initalRefs
 	 * @throws IOException 
 	 * @throws ClassNotFoundException 
 	 */
-	private ClassDependenciesLocal fill(I_ClassDependenciesLocal initalRefs) throws ClassNotFoundException, IOException {
+	private ClassDependenciesLocal fillRefMap(I_ClassDependenciesLocal initalRefs) throws ClassNotFoundException, IOException {
 	
 		
 		//should include the parents at this point in the references
@@ -148,15 +166,16 @@ public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 			initalRefsToIdentify.removeAll(refMap.keySet());
 		}
 		
-		return build(initalRefs);
+		return buildModel(initalRefs);
 	}
 	
 	/**
-	 * ok at this point all leaf references are either in 
-	 * refMap;
+	 * All leaf references are in the refMap,
+	 * this method puts them in the ClassDependenciesLocal returned.
+	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
 	 * @return
 	 */
-	private ClassDependenciesLocal build(I_ClassDependenciesLocal initalRefs) {
+	private ClassDependenciesLocal buildModel(I_ClassDependenciesLocal initalRefs) {
 		ClassDependenciesLocalMutant crlm = new ClassDependenciesLocalMutant(initalRefs);
 		
 		Set<Entry<I_ClassAliasLocal, I_ClassDependenciesLocal>> entries = refMap.entrySet();

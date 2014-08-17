@@ -48,6 +48,9 @@ public class CircularDependenciesDiscovery implements I_ClassDependenciesDiscove
 	
 	public CircularDependenciesDiscovery() {}
 	
+	/**
+	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
+	 */
 	public I_ClassDependenciesLocal findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
 		if (log.isLogEnabled(CircularDependenciesDiscovery.class)) {
 			log.log(".discoverAndLoad " + c.getName());
@@ -82,6 +85,11 @@ public class CircularDependenciesDiscovery implements I_ClassDependenciesDiscove
 	}
 
 
+	/**
+	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
+	 * @param preCircleRefs
+	 * @return
+	 */
 	private ClassDependenciesLocal calcCircles(I_ClassDependenciesLocal preCircleRefs) {
 		ClassDependenciesLocalMutant crlm = new ClassDependenciesLocalMutant(preCircleRefs);
 		Collection<I_ClassDependenciesLocal> entries = refMap.values();

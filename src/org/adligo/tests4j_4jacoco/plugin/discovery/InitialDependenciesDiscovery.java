@@ -52,7 +52,8 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 	
 	public InitialDependenciesDiscovery(){}
 	
-	/* (non-Javadoc)
+	/**
+	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
 	 * @see org.adligo.tests4j_4jacoco.plugin.discovery.I_ClassDependenciesDiscovery#findOrLoad(java.lang.Class)
 	 */
 	@Override
@@ -65,13 +66,12 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 		if (log.isLogEnabled(InitialDependenciesDiscovery.class)) {
 			log.log(this.getClass().getSimpleName() + ".findOrLoad ... " + c.getName());
 		}
-		
+		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
 		return loadInitalReferences(c);
 	}
 
 	/**
-	 * This loads the initial one tier references
-	 * into the refMap.
+	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
 	 * 
 	 * @param c
 	 * @param referencingClass only for the log, the referencingClass
@@ -81,37 +81,23 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 	private I_ClassDependenciesLocal loadInitalReferences(Class<?> c) 
 		throws IOException, ClassNotFoundException {
 		
-		
+		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
 		I_ClassParentsLocal cps = classParentsDiscovery.findOrLoad(c);
-		ClassDependenciesLocal result = findInitalRefs(c, cps);
-		cache.putDependenciesIfAbsent(result);
-		return result;
-	}
-	
-	/**
-	 * This method finds references from this class to other classes (at a simple 1 teir level),
-	 * and then calls doRecursion()
-	 * 
-	 * @param c
-	 * @param recursionStack
-	 * @return
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
-	private ClassDependenciesLocal findInitalRefs(Class<?> c, I_ClassParentsLocal parents) 
-			throws IOException, ClassNotFoundException {
+		
 		
 		if (classFilter.isFiltered(c)) {
 			return new ClassDependenciesLocal(classParentsDiscovery.findOrLoad(c));
 		}
 		String className = c.getName();
 		
-		ClassDependenciesLocalMutant crm = new ClassDependenciesLocalMutant(parents);
+		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
+		ClassDependenciesLocalMutant crm = new ClassDependenciesLocalMutant(cps);
 		//add references from ASM, byte code inspection
 		InputStream in = classLoader.getCachedBytesStream(className);
 		ClassReader classReader=new ClassReader(in);
 		classVisitor.reset();
 		classReader.accept(classVisitor, 0);
+		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
 		Set<String> asmRefs = classVisitor.getClassReferences();
 		for (String asmRef: asmRefs ) {
 			if (log.isLogEnabled(InitialDependenciesDiscovery.class)) {
@@ -120,14 +106,17 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 			String asmRefName = ClassMethods.fromTypeDescription(asmRef);
 			if ( !basicClassFilter.isFiltered(asmRefName)) {
 				Class<?> asmClass = Class.forName(asmRefName);
-				I_ClassParentsLocal cps = classParentsDiscovery.findOrLoad(asmClass);
-				crm.addReference(cps);
+				I_ClassParentsLocal ps = classParentsDiscovery.findOrLoad(asmClass);
+				crm.addReference(ps);
 			}
 		}
 		
 		readReflectionReferences(c, crm);
 		
-		return new ClassDependenciesLocal(crm);
+		ClassDependenciesLocal result = new ClassDependenciesLocal(crm);
+		
+		cache.putDependenciesIfAbsent(result);
+		return result;
 	}
 
 	/**

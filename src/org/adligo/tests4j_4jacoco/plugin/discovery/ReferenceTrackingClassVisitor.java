@@ -9,7 +9,14 @@ import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 
-
+/**
+ * This class reads byte code and creates a list
+ * of ASM types which represent referenced classes.
+ * 
+ * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
+ * @author scott
+ *
+ */
 public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClassVisitor {
 	private I_Tests4J_Log log;
 	private Set<String> classReferences;

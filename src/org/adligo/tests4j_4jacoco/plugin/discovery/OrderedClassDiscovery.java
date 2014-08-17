@@ -50,7 +50,9 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 	
 	public OrderedClassDiscovery() {}
 	
-	/* (non-Javadoc)
+	/**
+	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
+	 * 
 	 * @see org.adligo.tests4j_4jacoco.plugin.discovery.I_OrderedClassDependenciesDiscovery#findOrLoad(java.lang.Class)
 	 */
 	@Override
@@ -67,8 +69,8 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 		} else {
 			fillRefMapFromClass(c);
 		}
-		
-		List<String> refOrder = calcRefOrder(c);
+		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
+		List<String> refOrder = calculateRefOrder(c);
 		return refOrder;
 	}
 
@@ -80,11 +82,19 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 		}
 	}
 
+	/**
+	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
+	 * @param c
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
 	private void fillRefMapFromClass(Class<?> c) throws ClassNotFoundException, IOException {
+		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
 		I_ClassDependenciesLocal initial = fullDependenciesDiscovery.findOrLoad(c);
 		
 		List<I_ClassParentsLocal> parents =  initial.getParentsLocal();
 		for (I_ClassParentsLocal cpl : parents) {
+			//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
 			I_ClassDependenciesLocal parentFull = circularDependenciesDiscovery.findOrLoad(cpl.getTarget());
 			refMap.put(parentFull, parentFull);
 		}
@@ -93,10 +103,12 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 		Set<I_ClassParentsLocal> refsCopy = new HashSet<I_ClassParentsLocal>(refs);
 		refsCopy.removeAll(parents);
 		for (I_ClassParentsLocal ref : refsCopy) {
+			//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
 			I_ClassDependenciesLocal refFull = circularDependenciesDiscovery.findOrLoad(ref.getTarget());
 			refMap.put(refFull, refFull);
 		}
 		
+		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
 		I_ClassDependenciesLocal full = circularDependenciesDiscovery.findOrLoad(c);
 		refMap.put(full, full);
 		Set<I_ClassParentsLocal> fullRefs = full.getDependenciesLocal();
@@ -104,6 +116,7 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 		fullRefsCopy.removeAll(parents);
 		fullRefsCopy.removeAll(refsCopy);
 		for (I_ClassParentsLocal ref : fullRefsCopy) {
+			//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
 			I_ClassDependenciesLocal refFull = circularDependenciesDiscovery.findOrLoad(ref.getTarget());
 			refMap.put(refFull, refFull);
 		}
@@ -111,6 +124,8 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 	}
 	
 	/**
+	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
+	 * 
 	 * ok at this point either we have 
 	 * just references, or a mix of references and 
 	 * cached dependencies.  
@@ -119,7 +134,7 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 	 * This calculates a rough order of dependencies
 	 * @return
 	 */
-	private List<String> calcRefOrder(Class<?> c) {
+	private List<String> calculateRefOrder(Class<?> c) {
 		String topName = c.getName();
 		Set<I_Dependency> deps = toDependencies(topName);
 		List<String> toRet = new ArrayList<String>();
