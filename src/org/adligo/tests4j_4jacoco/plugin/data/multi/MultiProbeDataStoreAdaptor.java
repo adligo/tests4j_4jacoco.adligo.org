@@ -1,6 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.data.multi;
 
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
+import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.data.common.AbstractRuntimeData;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_MultiRecordingProbeDataStore;

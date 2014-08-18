@@ -112,7 +112,6 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_DelegateFactory");
 		
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Listener");
-		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Log");
 		
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Params");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_RemoteInfo");
@@ -153,14 +152,37 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.xml.I_XML_Consumer");
 		toRet.add("org.adligo.tests4j.models.shared.xml.I_XML_Producer");
 		
+		
+		toRet.add("org.adligo.tests4j.shared.output.I_ConcurrentOutputDelegator");
+		toRet.add("org.adligo.tests4j.shared.output.I_OutputBuffer");
+		toRet.add("org.adligo.tests4j.shared.output.I_OutputDelegateor");
+		toRet.add("org.adligo.tests4j.shared.output.I_Tests4J_Log");
+		
 		toRet.add("org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader");
 		toRet.add("org.adligo.tests4j.run.helpers.I_Tests4J_Memory");
 		
 		toRet.add("org.adligo.tests4j.run.remote.socket_api.I_AfterMessageHandler");
+
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_ClassInstrumenter");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_ClassInstrumenterFactory");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_LoggerDataAccessorFactory");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_ObtainProbesStrategy");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscovery");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscoveryFactory");
+		
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_ProbeDataAccessorFactory");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_Runtime");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_StackHelper");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_TrialInstrumenter");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_TrialInstrumenterFactory");
 		
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_Probes");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassProbes");
+		
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassProbesMutant");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_MultiRecordingProbeDataStore");
+
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStoreAdaptor");
 		
@@ -168,9 +190,12 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassProbesVisitor");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_MethodProbesVisitor");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ProbeIdGenerator");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.ObtainProbesStrategyType");
 		
-		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_ProbeDataAccessorFactory");
-		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_StackHelper");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.AbstractProbeInserter");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.I_ProbeInserterFactory");
+		
+		toRet.add("org.objectweb.asm.MethodVisitor");
 		
 		for (String clazz: toRet) {
 			checkClass(clazz);

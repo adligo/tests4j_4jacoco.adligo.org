@@ -2,8 +2,8 @@ package org.adligo.tests4j_4jacoco.plugin.data.multi;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
+import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 
 public class ThreadGroupLocal<T> extends ThreadLocal<Holder<T>>{
 	private final ConcurrentHashMap<String, Holder<T>> threadGroupLocalMap = new ConcurrentHashMap<String, Holder<T>>();

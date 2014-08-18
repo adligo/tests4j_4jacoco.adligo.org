@@ -9,13 +9,13 @@ import java.io.OutputStream;
 import java.util.List;
 
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j.models.shared.trials.PackageScope;
 import org.adligo.tests4j.models.shared.trials.SourceFileScope;
 import org.adligo.tests4j.run.discovery.PackageDiscovery;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
+import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.common.I_ClassInstrumenter;
 import org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscovery;
 import org.adligo.tests4j_4jacoco.plugin.common.I_TrialInstrumenter;
@@ -98,6 +98,7 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 		}
 		List<String> refs;
 		try {
+			//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
 			refs = orderedClassDiscovery.findOrLoad(c);
 		
 			for (String dep: refs) {

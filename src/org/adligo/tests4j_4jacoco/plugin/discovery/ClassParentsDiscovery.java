@@ -14,8 +14,8 @@ import org.adligo.tests4j.models.shared.dependency.ClassParentsLocalMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.I_ClassParentsCache;
 import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
+import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 
 /**
  * This class loads all parent interfaces 

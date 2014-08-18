@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.adligo.tests4j.models.shared.system.I_Tests4J_Log;
 import org.adligo.tests4j.run.helpers.Tests4J_ThreadFactory;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
+import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 
 /**
  * a wrapper around probe data for different recorders.
@@ -50,7 +50,9 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 								
 								//a certain amout of code coverage
 								//can occur on the main thread, before the trial
-								//run
+								//run, this passes the current code coverage 
+								// (recorded from the main thread)
+								// down to the trial and test threads
 								return new CascadingProbeMap(probes);
 							}
 					
