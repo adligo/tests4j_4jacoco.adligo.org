@@ -53,9 +53,13 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 	@Override
 	public synchronized I_Tests4J_CoverageRecorder createRecorder() {
 		Recorder rec = new Recorder(memory, tests4jLogger);
-		if (!firstRecorder.get()) {
-			firstRecorder.set(true);
-			rec.setRoot(true);
+		if (memory.isConcurrentRecording()) {
+			if (!firstRecorder.get()) {
+				firstRecorder.set(true);
+				rec.setMain(true);
+			}
+		} else {
+			rec.setMain(true);
 		}
 		return rec;
 	}

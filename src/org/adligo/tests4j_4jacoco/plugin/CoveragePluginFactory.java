@@ -32,7 +32,7 @@ public class CoveragePluginFactory implements I_Tests4J_CoveragePluginFactory  {
 				}
 			}
 		}
-		
+		memory.setConcurrentRecording(params.isConcurrentRecording());
 		return toRet;
 	}
 }

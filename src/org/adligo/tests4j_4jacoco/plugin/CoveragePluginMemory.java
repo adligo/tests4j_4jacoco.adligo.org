@@ -62,6 +62,7 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 	private boolean canThreadGroupLocalRecord = true;
 	private String instrumentedClassFileOutputFolder = "instrumentedClasses";
 	private boolean writeOutInstrumentedClassFiles = false;
+	private boolean concurrentRecording = true;
 	
 	protected CoveragePluginMemory(I_Tests4J_Log pLog) {
 		log = pLog;
@@ -241,5 +242,13 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 
 	public I_ClassParentsCache getParentsCache() {
 		return parentsCache;
+	}
+
+	protected boolean isConcurrentRecording() {
+		return concurrentRecording;
+	}
+
+	protected void setConcurrentRecording(boolean concurrentRecording) {
+		this.concurrentRecording = concurrentRecording;
 	}
 }

@@ -54,8 +54,8 @@ public class ClassParentsDiscovery implements I_ClassParentsDiscovery {
 		
 		
 		toRet = new ClassParentsLocal(cpm);
-		cache.putParentsIfAbsent(toRet);
 		loadClassBytes(c);
+		cache.putParentsIfAbsent(toRet);
 		return toRet;
 	}
 	
@@ -110,7 +110,7 @@ public class ClassParentsDiscovery implements I_ClassParentsDiscovery {
 		}
 	}
 	/**
-	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
+	 * @diagram_sync with tests4j_4jacoco/DiscoveryOverview.seq on 8/17/2014
 	 * @param c
 	 * @throws ClassNotFoundException
 	 * @throws IOException
@@ -130,8 +130,8 @@ public class ClassParentsDiscovery implements I_ClassParentsDiscovery {
 				if (in == null) {
 					log.log("Error loading class " + resourceName);
 				} else {
-					//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
-					classLoader.addCache(in, className);
+					//@diagram_sync with tests4j_4jacoco/DiscoveryOverview.seq on 8/18/2014
+					classLoader.addCache(in, c);
 				}
 			}
 		}

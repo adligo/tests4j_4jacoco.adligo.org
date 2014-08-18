@@ -16,7 +16,7 @@ import org.adligo.tests4j_4jacoco.plugin.data.coverage.LazyPackageCoverageFactor
 public class Recorder implements I_Tests4J_CoverageRecorder {
 	protected I_Tests4J_Log reporter;
 	protected I_CoveragePluginMemory memory;
-	private boolean root;
+	private boolean main;
 	private I_Runtime runtime;
 	private boolean jacocoInitOnFirstRecording = true;
 	
@@ -41,7 +41,7 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 		}
 		
 		if (jacocoInitOnFirstRecording) {
-			if (root) {
+			if (main) {
 				I_CachedClassBytesClassLoader mcl = memory.getInstrumentedClassLoader();
 				List<String> allClasses = mcl.getAllCachedClasses();
 				int progress = 0;
@@ -89,7 +89,7 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 		final SessionInfoStore sessionInfos = new SessionInfoStore();
 		data.collect(executionData, sessionInfos, false);
 		*/
-		I_ProbesDataStore executionData = runtime.end(root);
+		I_ProbesDataStore executionData = runtime.end(main);
 		
 		return LazyPackageCoverageFactory.create(executionData, memory);
 	}
@@ -104,12 +104,12 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 
 
 
-	public boolean isRoot() {
-		return root;
+	public boolean isMain() {
+		return main;
 	}
 
-	public void setRoot(boolean root) {
-		this.root = root;
+	public void setMain(boolean root) {
+		this.main = root;
 	}
 
 	
