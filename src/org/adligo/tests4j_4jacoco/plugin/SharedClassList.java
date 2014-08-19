@@ -84,6 +84,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_Dependency");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_DependencyGroup");
+		toRet.add("org.adligo.tests4j.models.shared.dependency.I_MethodSignature");
 		
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_SourceInfoMetadata");
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TestMetadata");
@@ -114,7 +115,9 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Listener");
 		
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Params");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_ProcessInfo");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_RemoteInfo");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Runnable");
 		
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_TestFinishedListener");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_TrialList");

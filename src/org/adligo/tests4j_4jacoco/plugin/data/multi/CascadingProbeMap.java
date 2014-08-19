@@ -27,6 +27,10 @@ public class CascadingProbeMap implements Map<Integer, Boolean> {
 	private boolean [] initalProbes;
 	private boolean [] backed;
 	
+	public CascadingProbeMap(int size) {
+		initalProbes = new boolean[size];
+	}
+	
 	public CascadingProbeMap(boolean [] p) {
 		initalProbes = new boolean[p.length];
 		for (int i = 0; i < p.length; i++) {

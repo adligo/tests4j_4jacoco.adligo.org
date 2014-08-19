@@ -44,16 +44,23 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		threadGroupProbes = 
 				new ThreadGroupLocal<CascadingProbeMap>(Tests4J_ThreadFactory.TRIAL_THREAD_NAME,
 						new I_InitalValueFactory<CascadingProbeMap>() {
-
+							volatile CascadingProbeMap first;
 							@Override
-							public CascadingProbeMap createNew() {
+							public synchronized CascadingProbeMap createNew() {
+								if (first == null) {
+									//a certain amout of code coverage
+									//can occur on the main thread, before the trial
+									//run, this passes the current code coverage 
+									// (recorded from the main thread)
+									// down to the trial and test threads
+									first =  new CascadingProbeMap(probes);
+									return first;
+								} else {
+									//pass the first thread local, to the other
+									//thread locals, since it is from a setup thread;
+									return new CascadingProbeMap(first.get());
+								}
 								
-								//a certain amout of code coverage
-								//can occur on the main thread, before the trial
-								//run, this passes the current code coverage 
-								// (recorded from the main thread)
-								// down to the trial and test threads
-								return new CascadingProbeMap(probes);
 							}
 					
 						}, logger, pClazzToCover);
