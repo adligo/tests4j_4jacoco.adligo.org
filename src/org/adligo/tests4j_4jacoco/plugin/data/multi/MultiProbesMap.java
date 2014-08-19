@@ -4,7 +4,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.adligo.tests4j.models.shared.common.ClassMethods;
 import org.adligo.tests4j.run.helpers.Tests4J_ThreadFactory;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
@@ -44,10 +46,11 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		threadGroupProbes = 
 				new ThreadGroupLocal<CascadingProbeMap>(Tests4J_ThreadFactory.TRIAL_THREAD_NAME,
 						new I_InitalValueFactory<CascadingProbeMap>() {
+							volatile AtomicBoolean set = new AtomicBoolean(false);
 							volatile CascadingProbeMap first;
 							@Override
 							public synchronized CascadingProbeMap createNew() {
-								if (first == null) {
+								if (!set.get()) {
 									//a certain amout of code coverage
 									//can occur on the main thread, before the trial
 									//run, this passes the current code coverage 
@@ -228,7 +231,7 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		if (threadGroupLocalProbesMap != null) {
 			threadGroupLocalProbes = threadGroupLocalProbesMap.get();
 		}
-		return "MultiProbesMap [classCovered=" + clazzCovered +
+		return "MultiProbesMap [classCovered=" + ClassMethods.fromTypeDescription(clazzCovered) +
 				", probes=" + probesToString(probes) + ",threadGroupLocalProbes=" + 
 				probesToString(threadGroupLocalProbes)+ "]";
 	}
