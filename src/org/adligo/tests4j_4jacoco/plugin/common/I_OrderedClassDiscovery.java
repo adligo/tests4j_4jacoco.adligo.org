@@ -13,8 +13,8 @@ import java.util.List;
 public interface I_OrderedClassDiscovery {
 
 	/**
-	 * @diagram_sync with InstrumentationOverview.seq on 8/17/2014
-	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
+	 * @diagram_sync with InstrumentationOverview.seq on 8/20/2014
+	 * @diagram_sync with DiscoveryOverview.seq on 8/20/2014
 	 * 
 	 * @param c
 	 * @return A ordered list of class names, where the following conditions 
@@ -35,7 +35,7 @@ public interface I_OrderedClassDiscovery {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	public abstract List<String> findOrLoad(Class<?> c) throws IOException,
+	public abstract I_OrderedClassDependencies findOrLoad(Class<?> c) throws IOException,
 			ClassNotFoundException;
 
 }

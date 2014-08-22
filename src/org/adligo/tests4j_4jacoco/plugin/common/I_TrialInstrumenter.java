@@ -2,6 +2,7 @@ package org.adligo.tests4j_4jacoco.plugin.common;
 
 import java.io.IOException;
 
+import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageTrialInstrumentation;
 import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 
 public interface I_TrialInstrumenter {
@@ -13,7 +14,7 @@ public interface I_TrialInstrumenter {
 	 * @return
 	 * @throws IOException
 	 */
-	public abstract Class<? extends I_AbstractTrial> instrument(
+	public abstract I_Tests4J_CoverageTrialInstrumentation instrument(
 			Class<? extends I_AbstractTrial> trial)
 			throws IOException;
 

@@ -8,7 +8,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
+import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageTrialInstrumentation;
+import org.adligo.tests4j.models.shared.system.Tests4J_CoverageTrialInstrumentation;
 import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j.models.shared.trials.PackageScope;
 import org.adligo.tests4j.models.shared.trials.SourceFileScope;
@@ -17,6 +20,7 @@ import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.common.I_ClassInstrumenter;
+import org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDependencies;
 import org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscovery;
 import org.adligo.tests4j_4jacoco.plugin.common.I_TrialInstrumenter;
 
@@ -44,16 +48,16 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public Class<? extends I_AbstractTrial> instrument(Class<? extends I_AbstractTrial> trial) throws IOException {
+	public I_Tests4J_CoverageTrialInstrumentation instrument(Class<? extends I_AbstractTrial> trial) throws IOException {
 		if (log.isLogEnabled(TrialInstrumenter.class)) {
 			log.log(ThreadLogMessageBuilder.getThreadForLog() + " instrumenting trial " + trial);
 		}
 		SourceFileScope sourceScope =  trial.getAnnotation(SourceFileScope.class);
+		I_ClassDependenciesLocal sourceClassDependencies = null;
 		if (sourceScope != null) {
 			Class<?> clazz = sourceScope.sourceClass();
-			if ( !classFilter.isFiltered(clazz)) {
-				instrumentClass(clazz);
-			}
+			InstrumentedClassDependencies icd = instrumentClass(clazz);
+			sourceClassDependencies = icd.getClassDependencies();
 		}
 		PackageScope packageScope = trial.getAnnotation(PackageScope.class);
 		if (packageScope != null) {
@@ -61,7 +65,9 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 			PackageDiscovery pd = new PackageDiscovery(packageName);
 			instrumentPackageClasses(pd);
 		}
-		return (Class<? extends I_AbstractTrial>) instrumentClass(trial);
+		InstrumentedClassDependencies icd = instrumentClass(trial);
+		return new Tests4J_CoverageTrialInstrumentation(
+				(Class<? extends I_AbstractTrial>) icd.getInstrumentedClass(), sourceClassDependencies);
 		
 	}
 
@@ -91,17 +97,17 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 	 * @return
 	 * @throws IOException
 	 */
-	private Class<?> instrumentClass(Class<?> c) throws IOException {
+	private InstrumentedClassDependencies instrumentClass(Class<?> c) throws IOException {
 		String className = c.getName();
 		if (log.isLogEnabled(ClassInstrumenter.class)) {
 			log.log("ClassInstrumenter instrumenting class " + className);
 		}
-		List<String> refs;
+		I_OrderedClassDependencies ocd = null;
 		try {
 			//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
-			refs = orderedClassDiscovery.findOrLoad(c);
+			ocd = orderedClassDiscovery.findOrLoad(c);
 		
-			for (String dep: refs) {
+			for (String dep: ocd.getOrder()) {
 				if ( !classFilter.isFiltered(dep)) {
 					if ( !instrumentedClassLoader.hasCache(dep)) {
 						if (log.isLogEnabled(ClassInstrumenter.class)) {
@@ -124,7 +130,8 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 		} catch (ClassNotFoundException e) {
 			throw new IOException(e);
 		}
-		return instrumentedClassLoader.getCachedClass(c.getName());
+		Class<?> instrClass = instrumentedClassLoader.getCachedClass(c.getName());
+		return new InstrumentedClassDependencies(instrClass, ocd.getClassDependencies());
 	}
 	
 	/**

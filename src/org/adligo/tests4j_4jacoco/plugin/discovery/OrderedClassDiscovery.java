@@ -21,6 +21,7 @@ import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
 import org.adligo.tests4j.models.shared.dependency.I_Dependency;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
+import org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDependencies;
 import org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscovery;
 
 /**
@@ -51,12 +52,13 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 	public OrderedClassDiscovery() {}
 	
 	/**
-	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
+	 * @diagram_sync with InstrumentationOverview.seq on 8/20/2014
+	 * @diagram_sync with DiscoveryOverview.seq on 8/20/2014
 	 * 
 	 * @see org.adligo.tests4j_4jacoco.plugin.discovery.I_OrderedClassDependenciesDiscovery#findOrLoad(java.lang.Class)
 	 */
 	@Override
-	public List<String> findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
+	public I_OrderedClassDependencies findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
 		if (log.isLogEnabled(OrderedClassDiscovery.class)) {
 			log.log("ClassReferencesDiscovery.discoverAndLoad " + c.getName());
 		}
@@ -67,11 +69,11 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 			refMap.put(new ClassAliasLocal(crefs), crefs);
 			fillRefMapFromFullRef(crefs);
 		} else {
-			fillRefMapFromClass(c);
+			crefs = fillRefMapFromClass(c);
 		}
 		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
 		List<String> refOrder = calculateRefOrder(c);
-		return refOrder;
+		return new OrderedClassDependencies(crefs, refOrder);
 	}
 
 	private void fillRefMapFromFullRef(I_ClassDependenciesLocal full) throws ClassNotFoundException, IOException {
@@ -88,7 +90,7 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	private void fillRefMapFromClass(Class<?> c) throws ClassNotFoundException, IOException {
+	private I_ClassDependenciesLocal fillRefMapFromClass(Class<?> c) throws ClassNotFoundException, IOException {
 		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
 		I_ClassDependenciesLocal initial = fullDependenciesDiscovery.findOrLoad(c);
 		
@@ -120,7 +122,7 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 			I_ClassDependenciesLocal refFull = circularDependenciesDiscovery.findOrLoad(ref.getTarget());
 			refMap.put(refFull, refFull);
 		}
-		
+		return full;
 	}
 	
 	/**

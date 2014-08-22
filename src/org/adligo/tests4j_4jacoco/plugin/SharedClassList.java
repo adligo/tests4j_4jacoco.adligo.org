@@ -106,8 +106,10 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_AssertListener");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Controls");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_CoveragePlugin");
-		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageRecorder");
+
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_CoveragePluginParams");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageRecorder");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageTrialInstrumentation");
 		
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_Delegate");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_DelegateFactory");
@@ -166,11 +168,21 @@ public class SharedClassList {
 		
 		toRet.add("org.adligo.tests4j.run.remote.socket_api.I_AfterMessageHandler");
 
+		add4JacocoAndAsmClasses(toRet);
+		
+		for (String clazz: toRet) {
+			checkClass(clazz);
+		}
+		return Collections.unmodifiableSet(toRet);
+	}
+
+	protected static void add4JacocoAndAsmClasses(Set<String> toRet) {
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_ClassInstrumenter");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_ClassInstrumenterFactory");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_LoggerDataAccessorFactory");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_ObtainProbesStrategy");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDependencies");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscovery");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscoveryFactory");
 		
@@ -199,11 +211,6 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.I_ProbeInserterFactory");
 		
 		toRet.add("org.objectweb.asm.MethodVisitor");
-		
-		for (String clazz: toRet) {
-			checkClass(clazz);
-		}
-		return Collections.unmodifiableSet(toRet);
 	}
 
 	/**

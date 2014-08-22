@@ -7,6 +7,7 @@ import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache;
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoveragePlugin;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageRecorder;
+import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageTrialInstrumentation;
 import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.common.I_TrialInstrumenter;
@@ -38,7 +39,7 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 		memory.setRuntime(runtime);
 	}
 	
-	public Class<? extends I_AbstractTrial> instrument(Class<? extends I_AbstractTrial> trial) 
+	public I_Tests4J_CoverageTrialInstrumentation instrument(Class<? extends I_AbstractTrial> trial) 
 			throws IOException  {
 		if (trialIntrumenters.get() == null) {
 			I_TrialInstrumenterFactory factory =  memory.getTrialInstrumenterFactory();
@@ -79,12 +80,6 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 	@Override
 	public void instrumentationComplete() {
 		memory.clearTemporaryCaches();
-	}
-
-	@Override
-	public I_ClassDependenciesLocal getClassReferences(String className) {
-		I_ClassDependenciesCache cache =  memory.getDependencyCache();
-		return cache.getDependencies(className);
 	}
 
 	@Override
