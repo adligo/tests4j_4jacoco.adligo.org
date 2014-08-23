@@ -40,8 +40,10 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 	private I_ClassInstrumenter classInstrumenter;
 	private boolean writeOutInstrumentedClassFiles = false;
 	private String instrumentedClassFileOutputFolder;
-	
-	public TrialInstrumenter() {}
+	private TrialInstrumenterSharedMemory memory;
+	public TrialInstrumenter(TrialInstrumenterSharedMemory memoryIn) {
+		memory = memoryIn;
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.adligo.tests4j_4jacoco.plugin.I_TrialInstrumenter#instrument(java.lang.Class)
@@ -62,8 +64,17 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 		PackageScope packageScope = trial.getAnnotation(PackageScope.class);
 		if (packageScope != null) {
 			String packageName = packageScope.packageName();
-			PackageDiscovery pd = new PackageDiscovery(packageName);
-			instrumentPackageClasses(pd);
+			if (log.isLogEnabled(TrialInstrumenter.class)) {
+				log.log(this.toString() +  "instrumentPackage from PackageScope " + packageName);
+			}
+			if ( !memory.hasStarted(packageName)) {
+				//only one thread needs to do each package,
+				//as they link up later before the start of the test
+				memory.start(packageName);
+				PackageDiscovery pd = new PackageDiscovery(packageName);
+				instrumentPackageClasses(pd);
+				memory.finish(packageName);
+			}
 		}
 		InstrumentedClassDependencies icd = instrumentClass(trial);
 		return new Tests4J_CoverageTrialInstrumentation(
@@ -73,6 +84,9 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 
 	protected void instrumentPackageClasses(PackageDiscovery pd)
 			throws IOException {
+		if (log.isLogEnabled(TrialInstrumenter.class)) {
+			log.log(this.toString() +  "instrumentPackageClasses " + pd.getPackageName());
+		}
 		try {
 			List<String> classes =  pd.getClassNames();
 			for (String name: classes) {
