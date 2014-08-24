@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.adligo.tests4j.models.shared.common.ClassMethods;
+import org.adligo.tests4j.models.shared.common.ClassRoutines;
 import org.adligo.tests4j.run.helpers.Tests4J_ThreadFactory;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
@@ -231,7 +231,7 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		if (threadGroupLocalProbesMap != null) {
 			threadGroupLocalProbes = threadGroupLocalProbesMap.get();
 		}
-		return "MultiProbesMap [classCovered=" + ClassMethods.fromTypeDescription(clazzCovered) +
+		return "MultiProbesMap [classCovered=" + ClassRoutines.fromTypeDescription(clazzCovered) +
 				", probes=" + probesToString(probes) + ",threadGroupLocalProbes=" + 
 				probesToString(threadGroupLocalProbes)+ "]";
 	}

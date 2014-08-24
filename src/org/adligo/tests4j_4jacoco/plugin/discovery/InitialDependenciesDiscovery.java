@@ -7,7 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-import org.adligo.tests4j.models.shared.common.ClassMethods;
+import org.adligo.tests4j.models.shared.common.ClassRoutines;
 import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocal;
 import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocalMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
@@ -103,7 +103,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 			if (log.isLogEnabled(InitialDependenciesDiscovery.class)) {
 				log.log(this.getClass().getSimpleName() + ".findInitalRefs reading asmRef " + asmRef);
 			}
-			String asmRefName = ClassMethods.fromTypeDescription(asmRef);
+			String asmRefName = ClassRoutines.fromTypeDescription(asmRef);
 			if ( !basicClassFilter.isFiltered(asmRefName)) {
 				Class<?> asmClass = Class.forName(asmRefName);
 				I_ClassParentsLocal ps = classParentsDiscovery.findOrLoad(asmClass);

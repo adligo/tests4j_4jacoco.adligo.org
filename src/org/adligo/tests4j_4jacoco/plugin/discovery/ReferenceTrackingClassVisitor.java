@@ -3,7 +3,7 @@ package org.adligo.tests4j_4jacoco.plugin.discovery;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.adligo.tests4j.models.shared.common.ClassMethods;
+import org.adligo.tests4j.models.shared.common.ClassRoutines;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.objectweb.asm.FieldVisitor;
@@ -40,7 +40,7 @@ public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClas
 	public void visit(int version, int access, String name, String signature,
 			String superName, String[] interfaces) {
 		
-		className = ClassMethods.fromTypeDescription(name);
+		className = ClassRoutines.fromTypeDescription(name);
 		
 		if (log.isLogEnabled(ReferenceTrackingClassVisitor.class)) {
 			
