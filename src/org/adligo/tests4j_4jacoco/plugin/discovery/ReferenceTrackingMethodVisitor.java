@@ -8,6 +8,7 @@ import java.util.Map;
 import org.adligo.tests4j.models.shared.common.ClassMethods;
 import org.adligo.tests4j.models.shared.common.StringMethods;
 import org.adligo.tests4j.models.shared.dependency.ClassAttributesMutant;
+import org.adligo.tests4j.models.shared.dependency.FieldSignature;
 import org.adligo.tests4j.models.shared.dependency.MethodSignature;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
@@ -52,15 +53,8 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 		if (currentMethodName.equals(MapInstrConstants.METHOD_NAME)) {
 			return;
 		}
-		addClassMethod(desc, null, null);
-		addClassMethod("L" + owner + ";", null, null);
-	}
-
-
-	@Override
-	public void visitMethodInsn(int opcode, String owner, String name,
-			String desc, boolean itf) {
-		visitMethodInsn(opcode, owner, name, desc);
+		
+		addClassField("L" + owner + ";", name, desc);
 	}
 	
 	@Override
@@ -84,7 +78,11 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 		addClassMethod("L" + owner + ";", name, desc);
 	}
 
-
+	@Override
+	public void visitMethodInsn(int opcode, String owner, String name,
+			String desc, boolean itf) {
+		visitMethodInsn(opcode, owner, name, desc);
+	}
 
 
 	@Override
@@ -131,6 +129,20 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 		} 
 	}
 
+	public void addClassField(String className, String fieldName, String fieldClassType) {
+		if (log.isLogEnabled(ReferenceTrackingClassVisitor.class)) {
+			log.log("addClassField (" + className + "," + fieldName + "," + fieldClassType + ")");
+		}
+		ClassAttributesMutant mut = classReferences.get(className);
+		if (mut == null) {
+			mut = new ClassAttributesMutant();
+			mut.setClassName(className);
+			classReferences.put(className, mut);
+		}
+		mut.addField(new FieldSignature(fieldName, fieldClassType));
+			
+	}
+	
 	public void addClassMethod(String className, String methodName, String desc) {
 		if (log.isLogEnabled(ReferenceTrackingClassVisitor.class)) {
 			log.log("addClassMethod (" + className + "," + methodName + "," + desc + ")");
@@ -147,15 +159,16 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 				if (log.isLogEnabled(ReferenceTrackingClassVisitor.class)) {
 					log.log("parseAsmMethodSig '" + desc + "'");
 				}
-				params = parseAsmMethodSig(desc);
+				params = parseAsmMethodSigParams(desc);
 			}
-			MethodSignature ms = new MethodSignature(methodName, params);
+			String returnClassType = parseAsmMethodSigReturn(desc);
+			MethodSignature ms = new MethodSignature(methodName, params, returnClassType);
 			mut.addMethod(ms);
 			
 		}
 	}
 
-	public static String [] parseAsmMethodSig(String sig) {
+	public static String [] parseAsmMethodSigParams(String sig) {
 		if (sig.indexOf("()") != -1) {
 			//no parameters
 			return null;
@@ -220,6 +233,39 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 			return null;
 		}
 		return classes.toArray(new String[classes.size()]);
+	}
+	
+	public static String parseAsmMethodSigReturn(String sig) {
+		if (sig.indexOf(")V") != -1) {
+			//no return type
+			return null;
+		}
+		char [] chars = sig.toCharArray();
+		StringBuilder sb = null;
+		boolean startedReturn = false;
+		boolean inClass = false;
+		for (int i = 0; i < chars.length; i++) {
+			char c = chars[i];
+			if (c == ')') {
+				sb = new StringBuilder();
+				startedReturn = true;
+			} else if (startedReturn) {
+				if (c == ';') {
+					sb.append(c);
+					return sb.toString();
+				} else if (ClassMethods.isClass(c)) {
+					inClass = true;
+					sb.append(c);
+				} else if (ClassMethods.isPrimitiveClassChar(c) && !inClass) {
+					sb.append(c);
+					return sb.toString();
+				} else {
+					sb.append(c);
+				}
+				
+			}
+		}
+		return null;
 	}
 	
 	public String getCurrentMethodName() {

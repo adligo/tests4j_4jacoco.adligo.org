@@ -8,14 +8,17 @@ import java.util.List;
 import java.util.Set;
 
 import org.adligo.tests4j.models.shared.common.ClassMethods;
-import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocal;
-import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocalMutant;
+import org.adligo.tests4j.models.shared.common.StringMethods;
 import org.adligo.tests4j.models.shared.dependency.ClassAttributes;
 import org.adligo.tests4j.models.shared.dependency.ClassAttributesMutant;
+import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocal;
+import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocalMutant;
+import org.adligo.tests4j.models.shared.dependency.FieldSignature;
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache;
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
+import org.adligo.tests4j.models.shared.dependency.I_FieldSignature;
 import org.adligo.tests4j.models.shared.dependency.I_MethodSignature;
 import org.adligo.tests4j.models.shared.dependency.MethodSignature;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
@@ -113,9 +116,21 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 				I_ClassParentsLocal ps = classParentsDiscovery.findOrLoad(asmClass);
 				crm.addDependency(ps);
 			}
-			Set<I_MethodSignature> methods =  asmRef.getMethods();
+			Set<I_FieldSignature> fields =  asmRef.getFields();
 			ClassAttributesMutant cmm = new ClassAttributesMutant();
 			cmm.setClassName(javaRefName);
+			
+			for (I_FieldSignature field: fields) {
+				String fieldClassName = ClassMethods.fromTypeDescription(field.getClassName());
+				if ( !basicClassFilter.isFiltered(fieldClassName)) {
+					Class<?> paramClass = Class.forName(fieldClassName);
+					I_ClassParentsLocal ps = classParentsDiscovery.findOrLoad(paramClass);
+					crm.addDependency(ps);
+				}
+				cmm.addField(new FieldSignature(field.getName(), fieldClassName));
+			}
+			
+			Set<I_MethodSignature> methods =  asmRef.getMethods();
 			
 			for (I_MethodSignature meth: methods) {
 				String [] javaParamNames = new String[meth.getParameters()];
@@ -131,7 +146,17 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 						crm.addDependency(ps);
 					}
 				}
-				cmm.addMethod(new MethodSignature(meth.getMethodName(), javaParamNames));
+				String returnClassName = meth.getReturnClassName();
+				if ( !StringMethods.isEmpty(returnClassName)) {
+					returnClassName = ClassMethods.fromTypeDescription(returnClassName);
+				
+					if ( !basicClassFilter.isFiltered(returnClassName)) {
+						Class<?> paramClass = Class.forName(returnClassName);
+						I_ClassParentsLocal ps = classParentsDiscovery.findOrLoad(paramClass);
+						crm.addDependency(ps);
+					}
+				}
+				cmm.addMethod(new MethodSignature(meth.getMethodName(), javaParamNames, returnClassName));
 			}
 			crm.addCall(new ClassAttributes(cmm));
 		}
