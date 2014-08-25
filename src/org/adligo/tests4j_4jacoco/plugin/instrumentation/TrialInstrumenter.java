@@ -141,8 +141,8 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 					}
 				}
 			}
-		} catch (ClassNotFoundException e) {
-			throw new IOException(e);
+		} catch (Exception e) {
+			throw new IOException("problem in instrumentClass " + c.getName() ,e);
 		}
 		Class<?> instrClass = instrumentedClassLoader.getCachedClass(c.getName());
 		return new InstrumentedClassDependencies(instrClass, ocd.getClassDependencies());

@@ -3,22 +3,25 @@ package org.adligo.tests4j_4jacoco.plugin.discovery;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Set;
 
 import org.adligo.tests4j.models.shared.common.ClassRoutines;
 import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocal;
 import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocalMutant;
-import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
-import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
+import org.adligo.tests4j.models.shared.dependency.ClassMethods;
+import org.adligo.tests4j.models.shared.dependency.ClassMethodsMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache;
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
+import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
+import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
+import org.adligo.tests4j.models.shared.dependency.I_MethodSignature;
+import org.adligo.tests4j.models.shared.dependency.MethodSignature;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Opcodes;
 
 /**
  * a model like (non thread safe) class that loads classes into
@@ -98,17 +101,39 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 		classVisitor.reset();
 		classReader.accept(classVisitor, 0);
 		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
-		Set<String> asmRefs = classVisitor.getClassReferences();
-		for (String asmRef: asmRefs ) {
+		List<ClassMethods> asmRefs = classVisitor.getClassCalls();
+		for (ClassMethods asmRef: asmRefs ) {
 			if (log.isLogEnabled(InitialDependenciesDiscovery.class)) {
 				log.log(this.getClass().getSimpleName() + ".findInitalRefs reading asmRef " + asmRef);
 			}
-			String asmRefName = ClassRoutines.fromTypeDescription(asmRef);
-			if ( !basicClassFilter.isFiltered(asmRefName)) {
-				Class<?> asmClass = Class.forName(asmRefName);
+			String javaRefName = ClassRoutines.fromTypeDescription(asmRef.getClassName());
+			
+			if ( !basicClassFilter.isFiltered(javaRefName)) {
+				Class<?> asmClass = Class.forName(javaRefName);
 				I_ClassParentsLocal ps = classParentsDiscovery.findOrLoad(asmClass);
-				crm.addReference(ps);
+				crm.addDependency(ps);
 			}
+			Set<I_MethodSignature> methods =  asmRef.getMethods();
+			ClassMethodsMutant cmm = new ClassMethodsMutant();
+			cmm.setClassName(javaRefName);
+			
+			for (I_MethodSignature meth: methods) {
+				String [] javaParamNames = new String[meth.getParameters()];
+				
+				for (int i = 0; i < meth.getParameters(); i++) {
+					String param = meth.getParameterClassName(i);
+					String methodParamAsmName = ClassRoutines.fromTypeDescription(param);
+					javaParamNames[i] = methodParamAsmName;
+					
+					if ( !basicClassFilter.isFiltered(methodParamAsmName)) {
+						Class<?> paramClass = Class.forName(methodParamAsmName);
+						I_ClassParentsLocal ps = classParentsDiscovery.findOrLoad(paramClass);
+						crm.addDependency(ps);
+					}
+				}
+				cmm.addMethod(new MethodSignature(meth.getMethodName(), javaParamNames));
+			}
+			crm.addCall(new ClassMethods(cmm));
 		}
 		
 		readReflectionReferences(c, crm);
@@ -134,7 +159,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 		if (c.isInterface()) {
 			//add a self reference, so the counts don't get screwed up
 			I_ClassParentsLocal cps =  classParentsDiscovery.findOrLoad(c);
-			crm.addReference(cps);
+			crm.addDependency(cps);
 		}	
 		Annotation [] annotations =  c.getAnnotations();
 		for (int i = 0; i < annotations.length; i++) {
@@ -180,12 +205,12 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 				Class<?> type = clazz.getComponentType();
 				if ( !basicClassFilter.isFiltered(type)) {
 					I_ClassParentsLocal cps = classParentsDiscovery.findOrLoad(type);
-					classReferences.addReference(cps);
+					classReferences.addDependency(cps);
 				}
 			} else {
 				if (  !basicClassFilter.isFiltered(clazz)) {
 					I_ClassParentsLocal cps = classParentsDiscovery.findOrLoad(clazz);
-					classReferences.addReference(cps);
+					classReferences.addDependency(cps);
 				}
 			}
 		}

@@ -181,7 +181,7 @@ public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 		Set<Entry<I_ClassAliasLocal, I_ClassDependenciesLocal>> entries = refMap.entrySet();
 		for (Entry<I_ClassAliasLocal, I_ClassDependenciesLocal> e: entries) {
 			I_ClassDependenciesLocal refs = e.getValue();
-			crlm.addReferences(refs.getDependenciesLocal());
+			crlm.addDependencies(refs.getDependenciesLocal());
 		}
 		return new ClassDependenciesLocal(crlm);
 	}

@@ -1,9 +1,17 @@
 package org.adligo.tests4j_4jacoco.plugin.discovery;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.adligo.tests4j.models.shared.common.ClassRoutines;
+import org.adligo.tests4j.models.shared.dependency.ClassMethods;
+import org.adligo.tests4j.models.shared.dependency.ClassMethodsMutant;
+import org.adligo.tests4j.models.shared.dependency.I_MethodSignature;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.objectweb.asm.FieldVisitor;
@@ -19,7 +27,7 @@ import org.objectweb.asm.MethodVisitor;
  */
 public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClassVisitor {
 	private I_Tests4J_Log log;
-	private Set<String> classReferences;
+	private Map<String, ClassMethodsMutant> classReferences;
 	
 	private ReferenceTrackingMethodVisitor mv;
 	private String className;
@@ -32,7 +40,7 @@ public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClas
 	}
 	
 	public void reset() {
-		classReferences = new HashSet<String>();
+		classReferences = new HashMap<String, ClassMethodsMutant>();
 		mv.setClassReferences(classReferences);
 	}
 	
@@ -61,7 +69,7 @@ public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClas
 			String signature, Object value) {
 		
 		if (!name.equals(MapInstrConstants.FIELD_NAME)) {
-			classReferences.add(desc);
+			mv.addClassMethod(desc, null, null);
 		}
 		return super.visitField(access, name, desc, signature, value);
 	}
@@ -90,10 +98,28 @@ public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClas
 		return className;
 	}
 	
-	public Set<String> getClassReferences() {
-		return classReferences;
+	public List<ClassMethods> getClassCalls() {
+		List<ClassMethods> methods = new ArrayList<ClassMethods>();
+		Collection<ClassMethodsMutant> vals =  classReferences.values();
+		for (ClassMethodsMutant val: vals) {
+			methods.add(new ClassMethods(val));
+		}
+		return methods;
 	}
 
-
-
+	public Set<String> getClassReferences() {
+		Set<String> toRet = new HashSet<String>();
+		Collection<ClassMethodsMutant> vals =  classReferences.values();
+		for (ClassMethodsMutant val: vals) {
+			toRet.add(val.getClassName());
+			Set<I_MethodSignature> methods =  val.getMethods();
+			for (I_MethodSignature meth: methods) {
+				for (int i = 0; i < meth.getParameters(); i++) {
+					String param = meth.getParameterClassName(i);
+					toRet.add(param);
+				}
+			}
+		}
+		return toRet;
+	}
 }
