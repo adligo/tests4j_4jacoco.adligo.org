@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeMap;
 
-import org.adligo.tests4j.models.shared.common.ClassRoutines;
+import org.adligo.tests4j.models.shared.common.ClassMethods;
 import org.adligo.tests4j.models.shared.dependency.ClassParentsLocal;
 import org.adligo.tests4j.models.shared.dependency.ClassParentsLocalMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
@@ -125,7 +125,7 @@ public class ClassParentsDiscovery implements I_ClassParentsDiscovery {
 					log.log("ClassBytesCacheHelper.loadClassBytes " + className);
 				}
 				
-				String resourceName = ClassRoutines.toResource(className);
+				String resourceName = ClassMethods.toResource(className);
 				InputStream in = c.getResourceAsStream(resourceName);
 				if (in == null) {
 					log.log("Error loading class " + resourceName);

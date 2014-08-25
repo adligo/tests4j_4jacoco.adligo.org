@@ -7,11 +7,11 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
 
-import org.adligo.tests4j.models.shared.common.ClassRoutines;
+import org.adligo.tests4j.models.shared.common.ClassMethods;
 import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocal;
 import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocalMutant;
-import org.adligo.tests4j.models.shared.dependency.ClassMethods;
-import org.adligo.tests4j.models.shared.dependency.ClassMethodsMutant;
+import org.adligo.tests4j.models.shared.dependency.ClassAttributes;
+import org.adligo.tests4j.models.shared.dependency.ClassAttributesMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache;
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
@@ -101,12 +101,12 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 		classVisitor.reset();
 		classReader.accept(classVisitor, 0);
 		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
-		List<ClassMethods> asmRefs = classVisitor.getClassCalls();
-		for (ClassMethods asmRef: asmRefs ) {
+		List<ClassAttributes> asmRefs = classVisitor.getClassCalls();
+		for (ClassAttributes asmRef: asmRefs ) {
 			if (log.isLogEnabled(InitialDependenciesDiscovery.class)) {
 				log.log(this.getClass().getSimpleName() + ".findInitalRefs reading asmRef " + asmRef);
 			}
-			String javaRefName = ClassRoutines.fromTypeDescription(asmRef.getClassName());
+			String javaRefName = ClassMethods.fromTypeDescription(asmRef.getClassName());
 			
 			if ( !basicClassFilter.isFiltered(javaRefName)) {
 				Class<?> asmClass = Class.forName(javaRefName);
@@ -114,7 +114,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 				crm.addDependency(ps);
 			}
 			Set<I_MethodSignature> methods =  asmRef.getMethods();
-			ClassMethodsMutant cmm = new ClassMethodsMutant();
+			ClassAttributesMutant cmm = new ClassAttributesMutant();
 			cmm.setClassName(javaRefName);
 			
 			for (I_MethodSignature meth: methods) {
@@ -122,7 +122,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 				
 				for (int i = 0; i < meth.getParameters(); i++) {
 					String param = meth.getParameterClassName(i);
-					String methodParamAsmName = ClassRoutines.fromTypeDescription(param);
+					String methodParamAsmName = ClassMethods.fromTypeDescription(param);
 					javaParamNames[i] = methodParamAsmName;
 					
 					if ( !basicClassFilter.isFiltered(methodParamAsmName)) {
@@ -133,7 +133,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 				}
 				cmm.addMethod(new MethodSignature(meth.getMethodName(), javaParamNames));
 			}
-			crm.addCall(new ClassMethods(cmm));
+			crm.addCall(new ClassAttributes(cmm));
 		}
 		
 		readReflectionReferences(c, crm);

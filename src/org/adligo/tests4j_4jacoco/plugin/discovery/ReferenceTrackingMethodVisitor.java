@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.adligo.tests4j.models.shared.common.ClassRoutines;
-import org.adligo.tests4j.models.shared.common.StringRoutines;
-import org.adligo.tests4j.models.shared.dependency.ClassMethodsMutant;
+import org.adligo.tests4j.models.shared.common.ClassMethods;
+import org.adligo.tests4j.models.shared.common.StringMethods;
+import org.adligo.tests4j.models.shared.dependency.ClassAttributesMutant;
 import org.adligo.tests4j.models.shared.dependency.MethodSignature;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
@@ -26,7 +26,7 @@ import com.sun.org.apache.bcel.internal.generic.Type;
  */
 public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 
-	private Map<String, ClassMethodsMutant> classReferences;
+	private Map<String, ClassAttributesMutant> classReferences;
 	//private I_Tests4J_Log log;
 	private String currentMethodName = "";
 	private I_Tests4J_Log log;
@@ -37,11 +37,11 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 		//log = pLog;
 	}
 
-	public Map<String, ClassMethodsMutant> getClassReferences() {
+	public Map<String, ClassAttributesMutant> getClassReferences() {
 		return classReferences;
 	}
 
-	public void setClassReferences(Map<String, ClassMethodsMutant> classReferences) {
+	public void setClassReferences(Map<String, ClassAttributesMutant> classReferences) {
 		this.classReferences = classReferences;
 	}
 
@@ -135,15 +135,15 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 		if (log.isLogEnabled(ReferenceTrackingClassVisitor.class)) {
 			log.log("addClassMethod (" + className + "," + methodName + "," + desc + ")");
 		}
-		ClassMethodsMutant mut = classReferences.get(className);
+		ClassAttributesMutant mut = classReferences.get(className);
 		if (mut == null) {
-			mut = new ClassMethodsMutant();
+			mut = new ClassAttributesMutant();
 			mut.setClassName(className);
 			classReferences.put(className, mut);
 		}
 		if (methodName != null) {
 			String [] params = null;
-			if ( !StringRoutines.isEmpty(desc)) {
+			if ( !StringMethods.isEmpty(desc)) {
 				if (log.isLogEnabled(ReferenceTrackingClassVisitor.class)) {
 					log.log("parseAsmMethodSig '" + desc + "'");
 				}
@@ -183,10 +183,10 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 					sb.append(c);
 				}
 			} else if (inArray) {
-				if (ClassRoutines.isClass(c)) {
+				if (ClassMethods.isClass(c)) {
 					inClass = true;
 					sb.append(c);
-				} else if (ClassRoutines.isPrimitiveClassChar(c)) {
+				} else if (ClassMethods.isPrimitiveClassChar(c)) {
 					sb.append(c);
 					String result = sb.toString();
 					classes.add(result);
@@ -195,16 +195,16 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 				} else {
 					sb.append(c);
 				}
-			} else if (ClassRoutines.isPrimitiveClassChar(c)) {
+			} else if (ClassMethods.isPrimitiveClassChar(c)) {
 				sb.append(c);
 				String result = sb.toString();
 				classes.add(result);
 				sb = new StringBuilder();
-			} else if (ClassRoutines.isArray(c)) {
+			} else if (ClassMethods.isArray(c)) {
 				inArray = true;
 				sb.append(c);
 			
-			} else if (ClassRoutines.isClass(c)) {
+			} else if (ClassMethods.isClass(c)) {
 				inClass = true;
 				sb.append(c);
 			
@@ -213,7 +213,7 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 			}
 		}
 		String result = sb.toString();
-		if ( !StringRoutines.isEmpty(result)) {
+		if ( !StringMethods.isEmpty(result)) {
 			classes.add(result);
 		}
 		if (classes.size() == 0) {
