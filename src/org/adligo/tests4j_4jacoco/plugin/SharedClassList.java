@@ -82,6 +82,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassDependencies");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal");
+		toRet.add("org.adligo.tests4j.models.shared.dependency.I_FieldSignature");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_Dependency");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_DependencyGroup");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_MethodSignature");
