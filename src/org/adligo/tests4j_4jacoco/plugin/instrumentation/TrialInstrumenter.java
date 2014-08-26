@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
@@ -41,6 +43,10 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 	private boolean writeOutInstrumentedClassFiles = false;
 	private String instrumentedClassFileOutputFolder;
 	private TrialInstrumenterSharedMemory memory;
+	private AtomicInteger todo = new AtomicInteger();
+	private AtomicInteger done = new AtomicInteger();
+	private AtomicBoolean classStart = new AtomicBoolean(false);
+	
 	public TrialInstrumenter(TrialInstrumenterSharedMemory memoryIn) {
 		memory = memoryIn;
 	}
@@ -56,14 +62,22 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 		}
 		SourceFileScope sourceScope =  trial.getAnnotation(SourceFileScope.class);
 		I_ClassDependenciesLocal sourceClassDependencies = null;
+		Class<?> sourceClass = null;;
 		if (sourceScope != null) {
-			Class<?> clazz = sourceScope.sourceClass();
-			InstrumentedClassDependencies icd = instrumentClass(clazz);
+			sourceClass = sourceScope.sourceClass();
+		}
+		
+		PackageScope packageScope = trial.getAnnotation(PackageScope.class);
+		String packageName = null;
+		if (packageScope != null) {
+			packageName = packageScope.packageName();
+			
+		}
+		if (sourceClass != null) {
+			InstrumentedClassDependencies icd = instrumentClass(sourceClass);
 			sourceClassDependencies = icd.getClassDependencies();
 		}
-		PackageScope packageScope = trial.getAnnotation(PackageScope.class);
-		if (packageScope != null) {
-			String packageName = packageScope.packageName();
+		if (packageName != null) {
 			if (log.isLogEnabled(TrialInstrumenter.class)) {
 				log.log(this.toString() +  "instrumentPackage from PackageScope " + packageName);
 			}
@@ -72,10 +86,12 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 				//as they link up later before the start of the test
 				memory.start(packageName);
 				PackageDiscovery pd = new PackageDiscovery(packageName);
+				todo.addAndGet(pd.getClassCount());
 				instrumentPackageClasses(pd);
 				memory.finish(packageName);
 			}
 		}
+		classStart.set(true);
 		InstrumentedClassDependencies icd = instrumentClass(trial);
 		return new Tests4J_CoverageTrialInstrumentation(
 				(Class<? extends I_AbstractTrial>) icd.getInstrumentedClass(), sourceClassDependencies);
@@ -120,8 +136,12 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 		try {
 			//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
 			ocd = orderedClassDiscovery.findOrLoad(c);
-		
-			for (String dep: ocd.getOrder()) {
+			List<String> order = ocd.getOrder();
+			if (classStart.get()) {
+				todo.addAndGet(order.size());
+			}
+			for (String dep: order) {
+				
 				if ( !classFilter.isFiltered(dep)) {
 					if ( !instrumentedClassLoader.hasCache(dep)) {
 						if (log.isLogEnabled(ClassInstrumenter.class)) {
@@ -140,6 +160,7 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 						}
 					}
 				}
+				done.addAndGet(1);
 			}
 		} catch (Exception e) {
 			throw new IOException("problem in instrumentClass " + c.getName() ,e);
@@ -233,5 +254,17 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 
 	public void setClassInstrumenter(I_ClassInstrumenter classBytesInstrumenter) {
 		this.classInstrumenter = classBytesInstrumenter;
+	}
+
+	@Override
+	public double getPctDone() {
+		double todoD = todo.get();
+		double doneD = done.get();
+		double toRet = doneD/todoD * 100;
+		if ( !classStart.get()) {
+			//halve it
+			toRet = toRet/2;
+		}
+		return 0;
 	}
 }

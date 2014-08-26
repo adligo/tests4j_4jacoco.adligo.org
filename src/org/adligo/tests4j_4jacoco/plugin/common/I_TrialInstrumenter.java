@@ -18,4 +18,9 @@ public interface I_TrialInstrumenter {
 			Class<? extends I_AbstractTrial> trial)
 			throws IOException;
 
+	/**
+	 * 
+	 * @return 0.0 - 100.0
+	 */
+	public double getPctDone();
 }

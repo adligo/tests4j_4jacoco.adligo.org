@@ -54,7 +54,7 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 			return;
 		}
 		
-		addClassField("L" + owner + ";", name, desc);
+		addClassField(addWrapperIfNecessary( owner ), name, desc);
 	}
 	
 	@Override
@@ -75,7 +75,7 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 		if (currentMethodName.equals(MapInstrConstants.METHOD_NAME)) {
 			return;
 		}
-		addClassMethod("L" + owner + ";", name, desc);
+		addClassMethod(addWrapperIfNecessary( owner ), name, desc);
 	}
 
 	@Override
@@ -90,7 +90,7 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 		if (currentMethodName.equals(MapInstrConstants.METHOD_NAME)) {
 			return;
 		}
-		addClassMethod("L" + type + ";", null, null);
+		addClassMethod(addWrapperIfNecessary( type ), null, null);
 		super.visitTypeInsn(opcode, type);
 	}
 
@@ -103,7 +103,7 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 		if (currentMethodName.equals(MapInstrConstants.METHOD_NAME)) {
 			return;
 		}
-		addClassMethod("L" + type + ";", null, null);
+		addClassMethod(addWrapperIfNecessary( type ), null, null);
 		super.visitTryCatchBlock(start, end, handler, type);
 	}
 
@@ -125,7 +125,7 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 		} else {
 			 //if (cst instanceof Type) or other
 			 //else if (cst instanceof Handle)
-			addClassMethod(cst.toString(), null, null);
+			addClassMethod( addWrapperIfNecessary( cst.toString() ), null, null);
 		} 
 	}
 
@@ -276,4 +276,19 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 		this.currentMethodName = currentMethodName;
 	}
 
+	public String addWrapperIfNecessary(String classTypeName) {
+		if (classTypeName == null) {
+			return null;
+		}
+		if (classTypeName.length() == 1) {
+			return classTypeName;
+		}
+		if (ClassMethods.isClass(classTypeName.charAt(0))) {
+			return classTypeName;
+		}
+		if (ClassMethods.isArray(classTypeName)) {
+			return classTypeName;
+		}
+		return "L" +classTypeName  + ";";
+	}
 }

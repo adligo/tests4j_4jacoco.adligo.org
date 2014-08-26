@@ -147,7 +147,9 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_Trial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialBindings");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_MetaTrial");
+		toRet.add("org.adligo.tests4j.models.shared.trials.I_Progress");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_SourceFileTrial");
+		toRet.add("org.adligo.tests4j.models.shared.trials.I_SubProgress");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_UseCaseTrial");
 		
 		toRet.add("org.adligo.tests4j.models.shared.trials.PackageScope");

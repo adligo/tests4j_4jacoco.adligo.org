@@ -3,6 +3,7 @@ package org.adligo.tests4j_4jacoco.plugin.discovery;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
@@ -105,16 +106,27 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 		classReader.accept(classVisitor, 0);
 		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
 		List<ClassAttributes> asmRefs = classVisitor.getClassCalls();
+		addCalls(crm, asmRefs);
+		readReflectionReferences(c, crm);
+		
+		ClassDependenciesLocal result = new ClassDependenciesLocal(crm);
+		
+		cache.putDependenciesIfAbsent(result);
+		return result;
+	}
+
+	public void addCalls(ClassDependenciesLocalMutant crm,
+			List<ClassAttributes> asmRefs) throws ClassNotFoundException,
+			IOException {
 		for (ClassAttributes asmRef: asmRefs ) {
 			if (log.isLogEnabled(InitialDependenciesDiscovery.class)) {
 				log.log(this.getClass().getSimpleName() + ".findInitalRefs reading asmRef " + asmRef);
 			}
-			String javaRefName = ClassMethods.fromTypeDescription(asmRef.getClassName());
+			String asmClassTypeName = asmRef.getClassName();
+			String javaRefName = ClassMethods.fromTypeDescription(asmClassTypeName);
 			
 			if ( !basicClassFilter.isFiltered(javaRefName)) {
-				Class<?> asmClass = Class.forName(javaRefName);
-				I_ClassParentsLocal ps = classParentsDiscovery.findOrLoad(asmClass);
-				crm.addDependency(ps);
+				addTypes(crm, javaRefName);
 			}
 			Set<I_FieldSignature> fields =  asmRef.getFields();
 			ClassAttributesMutant cmm = new ClassAttributesMutant();
@@ -123,9 +135,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 			for (I_FieldSignature field: fields) {
 				String fieldClassName = ClassMethods.fromTypeDescription(field.getClassName());
 				if ( !basicClassFilter.isFiltered(fieldClassName)) {
-					Class<?> paramClass = Class.forName(fieldClassName);
-					I_ClassParentsLocal ps = classParentsDiscovery.findOrLoad(paramClass);
-					crm.addDependency(ps);
+					addTypes(crm, fieldClassName);
 				}
 				cmm.addField(new FieldSignature(field.getName(), fieldClassName));
 			}
@@ -137,13 +147,11 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 				
 				for (int i = 0; i < meth.getParameters(); i++) {
 					String param = meth.getParameterClassName(i);
-					String methodParamAsmName = ClassMethods.fromTypeDescription(param);
-					javaParamNames[i] = methodParamAsmName;
+					String methodParamClassName = ClassMethods.fromTypeDescription(param);
+					javaParamNames[i] = methodParamClassName;
 					
-					if ( !basicClassFilter.isFiltered(methodParamAsmName)) {
-						Class<?> paramClass = Class.forName(methodParamAsmName);
-						I_ClassParentsLocal ps = classParentsDiscovery.findOrLoad(paramClass);
-						crm.addDependency(ps);
+					if ( !basicClassFilter.isFiltered(methodParamClassName)) {
+						addTypes(crm, methodParamClassName);
 					}
 				}
 				String returnClassName = meth.getReturnClassName();
@@ -151,22 +159,38 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 					returnClassName = ClassMethods.fromTypeDescription(returnClassName);
 				
 					if ( !basicClassFilter.isFiltered(returnClassName)) {
-						Class<?> paramClass = Class.forName(returnClassName);
-						I_ClassParentsLocal ps = classParentsDiscovery.findOrLoad(paramClass);
-						crm.addDependency(ps);
+						addTypes(crm, returnClassName);
 					}
 				}
 				cmm.addMethod(new MethodSignature(meth.getMethodName(), javaParamNames, returnClassName));
 			}
 			crm.addCall(new ClassAttributes(cmm));
 		}
+	}
+
+	/**
+	 * this adds the dependency for javaClassName to the crm parameter,
+	 * if the javaClassName is an array it only adds the
+	 * array type to the crm instance.
+	 * 
+	 * @param crm
+	 * @param javaClassName
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
+	public void addTypes(ClassDependenciesLocalMutant crm, String javaClassName)
+			throws ClassNotFoundException, IOException {
 		
-		readReflectionReferences(c, crm);
-		
-		ClassDependenciesLocal result = new ClassDependenciesLocal(crm);
-		
-		cache.putDependenciesIfAbsent(result);
-		return result;
+		if (ClassMethods.isArray(javaClassName)) {
+			String typeClassName = ClassMethods.getArrayType(javaClassName);
+			Class<?> typeClass = Class.forName(typeClassName);
+			I_ClassParentsLocal ps = classParentsDiscovery.findOrLoad(typeClass);
+			crm.addDependency(ps);
+		} else {
+			Class<?> clazz = Class.forName(javaClassName);
+			I_ClassParentsLocal ps = classParentsDiscovery.findOrLoad(clazz);
+			crm.addDependency(ps);
+		}
 	}
 
 	/**

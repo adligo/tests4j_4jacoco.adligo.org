@@ -48,7 +48,7 @@ public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClas
 	public void visit(int version, int access, String name, String signature,
 			String superName, String[] interfaces) {
 		
-		className = ClassMethods.fromTypeDescription(name);
+		className = ClassMethods.fromTypeDescription("L" + name + ";");
 		
 		if (log.isLogEnabled(ReferenceTrackingClassVisitor.class)) {
 			
@@ -102,7 +102,9 @@ public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClas
 		List<ClassAttributes> methods = new ArrayList<ClassAttributes>();
 		Collection<ClassAttributesMutant> vals =  classReferences.values();
 		for (ClassAttributesMutant val: vals) {
-			methods.add(new ClassAttributes(val));
+			if (val.getClassName() != null) {
+				methods.add(new ClassAttributes(val));
+			}
 		}
 		return methods;
 	}

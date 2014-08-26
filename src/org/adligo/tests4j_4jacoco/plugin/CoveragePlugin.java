@@ -1,6 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin;
 
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache;
@@ -23,7 +24,8 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 	private I_Tests4J_Log tests4jLogger;
 	private AtomicBoolean firstRecorder = new AtomicBoolean(false);
 	private ThreadLocal<I_TrialInstrumenter> trialIntrumenters = new ThreadLocal<I_TrialInstrumenter>();
-
+	private ConcurrentHashMap<String, I_TrialInstrumenter> trialIntrumenterByWork = 
+			new ConcurrentHashMap<String, I_TrialInstrumenter>();
 	
 	public CoveragePlugin(I_Tests4J_Log logger) {
 		
@@ -47,7 +49,11 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 			trialIntrumenters.set(ti);
 		}
 		I_TrialInstrumenter ti = trialIntrumenters.get();
-		return ti.instrument(trial);
+		String trialName = trial.getName();
+		trialIntrumenterByWork.put(trialName, ti);
+		I_Tests4J_CoverageTrialInstrumentation result =  ti.instrument(trial);
+		trialIntrumenterByWork.remove(trialName);
+		return result;
 	}
 	
 	
@@ -85,6 +91,13 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 	@Override
 	public boolean isCanThreadGroupLocalRecord() {
 		return memory.isCanThreadGroupLocalRecord();
+	}
+
+	@Override
+	public double getInstrumentProgress(Class<? extends I_AbstractTrial> trial) {
+		String trialName = trial.getName();
+		I_TrialInstrumenter progress = trialIntrumenterByWork.get(trialName);
+		return progress.getPctDone();
 	}
 
 }
