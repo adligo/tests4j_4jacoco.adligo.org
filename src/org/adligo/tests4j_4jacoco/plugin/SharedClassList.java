@@ -74,6 +74,7 @@ public class SharedClassList {
 		
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassAlias");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassAliasLocal");
+		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassAttributes");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassFilter");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassFilterModel");
 		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassParents");
