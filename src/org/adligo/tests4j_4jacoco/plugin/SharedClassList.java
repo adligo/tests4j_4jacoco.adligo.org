@@ -143,6 +143,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.trials.BeforeTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_AbstractTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_ApiTrial");
+		toRet.add("org.adligo.tests4j.models.shared.trials.I_CircularDependencies");
 		toRet.add("org.adligo.tests4j.models.shared.trials.IgnoreTest");
 		toRet.add("org.adligo.tests4j.models.shared.trials.IgnoreTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_Trial");

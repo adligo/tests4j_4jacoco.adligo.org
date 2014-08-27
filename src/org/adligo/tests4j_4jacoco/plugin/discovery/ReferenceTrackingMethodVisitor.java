@@ -1,7 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.discovery;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -14,8 +13,6 @@ import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-
-import com.sun.org.apache.bcel.internal.generic.Type;
 
 /**
  * This class reads java byte code scanning for 
@@ -130,7 +127,7 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 	}
 
 	public void addClassField(String className, String fieldName, String fieldClassType) {
-		if (log.isLogEnabled(ReferenceTrackingClassVisitor.class)) {
+		if (log.isLogEnabled(ReferenceTrackingMethodVisitor.class)) {
 			log.log("addClassField (" + className + "," + fieldName + "," + fieldClassType + ")");
 		}
 		ClassAttributesMutant mut = classReferences.get(className);
@@ -144,7 +141,7 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 	}
 	
 	public void addClassMethod(String className, String methodName, String desc) {
-		if (log.isLogEnabled(ReferenceTrackingClassVisitor.class)) {
+		if (log.isLogEnabled(ReferenceTrackingMethodVisitor.class)) {
 			log.log("addClassMethod (" + className + "," + methodName + "," + desc + ")");
 		}
 		ClassAttributesMutant mut = classReferences.get(className);
@@ -156,7 +153,7 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 		if (methodName != null) {
 			String [] params = null;
 			if ( !StringMethods.isEmpty(desc)) {
-				if (log.isLogEnabled(ReferenceTrackingClassVisitor.class)) {
+				if (log.isLogEnabled(ReferenceTrackingMethodVisitor.class)) {
 					log.log("parseAsmMethodSig '" + desc + "'");
 				}
 				params = parseAsmMethodSigParams(desc);
