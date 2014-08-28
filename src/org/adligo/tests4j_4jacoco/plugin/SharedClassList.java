@@ -156,6 +156,7 @@ public class SharedClassList {
 		
 		toRet.add("org.adligo.tests4j.models.shared.trials.PackageScope");
 		toRet.add("org.adligo.tests4j.models.shared.trials.SourceFileScope");
+		toRet.add("org.adligo.tests4j.models.shared.trials.SuppressOutput");
 		toRet.add("org.adligo.tests4j.models.shared.trials.Test");
 		toRet.add("org.adligo.tests4j.models.shared.trials.TrialTypeAnnotation");
 		toRet.add("org.adligo.tests4j.models.shared.trials.UseCaseScope");
@@ -168,6 +169,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.shared.output.I_ConcurrentOutputDelegator");
 		toRet.add("org.adligo.tests4j.shared.output.I_OutputBuffer");
 		toRet.add("org.adligo.tests4j.shared.output.I_OutputDelegateor");
+		toRet.add("org.adligo.tests4j.shared.output.I_ToggleOutputBuffer");
 		toRet.add("org.adligo.tests4j.shared.output.I_Tests4J_Log");
 		
 		toRet.add("org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader");
