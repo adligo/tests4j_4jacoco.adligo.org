@@ -122,7 +122,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 			if (log.isLogEnabled(InitialDependenciesDiscovery.class)) {
 				log.log(this.getClass().getSimpleName() + ".findInitalRefs reading asmRef " + asmRef);
 			}
-			String asmClassTypeName = asmRef.getClassName();
+			String asmClassTypeName = asmRef.getName();
 			String javaRefName = ClassMethods.fromTypeDescription(asmClassTypeName);
 			
 			if ( !basicClassFilter.isFiltered(javaRefName)) {
@@ -130,7 +130,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 			}
 			Set<I_FieldSignature> fields =  asmRef.getFields();
 			ClassAttributesMutant cmm = new ClassAttributesMutant();
-			cmm.setClassName(javaRefName);
+			cmm.setName(javaRefName);
 			
 			for (I_FieldSignature field: fields) {
 				String fieldClassName = ClassMethods.fromTypeDescription(field.getClassName());

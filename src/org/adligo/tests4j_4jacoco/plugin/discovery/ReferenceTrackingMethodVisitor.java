@@ -133,7 +133,7 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 		ClassAttributesMutant mut = classReferences.get(className);
 		if (mut == null) {
 			mut = new ClassAttributesMutant();
-			mut.setClassName(className);
+			mut.setName(className);
 			classReferences.put(className, mut);
 		}
 		mut.addField(new FieldSignature(fieldName, fieldClassType));
@@ -147,7 +147,7 @@ public class ReferenceTrackingMethodVisitor extends MethodVisitor {
 		ClassAttributesMutant mut = classReferences.get(className);
 		if (mut == null) {
 			mut = new ClassAttributesMutant();
-			mut.setClassName(className);
+			mut.setName(className);
 			classReferences.put(className, mut);
 		}
 		if (methodName != null) {

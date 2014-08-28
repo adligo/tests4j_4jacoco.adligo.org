@@ -102,7 +102,7 @@ public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClas
 		List<ClassAttributes> methods = new ArrayList<ClassAttributes>();
 		Collection<ClassAttributesMutant> vals =  classReferences.values();
 		for (ClassAttributesMutant val: vals) {
-			if (val.getClassName() != null) {
+			if (val.getName() != null) {
 				methods.add(new ClassAttributes(val));
 			}
 		}
@@ -113,7 +113,7 @@ public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClas
 		Set<String> toRet = new HashSet<String>();
 		Collection<ClassAttributesMutant> vals =  classReferences.values();
 		for (ClassAttributesMutant val: vals) {
-			toRet.add(val.getClassName());
+			toRet.add(val.getName());
 			Set<I_MethodSignature> methods =  val.getMethods();
 			for (I_MethodSignature meth: methods) {
 				for (int i = 0; i < meth.getParameters(); i++) {
