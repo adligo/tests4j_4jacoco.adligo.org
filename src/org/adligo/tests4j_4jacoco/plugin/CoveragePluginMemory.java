@@ -75,6 +75,10 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 		Set<String> classesNotRequired = SharedClassList.WHITELIST;
 		instrumentedClassLoader = new CachedClassBytesClassLoader(log, 
 				packagesNotRequired, classesNotRequired, null);
+		/**
+		 * note the original classes are required for 
+		 * re-instrumentation for coverage in the LazyCoverage classes
+		 */
 		cachedClassLoader = new CachedClassBytesClassLoader(log, 
 				packagesNotRequired, classesNotRequired, null);
 		

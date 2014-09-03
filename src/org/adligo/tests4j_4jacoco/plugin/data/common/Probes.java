@@ -1,5 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin.data.common;
 
+import org.adligo.tests4j.models.shared.trials.BeforeTrial;
+
 
 /**
  * a immutable representation of probes
@@ -8,6 +10,7 @@ package org.adligo.tests4j_4jacoco.plugin.data.common;
  */
 public class Probes implements I_Probes {
 	private final boolean[] probes;
+	
 	
 	public Probes(I_Probes other) {
 		probes = new boolean[other.size()];

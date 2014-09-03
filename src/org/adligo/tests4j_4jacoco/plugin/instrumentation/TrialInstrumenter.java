@@ -144,8 +144,8 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 				
 				if ( !classFilter.isFiltered(dep)) {
 					if ( !instrumentedClassLoader.hasCache(dep)) {
-						if (log.isLogEnabled(ClassInstrumenter.class)) {
-							log.log("ClassInstrumenter " + className + " instrumenting delegate " + dep);
+						if (log.isLogEnabled(TrialInstrumenter.class)) {
+							log.log("TrialInstrumenter " + className + " instrumenting delegate " + dep);
 						}
 						InputStream bais = cachedClassLoader.getCachedBytesStream(dep);
 						

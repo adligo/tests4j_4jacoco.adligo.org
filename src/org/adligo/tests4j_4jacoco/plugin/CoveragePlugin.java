@@ -31,7 +31,8 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 		
 		ProbeDataAccessorByLoggingApiFactory factory = new ProbeDataAccessorByLoggingApiFactory(
 				MapInstrConstants.DATAFIELD_DESC);
-
+		tests4jLogger = logger;
+		
 		memory = new CoveragePluginMemory(logger);
 		memory.setProbeDataAccessorFactory(factory);
 		memory.setInstrumenterFactory(new MapClassInstrumenterFactory());

@@ -81,7 +81,7 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 	public List<I_PackageCoverage> endRecording() {
 		if (reporter != null) {
 			if (reporter.isLogEnabled(Recorder.class)) {
-				reporter.log("Ending Recording ");
+				reporter.log("Ending Recording " + Thread.currentThread().getName());
 			}
 		}
 		/*

@@ -17,6 +17,7 @@ import org.adligo.tests4j.models.shared.coverage.I_CoverageUnits;
 import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
 import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageMutant;
+import org.adligo.tests4j.run.discovery.PackageDiscovery;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.analysis.common.CoverageAnalyzer;
@@ -56,6 +57,36 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 		
 		log = memory.getLog();
 		
+		StringBuilder sb = null;
+		if (log.isLogEnabled(LazyPackageCoverage.class)) {
+			sb = new StringBuilder();
+			sb.append("LazyPackageCoverage " +
+					Thread.currentThread().getName() + " "+ packageName);
+		}
+		/*
+		try {
+			PackageDiscovery discovery = new PackageDiscovery(packageName);
+			for (String className: discovery.getClassNames()) {
+				if (inClassNames.contains(className)) {
+					String classShortName = className;
+					
+					int lastDot = className.lastIndexOf(".");
+					if (lastDot  != -1) {
+						classShortName = className.substring(lastDot+1, className.length());
+					}
+					classNames.add(classShortName);
+				}
+			}
+			
+			List<PackageDiscovery> subs =  discovery.getSubPackages();
+			for (PackageDiscovery pd: subs) {
+				input.setPackageName(pd.getPackageName());
+				children.add(new LazyPackageCoverage(input, memory));
+			}
+		} catch (IOException x) {
+			log.onThrowable(x);
+		}
+		*/
 		Set<String> subPackages = new HashSet<String>();
 		
 		for (String className: input.getClassNames()) {
@@ -64,13 +95,27 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 			if (packageName.equals(pkgName)) {
 				String classShortName = className.substring(lastDot+1, className.length());
 				classNames.add(classShortName);
-			} else if (pkgName.contains(packageName)) {
-				String sub = pkgName.substring(packageName.length() + 1, pkgName.length());
-				if (!sub.contains(".")) {
-					//its a sub package
-					subPackages.add(pkgName);
+				if (log.isLogEnabled(LazyPackageCoverage.class)) {
+					sb.append(log.getLineSeperator());
+					sb.append(this.getClass().getSimpleName() + " " +   className);
 				}
+			} else if (pkgName.indexOf(packageName) == 0) {
+				String sub = pkgName.substring(packageName.length() + 1, pkgName.length());
+				String nextPackageName = pkgName;
+				while (sub.contains(".")) {
+					lastDot = nextPackageName.lastIndexOf(".");
+					nextPackageName = nextPackageName.substring(0, lastDot);
+					 sub = pkgName.substring(nextPackageName.length() + 1, pkgName.length());
+				}
+				//its a direct sub package
+				subPackages.add(nextPackageName);
 			}
+		}
+		
+		if (log.isLogEnabled(LazyPackageCoverage.class)) {
+			sb.append(log.getLineSeperator());
+			sb.append(log.getLineSeperator());
+			log.log(sb.toString());
 		}
 		
 		for (String subPkgName: subPackages) {
@@ -78,6 +123,7 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 			children.add(new LazyPackageCoverage(input, memory));
 		}
 	}
+	
 	
 	private I_SourceFileCoverage getOrLoadSourceFileCoverage(String classSimpleName) {
 		I_SourceFileCoverage toRet = sourceCoverage.get(classSimpleName);
@@ -252,4 +298,8 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "LazyPackageCoverage [" + packageName + "]";
+	}
 }

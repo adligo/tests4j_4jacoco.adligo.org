@@ -147,6 +147,12 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.trials.IgnoreTest");
 		toRet.add("org.adligo.tests4j.models.shared.trials.IgnoreTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_Trial");
+		
+		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialInputData");
+		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialParams");
+		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialParamsAware");
+		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialParamsQueue");
+		
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialBindings");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_MetaTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_Progress");
@@ -214,9 +220,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassProbesVisitor");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_MethodProbesVisitor");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ProbeIdGenerator");
-		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.ObtainProbesStrategyType");
 		
-		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.AbstractProbeInserter");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.I_ProbeInserterFactory");
 		
 		toRet.add("org.objectweb.asm.MethodVisitor");
