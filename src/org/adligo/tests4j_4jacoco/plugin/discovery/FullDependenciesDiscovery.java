@@ -42,6 +42,9 @@ public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 	private I_ClassDependenciesCache cache;
 	/**
 	 * this contains the initial references
+	 * for all classes referenced directly
+	 * or indirectly for the findOrLoad(Class c)
+	 * 
 	 */
 	private Map<I_ClassAliasLocal, I_ClassDependenciesLocal> refMap = new HashMap<I_ClassAliasLocal,I_ClassDependenciesLocal>();
 	private Set<I_ClassParentsLocal> initalRefsToIdentify = new HashSet<I_ClassParentsLocal>();

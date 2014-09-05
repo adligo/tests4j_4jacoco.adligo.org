@@ -5,6 +5,7 @@ import org.adligo.tests4j_4jacoco.plugin.common.I_ProbeDataAccessorFactory;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.AbstractProbeInserter;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.I_ProbeInserterFactory;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassInstrumentationInfo;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ObtainProbesOfType;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.ObtainProbesStrategyType;
 import org.objectweb.asm.MethodVisitor;
 
@@ -21,8 +22,9 @@ public class MapProbeInserterFactory implements I_ProbeInserterFactory {
 	}
 
 	public I_ObtainProbesStrategy createObtainProbesStrategy(
-			ObtainProbesStrategyType type, I_ClassInstrumentationInfo classInfo) {
+			I_ObtainProbesOfType typeIn, I_ClassInstrumentationInfo classInfo) {
 		
+		ObtainProbesStrategyType type = ObtainProbesStrategyType.get(typeIn);
 		switch (type) {
 			case CLASS:
 				return new MapClassTypeStrategy(classInfo, accessorFactory);

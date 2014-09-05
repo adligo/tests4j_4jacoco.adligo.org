@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.adligo.tests4j.models.shared.common.Tests4J_System;
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageTrialInstrumentation;
@@ -58,28 +59,30 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 	@SuppressWarnings("unchecked")
 	public I_Tests4J_CoverageTrialInstrumentation instrument(Class<? extends I_AbstractTrial> trial) throws IOException {
 		if (log.isLogEnabled(TrialInstrumenter.class)) {
-			log.log(ThreadLogMessageBuilder.getThreadForLog() + " instrumenting trial " + trial);
+			log.log(this.getClass().getSimpleName() + 
+					log.getCurrentThreadName() + log.getLineSeperator() +
+					" instrumenting trial " + trial);
 		}
 		SourceFileScope sourceScope =  trial.getAnnotation(SourceFileScope.class);
 		I_ClassDependenciesLocal sourceClassDependencies = null;
 		Class<?> sourceClass = null;;
+		String packageName = null;
 		if (sourceScope != null) {
 			sourceClass = sourceScope.sourceClass();
-		}
-		
-		PackageScope packageScope = trial.getAnnotation(PackageScope.class);
-		String packageName = null;
-		if (packageScope != null) {
-			packageName = packageScope.packageName();
-			
-		}
-		if (sourceClass != null) {
 			InstrumentedClassDependencies icd = instrumentClass(sourceClass);
 			sourceClassDependencies = icd.getClassDependencies();
-		}
+			
+		} else {
+			PackageScope packageScope = trial.getAnnotation(PackageScope.class);
+			
+			if (packageScope != null) {
+				packageName = packageScope.packageName();
+			}
+		}	
+		
 		if (packageName != null) {
 			if (log.isLogEnabled(TrialInstrumenter.class)) {
-				log.log(this.toString() +  "instrumentPackage from PackageScope " + packageName);
+				log.log(this.getClass().getSimpleName() +  " instrument package " + packageName);
 			}
 			if ( !memory.hasStarted(packageName)) {
 				//only one thread needs to do each package,
@@ -101,7 +104,7 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 	protected void instrumentPackageClasses(PackageDiscovery pd)
 			throws IOException {
 		if (log.isLogEnabled(TrialInstrumenter.class)) {
-			log.log(this.toString() +  "instrumentPackageClasses " + pd.getPackageName());
+			log.log(this.getClass().getSimpleName() +  " instrumentPackageClasses " + pd.getPackageName());
 		}
 		try {
 			List<String> classes =  pd.getClassNames();
@@ -129,8 +132,9 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 	 */
 	private InstrumentedClassDependencies instrumentClass(Class<?> c) throws IOException {
 		String className = c.getName();
-		if (log.isLogEnabled(ClassInstrumenter.class)) {
-			log.log("ClassInstrumenter instrumenting class " + className);
+		if (log.isLogEnabled(TrialInstrumenter.class)) {
+			log.log(this.getClass().getSimpleName() + 
+					" instrumenting class " + className);
 		}
 		I_OrderedClassDependencies ocd = null;
 		try {
@@ -145,7 +149,8 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 				if ( !classFilter.isFiltered(dep)) {
 					if ( !instrumentedClassLoader.hasCache(dep)) {
 						if (log.isLogEnabled(TrialInstrumenter.class)) {
-							log.log("TrialInstrumenter " + className + " instrumenting delegate " + dep);
+							log.log(this.getClass().getSimpleName() + 
+									" " + c.getSimpleName() + " instrumenting delegate " + dep);
 						}
 						InputStream bais = cachedClassLoader.getCachedBytesStream(dep);
 						

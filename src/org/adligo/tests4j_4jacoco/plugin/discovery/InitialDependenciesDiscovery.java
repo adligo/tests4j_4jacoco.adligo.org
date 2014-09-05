@@ -3,7 +3,7 @@ package org.adligo.tests4j_4jacoco.plugin.discovery;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
@@ -107,6 +107,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
 		List<ClassAttributes> asmRefs = classVisitor.getClassCalls();
 		addCalls(crm, asmRefs);
+		//@diagram_sync with DiscoveryOverview.seq on 9/2/2014
 		readReflectionReferences(c, crm);
 		
 		ClassDependenciesLocal result = new ClassDependenciesLocal(crm);
@@ -196,6 +197,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 	/**
 	 * this reads the method parameter and return types
 	 * for interfaces, and the super types for interfaces, and classes
+	 * @diagram_sync with DiscoveryOverview.seq on 9/4/2014
 	 * @param c
 	 * @param asmRefs
 	 * @param classNames
@@ -204,27 +206,34 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 	protected void readReflectionReferences(Class<?> c, ClassDependenciesLocalMutant crm) 
 		throws ClassNotFoundException, IOException {
 		
-		
 		if (c.isInterface()) {
 			//add a self reference, so the counts don't get screwed up
 			I_ClassParentsLocal cps =  classParentsDiscovery.findOrLoad(c);
 			crm.addDependency(cps);
 		}	
 		Annotation [] annotations =  c.getAnnotations();
-		for (int i = 0; i < annotations.length; i++) {
-			Annotation anno = annotations[i];
-			Class<? extends Annotation> annoClass = anno.annotationType();
-			addReflectionNames(annoClass, c, crm);
-			
-			Method [] methods = annoClass.getDeclaredMethods();
-			for (int j = 0; j < methods.length; j++) {
-				Method f = methods[j];
-				Class<?> fieldType =  f.getReturnType();
-				addReflectionNames(fieldType, c, crm);
-			}
-		}
+		addAnnotations(c, crm, annotations);
 		
-		//add references from reflection, for abstract methods, with no byte code
+		//add references from reflection, for abstract methods, with no byte code,
+		//and get annotations
+		Constructor<?>[] cons = c.getDeclaredConstructors();
+		for (int i = 0; i < cons.length; i++) {
+			
+			Constructor<?> con = cons[i];
+			Class<?> [] exceptions = con.getExceptionTypes();
+			for (int j = 0; j < exceptions.length; j++) {
+				Class<?> e = exceptions[j];
+				addReflectionNames(e, c, crm);
+			}
+			Class<?> [] params =  con.getParameterTypes();
+			for (int j = 0; j < params.length; j++) {
+				Class<?> p = params[j];
+				addReflectionNames(p, c,  crm);
+			}
+			annotations = con.getAnnotations();
+			addAnnotations(c, crm, annotations);
+		}
+
 		Method [] methods =  c.getDeclaredMethods();
 		for (int i = 0; i < methods.length; i++) {
 			
@@ -242,6 +251,25 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 					Class<?> p = params[j];
 					addReflectionNames(p, c,  crm);
 				}
+			}
+			annotations = m.getAnnotations();
+			addAnnotations(c, crm, annotations);
+		}
+	}
+
+	public void addAnnotations(Class<?> c, ClassDependenciesLocalMutant crm,
+			Annotation[] annotations) throws ClassNotFoundException,
+			IOException {
+		for (int i = 0; i < annotations.length; i++) {
+			Annotation anno = annotations[i];
+			Class<? extends Annotation> annoClass = anno.annotationType();
+			addReflectionNames(annoClass, c, crm);
+			
+			Method [] methods = annoClass.getDeclaredMethods();
+			for (int j = 0; j < methods.length; j++) {
+				Method f = methods[j];
+				Class<?> fieldType =  f.getReturnType();
+				addReflectionNames(fieldType, c, crm);
 			}
 		}
 	}
