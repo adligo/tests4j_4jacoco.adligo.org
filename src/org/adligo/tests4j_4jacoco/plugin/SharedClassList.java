@@ -148,10 +148,13 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.trials.IgnoreTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_Trial");
 		
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialInputData");
+		toRet.add("org.adligo.tests4j.models.shared.trials.I_MetaTrialInputData");
+		toRet.add("org.adligo.tests4j.models.shared.trials.I_MetaTrialParams");
+		toRet.add("org.adligo.tests4j.models.shared.trials.I_MetaTrialParamsAware");
+		
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialParams");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialParamsAware");
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialParamsQueue");
+		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialParamsFactory");
 		
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialBindings");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_MetaTrial");
