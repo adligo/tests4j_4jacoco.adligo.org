@@ -94,7 +94,9 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TrialRunMetadata");
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_UseCaseMetadata");
 		
+		
 		toRet.add("org.adligo.tests4j.models.shared.results.I_ApiTrialResult");
+		toRet.add("org.adligo.tests4j.models.shared.results.I_DependencyTestFailure");
 		toRet.add("org.adligo.tests4j.models.shared.results.I_Duration");
 		toRet.add("org.adligo.tests4j.models.shared.results.I_SourceFileTrialResult");
 		
@@ -136,9 +138,10 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_EclipseErrors");
 		
 		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_LineDiffTextDisplayMessages");
-		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_ParamReaderMessages");
+		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_ParamsReaderMessages");
 		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_ReportMessages");
 		
+		toRet.add("org.adligo.tests4j.models.shared.trials.AllowedDependencies");
 		toRet.add("org.adligo.tests4j.models.shared.trials.AfterTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.BeforeTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.I_AbstractTrial");

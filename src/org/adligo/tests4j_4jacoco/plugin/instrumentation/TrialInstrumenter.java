@@ -10,17 +10,17 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.adligo.tests4j.models.shared.common.Tests4J_System;
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
 import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
+import org.adligo.tests4j.models.shared.dependency.I_DependencyGroup;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageTrialInstrumentation;
 import org.adligo.tests4j.models.shared.system.Tests4J_CoverageTrialInstrumentation;
+import org.adligo.tests4j.models.shared.trials.AllowedDependencies;
 import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j.models.shared.trials.PackageScope;
 import org.adligo.tests4j.models.shared.trials.SourceFileScope;
 import org.adligo.tests4j.run.discovery.PackageDiscovery;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
-import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.common.I_ClassInstrumenter;
 import org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDependencies;
@@ -80,6 +80,13 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 			}
 		}	
 		
+		AllowedDependencies ad = trial.getAnnotation(AllowedDependencies.class);
+		if (ad != null) {
+			Class<? extends I_DependencyGroup>[] grps = ad.groups();
+			for (Class<? extends I_DependencyGroup> grp: grps) {
+				instrumentClass(grp);
+			}
+		}
 		if (packageName != null) {
 			if (log.isLogEnabled(TrialInstrumenter.class)) {
 				log.log(this.getClass().getSimpleName() +  " instrument package " + packageName);
