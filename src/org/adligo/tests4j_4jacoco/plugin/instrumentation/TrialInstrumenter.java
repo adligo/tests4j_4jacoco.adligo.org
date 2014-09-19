@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,6 +16,7 @@ import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.I_DependencyGroup;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageTrialInstrumentation;
 import org.adligo.tests4j.models.shared.system.Tests4J_CoverageTrialInstrumentation;
+import org.adligo.tests4j.models.shared.trials.AdditionalInstrumentation;
 import org.adligo.tests4j.models.shared.trials.AllowedDependencies;
 import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j.models.shared.trials.PackageScope;
@@ -63,6 +65,21 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 					log.getCurrentThreadName() + log.getLineSeperator() +
 					" instrumenting trial " + trial);
 		}
+		/**
+		 * always to additional instrumentation first
+		 * so that trials can have their own
+		 * package dependency tree
+		 */
+		AdditionalInstrumentation additional = trial.getAnnotation(AdditionalInstrumentation.class);
+		if (additional != null) {
+			String pkgs = additional.javaPackages();
+			StringTokenizer st = new StringTokenizer(pkgs, ",");
+			while (st.hasMoreElements()) {
+				String pkg = st.nextToken();
+				checkPackageInstrumented(pkg);
+			}
+		}
+		
 		SourceFileScope sourceScope =  trial.getAnnotation(SourceFileScope.class);
 		I_ClassDependenciesLocal sourceClassDependencies = null;
 		Class<?> sourceClass = null;;
@@ -71,6 +88,14 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 			sourceClass = sourceScope.sourceClass();
 			InstrumentedClassDependencies icd = instrumentClass(sourceClass);
 			sourceClassDependencies = icd.getClassDependencies();
+			//get allowed dependencies
+			AllowedDependencies ad = trial.getAnnotation(AllowedDependencies.class);
+			if (ad != null) {
+				Class<? extends I_DependencyGroup>[] grps = ad.groups();
+				for (Class<? extends I_DependencyGroup> grp: grps) {
+					instrumentClass(grp);
+				}
+			}
 			
 		} else {
 			PackageScope packageScope = trial.getAnnotation(PackageScope.class);
@@ -80,13 +105,16 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 			}
 		}	
 		
-		AllowedDependencies ad = trial.getAnnotation(AllowedDependencies.class);
-		if (ad != null) {
-			Class<? extends I_DependencyGroup>[] grps = ad.groups();
-			for (Class<? extends I_DependencyGroup> grp: grps) {
-				instrumentClass(grp);
-			}
-		}
+		checkPackageInstrumented(packageName);
+		
+		classStart.set(true);
+		InstrumentedClassDependencies icd = instrumentClass(trial);
+		return new Tests4J_CoverageTrialInstrumentation(
+				(Class<? extends I_AbstractTrial>) icd.getInstrumentedClass(), sourceClassDependencies);
+		
+	}
+
+	public void checkPackageInstrumented(String packageName) throws IOException {
 		if (packageName != null) {
 			if (log.isLogEnabled(TrialInstrumenter.class)) {
 				log.log(this.getClass().getSimpleName() +  " instrument package " + packageName);
@@ -101,11 +129,6 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 				memory.finish(packageName);
 			}
 		}
-		classStart.set(true);
-		InstrumentedClassDependencies icd = instrumentClass(trial);
-		return new Tests4J_CoverageTrialInstrumentation(
-				(Class<? extends I_AbstractTrial>) icd.getInstrumentedClass(), sourceClassDependencies);
-		
 	}
 
 	protected void instrumentPackageClasses(PackageDiscovery pd)
