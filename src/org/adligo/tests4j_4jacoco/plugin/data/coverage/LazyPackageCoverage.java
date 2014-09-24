@@ -1,6 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin.data.coverage;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,13 +12,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.adligo.tests4j.models.shared.common.ClassMethods;
 import org.adligo.tests4j.models.shared.coverage.CoverageUnitContinerMutant;
 import org.adligo.tests4j.models.shared.coverage.CoverageUnits;
 import org.adligo.tests4j.models.shared.coverage.I_CoverageUnits;
 import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
 import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage;
+import org.adligo.tests4j.models.shared.coverage.SourceFileCoverage;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageMutant;
-import org.adligo.tests4j.run.discovery.PackageDiscovery;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.analysis.common.CoverageAnalyzer;
@@ -181,10 +183,25 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 			for (String fileName: classNames) {
 				if (!sourceCoverage.containsKey(fileName)) {
 					String fullName = packageName  + "." + fileName;
-					try {	
-						analyzer.analyzeClass(classLoader.getCachedBytesStream(fullName), fullName);
-					} catch (IOException x) {
+					try {
+						Class<?> clazz = Class.forName(packageName + "." + fileName);
+						if (clazz.isInterface()) {
+							String shortName = ClassMethods.getSimpleName(fileName);
+							SourceFileCoverageMutant sfcm = new SourceFileCoverageMutant();
+							sfcm.setCoverageUnits(new CoverageUnits(0));
+							SourceFileCoverage sfc = new SourceFileCoverage(sfcm);
+							sourceCoverage.put(shortName, sfc);
+						}
+					} catch (ClassNotFoundException x) {
 						log.onThrowable(x);
+					}
+					if (classLoader.hasCache(fullName)) {
+						try {	
+							InputStream in = classLoader.getCachedBytesStream(fullName);
+							analyzer.analyzeClass(in, fullName);
+						} catch (IOException x) {
+							log.onThrowable(x);
+						}
 					}
 				}
 			}
@@ -200,7 +217,10 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 			Collection<I_SourceFileCoverage> entries = sourceCoverage.values();
 			for (I_SourceFileCoverage sfc: entries) {
 				cus = cus + sfc.getCoverageUnits().get();
-				covered_cus = covered_cus + sfc.getCoveredCoverageUnits().get();
+				I_CoverageUnits ccus = sfc.getCoveredCoverageUnits();
+				if (ccus != null) {
+					covered_cus = covered_cus + ccus.get();
+				}
 			}
 			counts.setCoverageUnits(new CoverageUnits(cus));
 			counts.setCoveredCoverageUnits(new CoverageUnits(covered_cus));

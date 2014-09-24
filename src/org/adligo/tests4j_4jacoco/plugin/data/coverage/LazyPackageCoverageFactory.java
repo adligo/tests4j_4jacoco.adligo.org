@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.adligo.tests4j.models.shared.common.ClassMethods;
 import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
@@ -30,7 +31,7 @@ public class LazyPackageCoverageFactory {
 		Set<String> topPackages = getTopPackages(pkgs, log);
 		for (String pkg: topPackages) {
 			LazyPackageCoverageInput input = new LazyPackageCoverageInput();
-			List<String> clazzes = getClasses(pkg, classNames, log);
+			List<String> clazzes = getClasses(pkg, allClassNames);
 			input.setClassNames(clazzes);
 			input.setProbeData(data);
 			input.setPackageName(pkg);
@@ -72,8 +73,7 @@ public class LazyPackageCoverageFactory {
 		return toRet;
 	}
 	
-	public static List<String> getClasses(String topPackageName, Collection<String> classNames, 
-			I_Tests4J_Log log) {
+	public static List<String> getClasses(String topPackageName, Collection<String> classNames) {
 		List<String> toRet  = new ArrayList<String>();
 		for (String className: classNames) {
 			if (className.indexOf(topPackageName) == 0) {
