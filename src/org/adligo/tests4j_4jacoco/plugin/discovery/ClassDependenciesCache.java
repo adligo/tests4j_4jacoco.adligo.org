@@ -2,9 +2,9 @@ package org.adligo.tests4j_4jacoco.plugin.discovery;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.adligo.tests4j.models.shared.common.I_CacheControl;
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache;
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
+import org.adligo.tests4j.shared.common.I_CacheControl;
 
 public class ClassDependenciesCache implements I_ClassDependenciesCache {
 	private ConcurrentHashMap<String, I_ClassDependenciesLocal> refs  = new ConcurrentHashMap<String, I_ClassDependenciesLocal>();

@@ -6,9 +6,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.adligo.tests4j.models.shared.common.ClassMethods;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
 import org.adligo.tests4j.run.memory.Tests4J_ThreadFactory;
+import org.adligo.tests4j.shared.common.ClassMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 
 /**

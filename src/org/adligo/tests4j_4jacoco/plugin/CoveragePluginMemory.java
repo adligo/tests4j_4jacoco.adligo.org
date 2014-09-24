@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.adligo.tests4j.models.shared.common.CacheControl;
 import org.adligo.tests4j.models.shared.dependency.ClassFilter;
 import org.adligo.tests4j.models.shared.dependency.ClassFilterMutant;
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache;
@@ -14,6 +13,7 @@ import org.adligo.tests4j.models.shared.dependency.I_ClassParentsCache;
 import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
 import org.adligo.tests4j.run.helpers.CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
+import org.adligo.tests4j.shared.common.CacheControl;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.common.I_ClassInstrumenterFactory;
 import org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscoveryFactory;

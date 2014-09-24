@@ -8,8 +8,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
 
-import org.adligo.tests4j.models.shared.common.ClassMethods;
-import org.adligo.tests4j.models.shared.common.StringMethods;
 import org.adligo.tests4j.models.shared.dependency.ClassAttributes;
 import org.adligo.tests4j.models.shared.dependency.ClassAttributesMutant;
 import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocal;
@@ -23,6 +21,8 @@ import org.adligo.tests4j.models.shared.dependency.I_FieldSignature;
 import org.adligo.tests4j.models.shared.dependency.I_MethodSignature;
 import org.adligo.tests4j.models.shared.dependency.MethodSignature;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
+import org.adligo.tests4j.shared.common.ClassMethods;
+import org.adligo.tests4j.shared.common.StringMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.objectweb.asm.ClassReader;

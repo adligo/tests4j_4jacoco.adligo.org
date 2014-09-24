@@ -17,54 +17,7 @@ public class SharedClassList {
 	private static Set<String> getSharedClassWhitelist() {
 		Set<String> toRet = new HashSet<String>();
 	
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_AssertCompareFailure");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_AssertCommand");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_AssertionData");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_AssertThrownFailure");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_Asserts");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_AssertType");
-		
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_CollectionContainsAssertionData");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_CollectionAssertionData");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_CompareAssertCommand");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_CompareAssertionData");
-		
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_ExpectedThrownData");
-		
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_SimpleAssertCommand");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_SimpleCompareAssertCommand");
-		
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_AssertListener");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_AssertType");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_TestFailure");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_TestFailureType");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_ThrowableInfo");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_Thrower");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_ThrownAssertCommand");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_ThrownAssertionData");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.common.I_SourceTestFailure");
-		
-		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_DiffIndexes");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_DiffIndexesPair");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_LineDiff");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_LineDiffType");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_TextLines");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.line_text.I_TextLinesCompareResult");
-		
-		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_Evaluation");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_EvaluatorLookup");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_UniformAssertionCommand");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_UniformAssertionEvaluator");
-		
-		
-		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_UniformThrownAssertionCommand");
-		toRet.add("org.adligo.tests4j.models.shared.asserts.uniform.I_UniformThrownAssertionEvaluator");
-		
-		toRet.add("org.adligo.tests4j.models.shared.common.I_TrialType");
-		toRet.add("org.adligo.tests4j.models.shared.common.I_Platform");
-		toRet.add("org.adligo.tests4j.models.shared.common.I_PlatformContainer");
-		toRet.add("org.adligo.tests4j.models.shared.common.I_Immutable");
-		toRet.add("org.adligo.tests4j.models.shared.common.I_System");
+
 		
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnits");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnitsContainer");
@@ -135,17 +88,6 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_TrialProgress");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_SourceInfoParams");
 		
-		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_AnnotationErrors");
-		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_AssertionInputMessages");
-		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_ResultMessages");
-		
-		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_Constants");
-		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_EclipseErrors");
-		
-		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_LineDiffTextDisplayMessages");
-		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_ParamsReaderMessages");
-		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_ReportMessages");
-		
 		toRet.add("org.adligo.tests4j.models.shared.trials.AllowedDependencies");
 		toRet.add("org.adligo.tests4j.models.shared.trials.AfterTrial");
 		toRet.add("org.adligo.tests4j.models.shared.trials.BeforeTrial");
@@ -178,10 +120,70 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.trials.TrialTypeAnnotation");
 		toRet.add("org.adligo.tests4j.models.shared.trials.UseCaseScope");
 		
-		toRet.add("org.adligo.tests4j.models.shared.xml.I_XML_Builder");
-		toRet.add("org.adligo.tests4j.models.shared.xml.I_XML_Consumer");
-		toRet.add("org.adligo.tests4j.models.shared.xml.I_XML_Producer");
+		toRet.add("org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader");
+		toRet.add("org.adligo.tests4j.run.common.I_Tests4J_Memory");
 		
+		toRet.add("org.adligo.tests4j.run.remote.socket_api.I_AfterMessageHandler");
+
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_AssertCompareFailure");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_AssertCommand");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_AssertionData");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_AssertThrownFailure");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_Asserts");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_AssertType");
+		
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_CollectionContainsAssertionData");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_CollectionAssertionData");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_CompareAssertCommand");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_CompareAssertionData");
+		
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_ExpectedThrownData");
+		
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_SimpleAssertCommand");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_SimpleCompareAssertCommand");
+		
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_AssertListener");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_AssertType");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_TestFailure");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_TestFailureType");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_ThrowableInfo");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_Thrower");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_ThrownAssertCommand");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_ThrownAssertionData");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_SourceTestFailure");
+		
+		toRet.add("org.adligo.tests4j.shared.asserts.line_text.I_DiffIndexes");
+		toRet.add("org.adligo.tests4j.shared.asserts.line_text.I_DiffIndexesPair");
+		toRet.add("org.adligo.tests4j.shared.asserts.line_text.I_LineDiff");
+		toRet.add("org.adligo.tests4j.shared.asserts.line_text.I_LineDiffType");
+		toRet.add("org.adligo.tests4j.shared.asserts.line_text.I_TextLines");
+		toRet.add("org.adligo.tests4j.shared.asserts.line_text.I_TextLinesCompareResult");
+		
+		toRet.add("org.adligo.tests4j.shared.asserts.uniform.I_Evaluation");
+		toRet.add("org.adligo.tests4j.shared.asserts.uniform.I_EvaluatorLookup");
+		toRet.add("org.adligo.tests4j.shared.asserts.uniform.I_UniformAssertionCommand");
+		toRet.add("org.adligo.tests4j.shared.asserts.uniform.I_UniformAssertionEvaluator");
+		
+		
+		toRet.add("org.adligo.tests4j.shared.asserts.uniform.I_UniformThrownAssertionCommand");
+		toRet.add("org.adligo.tests4j.shared.asserts.uniform.I_UniformThrownAssertionEvaluator");
+		
+		toRet.add("org.adligo.tests4j.shared.common.I_TrialType");
+		toRet.add("org.adligo.tests4j.shared.common.I_Platform");
+		toRet.add("org.adligo.tests4j.shared.common.I_PlatformContainer");
+		toRet.add("org.adligo.tests4j.shared.common.I_Immutable");
+		toRet.add("org.adligo.tests4j.shared.common.I_System");
+		
+		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_AnnotationErrors");
+		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_AssertionInputMessages");
+		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_ResultMessages");
+		
+		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_Constants");
+		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_EclipseErrors");
+		
+		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_LineDiffTextDisplayMessages");
+		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_ParamsReaderMessages");
+		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_ReportMessages");
 		
 		toRet.add("org.adligo.tests4j.shared.output.I_ConcurrentOutputDelegator");
 		toRet.add("org.adligo.tests4j.shared.output.I_OutputBuffer");
@@ -189,11 +191,10 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.shared.output.I_ToggleOutputBuffer");
 		toRet.add("org.adligo.tests4j.shared.output.I_Tests4J_Log");
 		
-		toRet.add("org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader");
-		toRet.add("org.adligo.tests4j.run.common.I_Tests4J_Memory");
+		toRet.add("org.adligo.tests4j.shared.xml.I_XML_Builder");
+		toRet.add("org.adligo.tests4j.shared.xml.I_XML_Consumer");
+		toRet.add("org.adligo.tests4j.shared.xml.I_XML_Producer");
 		
-		toRet.add("org.adligo.tests4j.run.remote.socket_api.I_AfterMessageHandler");
-
 		add4JacocoAndAsmClasses(toRet);
 		
 		for (String clazz: toRet) {

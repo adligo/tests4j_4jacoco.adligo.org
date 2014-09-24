@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.adligo.tests4j.models.shared.common.ClassMethods;
 import org.adligo.tests4j.models.shared.coverage.CoverageUnitContinerMutant;
 import org.adligo.tests4j.models.shared.coverage.CoverageUnits;
 import org.adligo.tests4j.models.shared.coverage.I_CoverageUnits;
@@ -21,6 +20,7 @@ import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverage;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageMutant;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
+import org.adligo.tests4j.shared.common.ClassMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.analysis.common.CoverageAnalyzer;
 import org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory;

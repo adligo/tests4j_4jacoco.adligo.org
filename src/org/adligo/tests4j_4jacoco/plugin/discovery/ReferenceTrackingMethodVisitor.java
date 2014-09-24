@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.adligo.tests4j.models.shared.common.ClassMethods;
-import org.adligo.tests4j.models.shared.common.StringMethods;
 import org.adligo.tests4j.models.shared.dependency.ClassAttributesMutant;
 import org.adligo.tests4j.models.shared.dependency.FieldSignature;
 import org.adligo.tests4j.models.shared.dependency.MethodSignature;
+import org.adligo.tests4j.shared.common.ClassMethods;
+import org.adligo.tests4j.shared.common.StringMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.objectweb.asm.Label;
