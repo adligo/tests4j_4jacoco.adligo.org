@@ -98,6 +98,9 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 	public double getInstrumentProgress(Class<? extends I_AbstractTrial> trial) {
 		String trialName = trial.getName();
 		I_TrialInstrumenter progress = trialIntrumenterByWork.get(trialName);
+		if (progress == null) {
+			return 100.00;
+		}
 		return progress.getPctDone();
 	}
 

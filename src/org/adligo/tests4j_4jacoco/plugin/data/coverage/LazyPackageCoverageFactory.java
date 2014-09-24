@@ -14,7 +14,8 @@ import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 
 public class LazyPackageCoverageFactory {
 
-	public static List<I_PackageCoverage> create(I_ProbesDataStore data, I_CoveragePluginMemory memory) {
+	public static List<I_PackageCoverage> create(I_ProbesDataStore data, 
+			I_CoveragePluginMemory memory, Set<String> testedClasses) {
 		List<I_PackageCoverage> toRet = new ArrayList<I_PackageCoverage>();
 		
 		
@@ -22,8 +23,11 @@ public class LazyPackageCoverageFactory {
 		List<String> classNames = classLoader.getAllCachedClasses();
 		I_Tests4J_Log log = memory.getLog();
 		
-		Set<String> allPackages = getAllPackages(classNames, log);
-		Set<String> topPackages = getTopPackages(allPackages, log);
+		List<String> allClassNames = new ArrayList<String>(classNames);
+		allClassNames.addAll(testedClasses);
+		
+		Set<String> pkgs =  getAllPackages(allClassNames, log);
+		Set<String> topPackages = getTopPackages(pkgs, log);
 		for (String pkg: topPackages) {
 			LazyPackageCoverageInput input = new LazyPackageCoverageInput();
 			List<String> clazzes = getClasses(pkg, classNames, log);

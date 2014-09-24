@@ -133,6 +133,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_TestFinishedListener");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_TrialList");
 		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_TrialProgress");
+		toRet.add("org.adligo.tests4j.models.shared.system.I_Tests4J_SourceInfoParams");
 		
 		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_AnnotationErrors");
 		toRet.add("org.adligo.tests4j.models.shared.i18n.I_Tests4J_AssertionInputMessages");

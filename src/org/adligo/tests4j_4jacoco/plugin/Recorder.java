@@ -3,6 +3,7 @@ package org.adligo.tests4j_4jacoco.plugin;
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Set;
 
 import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
 import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageRecorder;
@@ -78,7 +79,7 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 	}
 	
 	@Override
-	public List<I_PackageCoverage> endRecording() {
+	public List<I_PackageCoverage> endRecording(Set<String> classNames) {
 		if (reporter != null) {
 			if (reporter.isLogEnabled(Recorder.class)) {
 				reporter.log("Ending Recording " + Thread.currentThread().getName());
@@ -91,7 +92,7 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 		*/
 		I_ProbesDataStore executionData = runtime.end(main);
 		
-		return LazyPackageCoverageFactory.create(executionData, memory);
+		return LazyPackageCoverageFactory.create(executionData, memory, classNames);
 	}
 
 
