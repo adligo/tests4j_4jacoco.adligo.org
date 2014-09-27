@@ -2,7 +2,7 @@ package org.adligo.tests4j_4jacoco.plugin.discovery;
 
 import java.util.List;
 
-import org.adligo.tests4j.models.shared.dependency.ClassAttributes;
+import org.adligo.tests4j.shared.asserts.dependency.ClassAttributes;
 import org.objectweb.asm.ClassVisitor;
 
 /**

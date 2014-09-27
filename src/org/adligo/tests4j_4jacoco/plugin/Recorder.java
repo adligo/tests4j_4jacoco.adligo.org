@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
-import org.adligo.tests4j.models.shared.system.I_Tests4J_CoverageRecorder;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
+import org.adligo.tests4j.system.shared.I_Tests4J_CoverageRecorder;
 import org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory;
 import org.adligo.tests4j_4jacoco.plugin.common.I_Runtime;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;

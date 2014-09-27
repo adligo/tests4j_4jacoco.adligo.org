@@ -2,10 +2,10 @@ package org.adligo.tests4j_4jacoco.plugin;
 
 import java.io.File;
 
-import org.adligo.tests4j.models.shared.system.I_Tests4J_CoveragePlugin;
-import org.adligo.tests4j.models.shared.system.I_Tests4J_CoveragePluginFactory;
-import org.adligo.tests4j.models.shared.system.I_Tests4J_CoveragePluginParams;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
+import org.adligo.tests4j.system.shared.I_Tests4J_CoveragePlugin;
+import org.adligo.tests4j.system.shared.I_Tests4J_CoveragePluginFactory;
+import org.adligo.tests4j.system.shared.I_Tests4J_CoveragePluginParams;
 
 public class CoveragePluginFactory implements I_Tests4J_CoveragePluginFactory  {
 	@Override
