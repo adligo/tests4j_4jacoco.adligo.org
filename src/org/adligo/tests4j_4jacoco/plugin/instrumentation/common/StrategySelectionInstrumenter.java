@@ -1,6 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation.common;
 
-import org.adligo.tests4j.run.Tests4J_UncaughtExceptionHandler;
+import org.adligo.tests4j.run.api.Tests4J_UncaughtExceptionHandler;
 import org.adligo.tests4j_4jacoco.plugin.asm.ApiVersion;
 import org.adligo.tests4j_4jacoco.plugin.asm.BytecodeInjectionDebuger;
 import org.adligo.tests4j_4jacoco.plugin.common.I_ClassInstrumenterFactory;

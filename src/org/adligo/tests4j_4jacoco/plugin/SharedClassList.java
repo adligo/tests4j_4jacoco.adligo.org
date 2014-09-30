@@ -61,59 +61,59 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.results.I_UseCaseTrialResult");
 		
 		
-		toRet.add("org.adligo.tests4j.system.shared.I_Tests4J_Controls");
-		toRet.add("org.adligo.tests4j.system.shared.I_Tests4J_CoveragePlugin");
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_Controls");
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePlugin");
 
-		toRet.add("org.adligo.tests4j.system.shared.I_Tests4J_CoveragePluginParams");
-		toRet.add("org.adligo.tests4j.system.shared.I_Tests4J_CoverageRecorder");
-		toRet.add("org.adligo.tests4j.system.shared.I_Tests4J_CoverageTrialInstrumentation");
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePluginParams");
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageRecorder");
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageTrialInstrumentation");
 		
-		toRet.add("org.adligo.tests4j.system.shared.I_Tests4J_Delegate");
-		toRet.add("org.adligo.tests4j.system.shared.I_Tests4J_DelegateFactory");
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_Delegate");
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_DelegateFactory");
 		
-		toRet.add("org.adligo.tests4j.system.shared.I_Tests4J_Listener");
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_Listener");
 		
-		toRet.add("org.adligo.tests4j.system.shared.I_Tests4J_Params");
-		toRet.add("org.adligo.tests4j.system.shared.I_Tests4J_ProcessInfo");
-		toRet.add("org.adligo.tests4j.system.shared.I_Tests4J_ProgressMonitor");
-		toRet.add("org.adligo.tests4j.system.shared.I_Tests4J_RemoteInfo");
-		toRet.add("org.adligo.tests4j.system.shared.I_Tests4J_Runnable");
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_Params");
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_ProcessInfo");
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_ProgressMonitor");
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_RemoteInfo");
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_Runnable");
 		
-		toRet.add("org.adligo.tests4j.system.shared.I_Tests4J_TestFinishedListener");
-		toRet.add("org.adligo.tests4j.system.shared.I_Tests4J_TrialList");
-		toRet.add("org.adligo.tests4j.system.shared.I_Tests4J_TrialProgress");
-		toRet.add("org.adligo.tests4j.system.shared.I_Tests4J_SourceInfoParams");
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_TestFinishedListener");
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_TrialList");
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_TrialProgress");
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_SourceInfoParams");
 		
-		toRet.add("org.adligo.tests4j.models.shared.trials.AfterTrial");
-		toRet.add("org.adligo.tests4j.models.shared.trials.BeforeTrial");
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_AbstractTrial");
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_ApiTrial");
+		toRet.add("org.adligo.tests4j.system.shared.trials.AfterTrial");
+		toRet.add("org.adligo.tests4j.system.shared.trials.BeforeTrial");
+		toRet.add("org.adligo.tests4j.system.shared.trials.I_AbstractTrial");
+		toRet.add("org.adligo.tests4j.system.shared.trials.I_ApiTrial");
 		
-		toRet.add("org.adligo.tests4j.models.shared.trials.IgnoreTest");
-		toRet.add("org.adligo.tests4j.models.shared.trials.IgnoreTrial");
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_Trial");
+		toRet.add("org.adligo.tests4j.system.shared.trials.IgnoreTest");
+		toRet.add("org.adligo.tests4j.system.shared.trials.IgnoreTrial");
+		toRet.add("org.adligo.tests4j.system.shared.trials.I_Trial");
 		
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_MetaTrialInputData");
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_MetaTrialParams");
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_MetaTrialParamsAware");
+		toRet.add("org.adligo.tests4j.system.shared.trials.I_MetaTrialInputData");
+		toRet.add("org.adligo.tests4j.system.shared.trials.I_MetaTrialParams");
+		toRet.add("org.adligo.tests4j.system.shared.trials.I_MetaTrialParamsAware");
 		
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialParams");
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialParamsAware");
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialParamsFactory");
+		toRet.add("org.adligo.tests4j.system.shared.trials.I_TrialParams");
+		toRet.add("org.adligo.tests4j.system.shared.trials.I_TrialParamsAware");
+		toRet.add("org.adligo.tests4j.system.shared.trials.I_TrialParamsFactory");
 		
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_TrialBindings");
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_MetaTrial");
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_Progress");
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_SourceFileTrial");
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_SubProgress");
-		toRet.add("org.adligo.tests4j.models.shared.trials.I_UseCaseTrial");
+		toRet.add("org.adligo.tests4j.system.shared.trials.I_TrialBindings");
+		toRet.add("org.adligo.tests4j.system.shared.trials.I_MetaTrial");
+		toRet.add("org.adligo.tests4j.system.shared.trials.I_Progress");
+		toRet.add("org.adligo.tests4j.system.shared.trials.I_SourceFileTrial");
+		toRet.add("org.adligo.tests4j.system.shared.trials.I_SubProgress");
+		toRet.add("org.adligo.tests4j.system.shared.trials.I_UseCaseTrial");
 		
-		toRet.add("org.adligo.tests4j.models.shared.trials.PackageScope");
-		toRet.add("org.adligo.tests4j.models.shared.trials.SourceFileScope");
-		toRet.add("org.adligo.tests4j.models.shared.trials.SuppressOutput");
-		toRet.add("org.adligo.tests4j.models.shared.trials.Test");
-		toRet.add("org.adligo.tests4j.models.shared.trials.TrialTypeAnnotation");
-		toRet.add("org.adligo.tests4j.models.shared.trials.UseCaseScope");
+		toRet.add("org.adligo.tests4j.system.shared.trials.PackageScope");
+		toRet.add("org.adligo.tests4j.system.shared.trials.SourceFileScope");
+		toRet.add("org.adligo.tests4j.system.shared.trials.SuppressOutput");
+		toRet.add("org.adligo.tests4j.system.shared.trials.Test");
+		toRet.add("org.adligo.tests4j.system.shared.trials.TrialTypeAnnotation");
+		toRet.add("org.adligo.tests4j.system.shared.trials.UseCaseScope");
 		
 		toRet.add("org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader");
 		toRet.add("org.adligo.tests4j.run.common.I_Tests4J_Memory");
@@ -183,7 +183,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.shared.common.I_Immutable");
 		toRet.add("org.adligo.tests4j.shared.common.I_System");
 		
-		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_AnnotationErrors");
+		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_AnnotationMessages");
 		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_AssertionInputMessages");
 		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_ResultMessages");
 		

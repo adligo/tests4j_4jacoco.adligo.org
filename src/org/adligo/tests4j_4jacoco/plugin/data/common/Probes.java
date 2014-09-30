@@ -1,6 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.data.common;
 
-import org.adligo.tests4j.models.shared.trials.BeforeTrial;
+import org.adligo.tests4j.system.shared.trials.BeforeTrial;
 
 
 /**

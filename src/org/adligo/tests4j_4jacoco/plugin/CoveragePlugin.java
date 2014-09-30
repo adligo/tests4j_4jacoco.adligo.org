@@ -6,11 +6,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache;
 import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
-import org.adligo.tests4j.models.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
-import org.adligo.tests4j.system.shared.I_Tests4J_CoveragePlugin;
-import org.adligo.tests4j.system.shared.I_Tests4J_CoverageRecorder;
-import org.adligo.tests4j.system.shared.I_Tests4J_CoverageTrialInstrumentation;
+import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePlugin;
+import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageRecorder;
+import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageTrialInstrumentation;
+import org.adligo.tests4j.system.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j_4jacoco.plugin.common.I_TrialInstrumenter;
 import org.adligo.tests4j_4jacoco.plugin.common.I_TrialInstrumenterFactory;
 import org.adligo.tests4j_4jacoco.plugin.data.multi.MultiProbeDataStoreAdaptor;
