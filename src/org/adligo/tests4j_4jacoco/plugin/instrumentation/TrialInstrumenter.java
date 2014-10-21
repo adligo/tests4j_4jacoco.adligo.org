@@ -11,12 +11,12 @@ import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
-import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
+import org.adligo.tests4j.models.shared.association.I_ClassAssociationsLocal;
+import org.adligo.tests4j.models.shared.association.I_ClassFilter;
 import org.adligo.tests4j.run.discovery.PackageDiscovery;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
-import org.adligo.tests4j.shared.asserts.dependency.AllowedDependencies;
-import org.adligo.tests4j.shared.asserts.dependency.I_DependencyGroup;
+import org.adligo.tests4j.shared.asserts.reference.AllowedReferences;
+import org.adligo.tests4j.shared.asserts.reference.I_ReferenceGroup;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageTrialInstrumentation;
 import org.adligo.tests4j.system.shared.api.Tests4J_CoverageTrialInstrumentation;
@@ -81,7 +81,7 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 		}
 		
 		SourceFileScope sourceScope =  trial.getAnnotation(SourceFileScope.class);
-		I_ClassDependenciesLocal sourceClassDependencies = null;
+		I_ClassAssociationsLocal sourceClassDependencies = null;
 		Class<?> sourceClass = null;;
 		String packageName = null;
 		if (sourceScope != null) {
@@ -89,10 +89,10 @@ public class TrialInstrumenter implements I_TrialInstrumenter {
 			InstrumentedClassDependencies icd = instrumentClass(sourceClass);
 			sourceClassDependencies = icd.getClassDependencies();
 			//get allowed dependencies
-			AllowedDependencies ad = trial.getAnnotation(AllowedDependencies.class);
+			AllowedReferences ad = trial.getAnnotation(AllowedReferences.class);
 			if (ad != null) {
-				Class<? extends I_DependencyGroup>[] grps = ad.groups();
-				for (Class<? extends I_DependencyGroup> grp: grps) {
+				Class<? extends I_ReferenceGroup>[] grps = ad.groups();
+				for (Class<? extends I_ReferenceGroup> grp: grps) {
 					instrumentClass(grp);
 				}
 			}

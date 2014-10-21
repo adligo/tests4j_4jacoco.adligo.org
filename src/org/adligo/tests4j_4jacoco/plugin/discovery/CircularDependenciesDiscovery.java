@@ -7,14 +7,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocal;
-import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocalMutant;
-import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache;
-import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
-import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
-import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
-import org.adligo.tests4j.shared.asserts.dependency.ClassAliasLocal;
-import org.adligo.tests4j.shared.asserts.dependency.I_ClassAliasLocal;
+import org.adligo.tests4j.models.shared.association.ClassAssociationsLocal;
+import org.adligo.tests4j.models.shared.association.ClassAssociationsLocalMutant;
+import org.adligo.tests4j.models.shared.association.I_ClassAssociationsCache;
+import org.adligo.tests4j.models.shared.association.I_ClassAssociationsLocal;
+import org.adligo.tests4j.models.shared.association.I_ClassFilter;
+import org.adligo.tests4j.models.shared.association.I_ClassParentsLocal;
+import org.adligo.tests4j.shared.asserts.reference.ClassAliasLocal;
+import org.adligo.tests4j.shared.asserts.reference.I_ClassAliasLocal;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 
 /**
@@ -37,11 +37,11 @@ import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 public class CircularDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 	private I_Tests4J_Log log;
 	private I_ClassFilter classFilter;
-	private I_ClassDependenciesCache cache;
+	private I_ClassAssociationsCache cache;
 	/**
 	 * this contains the initial references
 	 */
-	private Map<I_ClassAliasLocal, I_ClassDependenciesLocal> refMap = new HashMap<I_ClassAliasLocal,I_ClassDependenciesLocal>();
+	private Map<I_ClassAliasLocal, I_ClassAssociationsLocal> refMap = new HashMap<I_ClassAliasLocal,I_ClassAssociationsLocal>();
 	private Set<I_ClassParentsLocal> initalRefsToIdentify = new HashSet<I_ClassParentsLocal>();
 	private Set<I_ClassParentsLocal> fullRefsFound = new HashSet<I_ClassParentsLocal>();
 	private I_ClassDependenciesDiscovery fullDependenciesDiscovery;
@@ -51,7 +51,7 @@ public class CircularDependenciesDiscovery implements I_ClassDependenciesDiscove
 	/**
 	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
 	 */
-	public I_ClassDependenciesLocal findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
+	public I_ClassAssociationsLocal findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
 		if (log.isLogEnabled(CircularDependenciesDiscovery.class)) {
 			log.log(".discoverAndLoad " + c.getName());
 		}
@@ -61,25 +61,25 @@ public class CircularDependenciesDiscovery implements I_ClassDependenciesDiscove
 		initalRefsToIdentify.clear();
 		fullRefsFound.clear();
 		
-		I_ClassDependenciesLocal crefs =  cache.getDependencies(className);
+		I_ClassAssociationsLocal crefs =  cache.getDependencies(className);
 		if (crefs != null) {
 			return crefs;
 		}
 		if (classFilter.isFiltered(c)) {
-			I_ClassDependenciesLocal toRet = new ClassDependenciesLocal(fullDependenciesDiscovery.findOrLoad(c));
+			I_ClassAssociationsLocal toRet = new ClassAssociationsLocal(fullDependenciesDiscovery.findOrLoad(c));
 			cache.putDependenciesIfAbsent(toRet);
 			return toRet;
 		}
-		I_ClassDependenciesLocal preCircleRefs = fullDependenciesDiscovery.findOrLoad(c);
+		I_ClassAssociationsLocal preCircleRefs = fullDependenciesDiscovery.findOrLoad(c);
 		refMap.put(new ClassAliasLocal(preCircleRefs), preCircleRefs);
 		
 		Set<I_ClassParentsLocal> refs = preCircleRefs.getDependenciesLocal();
 		for (I_ClassParentsLocal ref: refs) {
-			I_ClassDependenciesLocal preCircleDelegate = fullDependenciesDiscovery.findOrLoad(ref.getTarget());
+			I_ClassAssociationsLocal preCircleDelegate = fullDependenciesDiscovery.findOrLoad(ref.getTarget());
 			refMap.put(new ClassAliasLocal(preCircleDelegate), preCircleDelegate);
 		}
 		
-		ClassDependenciesLocal toRet = calcCircles(preCircleRefs);
+		ClassAssociationsLocal toRet = calcCircles(preCircleRefs);
 		cache.putDependenciesIfAbsent(toRet);;
 		return toRet;
 	}
@@ -90,14 +90,14 @@ public class CircularDependenciesDiscovery implements I_ClassDependenciesDiscove
 	 * @param preCircleRefs
 	 * @return
 	 */
-	private ClassDependenciesLocal calcCircles(I_ClassDependenciesLocal preCircleRefs) {
-		ClassDependenciesLocalMutant crlm = new ClassDependenciesLocalMutant(preCircleRefs);
-		Collection<I_ClassDependenciesLocal> entries = refMap.values();
+	private ClassAssociationsLocal calcCircles(I_ClassAssociationsLocal preCircleRefs) {
+		ClassAssociationsLocalMutant crlm = new ClassAssociationsLocalMutant(preCircleRefs);
+		Collection<I_ClassAssociationsLocal> entries = refMap.values();
 		
-		Set<I_ClassDependenciesLocal> copy  = 
-				new HashSet<I_ClassDependenciesLocal>(entries);
+		Set<I_ClassAssociationsLocal> copy  = 
+				new HashSet<I_ClassAssociationsLocal>(entries);
 		copy.remove(new ClassAliasLocal(crlm.getTarget()));
-		for (I_ClassDependenciesLocal cr: copy) {
+		for (I_ClassAssociationsLocal cr: copy) {
 			Set<I_ClassParentsLocal> refs =  cr.getDependenciesLocal();
 			if (refs != null) {
 				if (refs.contains(crlm)) {
@@ -105,7 +105,7 @@ public class CircularDependenciesDiscovery implements I_ClassDependenciesDiscove
 				}
 			}
 		}
-		return new ClassDependenciesLocal(crlm);
+		return new ClassAssociationsLocal(crlm);
 	}
 
 	public I_Tests4J_Log getLog() {
@@ -116,7 +116,7 @@ public class CircularDependenciesDiscovery implements I_ClassDependenciesDiscove
 		return classFilter;
 	}
 
-	public I_ClassDependenciesCache getCache() {
+	public I_ClassAssociationsCache getCache() {
 		return cache;
 	}
 
@@ -132,7 +132,7 @@ public class CircularDependenciesDiscovery implements I_ClassDependenciesDiscove
 		this.classFilter = classFilter;
 	}
 
-	public void setCache(I_ClassDependenciesCache cache) {
+	public void setCache(I_ClassAssociationsCache cache) {
 		this.cache = cache;
 	}
 

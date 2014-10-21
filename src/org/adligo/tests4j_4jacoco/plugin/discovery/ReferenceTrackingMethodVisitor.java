@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.adligo.tests4j.shared.asserts.dependency.ClassAttributesMutant;
-import org.adligo.tests4j.shared.asserts.dependency.FieldSignature;
-import org.adligo.tests4j.shared.asserts.dependency.MethodSignature;
+import org.adligo.tests4j.shared.asserts.reference.ClassAttributesMutant;
+import org.adligo.tests4j.shared.asserts.reference.FieldSignature;
+import org.adligo.tests4j.shared.asserts.reference.MethodSignature;
 import org.adligo.tests4j.shared.common.ClassMethods;
 import org.adligo.tests4j.shared.common.StringMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;

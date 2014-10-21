@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.adligo.tests4j.shared.asserts.dependency.ClassAttributes;
-import org.adligo.tests4j.shared.asserts.dependency.ClassAttributesMutant;
-import org.adligo.tests4j.shared.asserts.dependency.I_MethodSignature;
+import org.adligo.tests4j.shared.asserts.reference.ClassAttributes;
+import org.adligo.tests4j.shared.asserts.reference.ClassAttributesMutant;
+import org.adligo.tests4j.shared.asserts.reference.I_MethodSignature;
 import org.adligo.tests4j.shared.common.ClassMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
@@ -31,6 +31,8 @@ public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClas
 	
 	private ReferenceTrackingMethodVisitor mv;
 	private String className;
+	private String superClassName;
+	private String [] interfaceNames;
 	
 	public ReferenceTrackingClassVisitor(int version, I_Tests4J_Log pLog) {
 		super(version);
@@ -42,6 +44,9 @@ public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClas
 	public void reset() {
 		classReferences = new HashMap<String, ClassAttributesMutant>();
 		mv.setClassReferences(classReferences);
+		className = null;
+		superClassName = null;
+		interfaceNames  = null;
 	}
 	
 	@Override
@@ -49,7 +54,15 @@ public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClas
 			String superName, String[] interfaces) {
 		
 		className = ClassMethods.fromTypeDescription("L" + name + ";");
-		
+		if (superName != null) {
+			superClassName = "L" + superName + ";";
+		}
+		if (interfaces != null && interfaces.length >= 1) {
+			interfaceNames = interfaces;
+			for (int i = 0; i < interfaces.length; i++) {
+				interfaceNames[i] = "L" + interfaces[i]  + ";";
+			}
+		}
 		if (log.isLogEnabled(ReferenceTrackingClassVisitor.class)) {
 			
 			StringBuilder sb = new StringBuilder();
@@ -98,18 +111,41 @@ public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClas
 		return className;
 	}
 	
-	public List<ClassAttributes> getClassCalls() {
-		List<ClassAttributes> methods = new ArrayList<ClassAttributes>();
+	/**
+	 * @see AbstractReferenceTrackingClassVisitor#getClassReferences()
+	 * @return
+	 */
+	@Override
+	public List<ClassAttributes> getClassReferences() {
+		List<ClassAttributes> refs = new ArrayList<ClassAttributes>();
+		Set<String> refNames = new HashSet<String>();
 		Collection<ClassAttributesMutant> vals =  classReferences.values();
 		for (ClassAttributesMutant val: vals) {
 			if (val.getName() != null) {
-				methods.add(new ClassAttributes(val));
+				refs.add(new ClassAttributes(val));
+				refNames.add(val.getName());
 			}
 		}
-		return methods;
+		if (!refNames.contains(superClassName)) {
+			ClassAttributesMutant cam = new ClassAttributesMutant();
+			cam.setName(superClassName);
+			refs.add(new ClassAttributes(cam));
+		}
+		if (interfaceNames != null) {
+			for (int i = 0; i < interfaceNames.length; i++) {
+				String iname = interfaceNames[i];
+				if (!refNames.contains(iname)) {
+					ClassAttributesMutant cam = new ClassAttributesMutant();
+					cam.setName(iname);
+					refs.add(new ClassAttributes(cam));
+				}
+			}
+		}
+		return refs;
 	}
 
-	public Set<String> getClassReferences() {
+	
+	public Set<String> getClassReferenceNames() {
 		Set<String> toRet = new HashSet<String>();
 		Collection<ClassAttributesMutant> vals =  classReferences.values();
 		for (ClassAttributesMutant val: vals) {
@@ -124,4 +160,21 @@ public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClas
 		}
 		return toRet;
 	}
+
+	public String getSuperClassName() {
+		return superClassName;
+	}
+
+	public void setSuperClassName(String superClassName) {
+		this.superClassName = superClassName;
+	}
+
+	public String[] getInterfaceNames() {
+		return interfaceNames;
+	}
+
+	public void setInterfaceNames(String[] interfaceNames) {
+		this.interfaceNames = interfaceNames;
+	}
+
 }

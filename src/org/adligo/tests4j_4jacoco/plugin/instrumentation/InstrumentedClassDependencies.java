@@ -1,13 +1,13 @@
 package org.adligo.tests4j_4jacoco.plugin.instrumentation;
 
-import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
+import org.adligo.tests4j.models.shared.association.I_ClassAssociationsLocal;
 
 public class InstrumentedClassDependencies {
 	private Class<?> instrumentedClass;
-	private I_ClassDependenciesLocal classDependencies;
+	private I_ClassAssociationsLocal classDependencies;
 	
 	public InstrumentedClassDependencies(Class<?> instrumentedClassIn, 
-			I_ClassDependenciesLocal classDependenciesIn) {
+			I_ClassAssociationsLocal classDependenciesIn) {
 		instrumentedClass = instrumentedClassIn;
 		classDependencies = classDependenciesIn;
 	}
@@ -15,7 +15,7 @@ public class InstrumentedClassDependencies {
 	public Class<?> getInstrumentedClass() {
 		return instrumentedClass;
 	}
-	public I_ClassDependenciesLocal getClassDependencies() {
+	public I_ClassAssociationsLocal getClassDependencies() {
 		return classDependencies;
 	}
 }

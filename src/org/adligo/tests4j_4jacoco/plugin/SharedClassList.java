@@ -29,14 +29,14 @@ public class SharedClassList {
 
 		
 		
-		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassFilter");
-		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassFilterModel");
-		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassParents");
-		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassParentsCache");
-		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal");
-		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassDependencies");
-		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache");
-		toRet.add("org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal");
+		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassFilter");
+		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassFilterModel");
+		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassParents");
+		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassParentsCache");
+		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassParentsLocal");
+		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassAssociations");
+		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassAssociationsCache");
+		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassAssociationsLocal");
 		
 		
 		
@@ -148,17 +148,17 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.shared.asserts.common.I_SourceTestFailure");
 		
 		
-		toRet.add("org.adligo.tests4j.shared.asserts.dependency.I_ClassAttributes");
-		toRet.add("org.adligo.tests4j.shared.asserts.dependency.I_ClassAlias");
-		toRet.add("org.adligo.tests4j.shared.asserts.dependency.I_ClassAliasLocal");
-		toRet.add("org.adligo.tests4j.shared.asserts.dependency.I_Dependency");
-		toRet.add("org.adligo.tests4j.shared.asserts.dependency.I_DependencyGroup");
-		toRet.add("org.adligo.tests4j.shared.asserts.dependency.I_AllowedDependencyFailure");
-		toRet.add("org.adligo.tests4j.shared.asserts.dependency.I_CircularDependencyFailure");
-		toRet.add("org.adligo.tests4j.shared.asserts.dependency.I_CircularDependencies");
-		toRet.add("org.adligo.tests4j.shared.asserts.dependency.I_FieldSignature");
-		toRet.add("org.adligo.tests4j.shared.asserts.dependency.I_MethodSignature");
-		toRet.add("org.adligo.tests4j.shared.asserts.dependency.AllowedDependencies");
+		toRet.add("org.adligo.tests4j.shared.asserts.reference.I_ClassAttributes");
+		toRet.add("org.adligo.tests4j.shared.asserts.reference.I_ClassAlias");
+		toRet.add("org.adligo.tests4j.shared.asserts.reference.I_ClassAliasLocal");
+		toRet.add("org.adligo.tests4j.shared.asserts.reference.I_Dependency");
+		toRet.add("org.adligo.tests4j.shared.asserts.reference.I_ReferenceGroup");
+		toRet.add("org.adligo.tests4j.shared.asserts.reference.I_AllowedReferencesFailure");
+		toRet.add("org.adligo.tests4j.shared.asserts.reference.I_CircularDependencyFailure");
+		toRet.add("org.adligo.tests4j.shared.asserts.reference.I_CircularDependencies");
+		toRet.add("org.adligo.tests4j.shared.asserts.reference.I_FieldSignature");
+		toRet.add("org.adligo.tests4j.shared.asserts.reference.I_MethodSignature");
+		toRet.add("org.adligo.tests4j.shared.asserts.reference.AllowedReferences");
 		
 		
 		toRet.add("org.adligo.tests4j.shared.asserts.line_text.I_DiffIndexes");

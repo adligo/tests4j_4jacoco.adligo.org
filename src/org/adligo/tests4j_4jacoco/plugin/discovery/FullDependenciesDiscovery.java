@@ -8,15 +8,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocal;
-import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocalMutant;
-import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
-import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
-import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache;
-import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
+import org.adligo.tests4j.models.shared.association.ClassAssociationsLocal;
+import org.adligo.tests4j.models.shared.association.ClassAssociationsLocalMutant;
+import org.adligo.tests4j.models.shared.association.I_ClassAssociationsCache;
+import org.adligo.tests4j.models.shared.association.I_ClassAssociationsLocal;
+import org.adligo.tests4j.models.shared.association.I_ClassFilter;
+import org.adligo.tests4j.models.shared.association.I_ClassParentsLocal;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
-import org.adligo.tests4j.shared.asserts.dependency.ClassAliasLocal;
-import org.adligo.tests4j.shared.asserts.dependency.I_ClassAliasLocal;
+import org.adligo.tests4j.shared.asserts.reference.ClassAliasLocal;
+import org.adligo.tests4j.shared.asserts.reference.I_ClassAliasLocal;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 
 /**
@@ -39,14 +39,14 @@ import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 	private I_Tests4J_Log log;
 	private I_ClassFilter classFilter;
-	private I_ClassDependenciesCache cache;
+	private I_ClassAssociationsCache cache;
 	/**
 	 * this contains the initial references
 	 * for all classes referenced directly
 	 * or indirectly for the findOrLoad(Class c)
 	 * 
 	 */
-	private Map<I_ClassAliasLocal, I_ClassDependenciesLocal> refMap = new HashMap<I_ClassAliasLocal,I_ClassDependenciesLocal>();
+	private Map<I_ClassAliasLocal, I_ClassAssociationsLocal> refMap = new HashMap<I_ClassAliasLocal,I_ClassAssociationsLocal>();
 	private Set<I_ClassParentsLocal> initalRefsToIdentify = new HashSet<I_ClassParentsLocal>();
 	private Set<I_ClassParentsLocal> fullRefsFound = new HashSet<I_ClassParentsLocal>();
 	private I_ClassDependenciesDiscovery initialDependenciesDiscovery;
@@ -57,7 +57,7 @@ public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
 	 * @see I_ClassDependenciesDiscovery#findOrLoad(Class)
 	 */
-	public I_ClassDependenciesLocal findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
+	public I_ClassAssociationsLocal findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
 		if (log.isLogEnabled(FullDependenciesDiscovery.class)) {
 			log.log(".discoverAndLoad " + c.getName());
 		}
@@ -67,20 +67,20 @@ public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 		initalRefsToIdentify.clear();
 		fullRefsFound.clear();
 		
-		I_ClassDependenciesLocal crefs =  cache.getDependencies(className);
+		I_ClassAssociationsLocal crefs =  cache.getDependencies(className);
 		if (crefs != null) {
 			return crefs;
 		}
 		if (classFilter.isFiltered(c)) {
-			I_ClassDependenciesLocal toRet = new ClassDependenciesLocal(initialDependenciesDiscovery.findOrLoad(c));
+			I_ClassAssociationsLocal toRet = new ClassAssociationsLocal(initialDependenciesDiscovery.findOrLoad(c));
 			cache.putDependenciesIfAbsent(toRet);
 			return toRet;
 		}
-		I_ClassDependenciesLocal initalRefs = initialDependenciesDiscovery.findOrLoad(c);
+		I_ClassAssociationsLocal initalRefs = initialDependenciesDiscovery.findOrLoad(c);
 		refMap.put(new ClassAliasLocal(initalRefs), initalRefs);
 		
 		fillRefMapWithParents(className, initalRefs);
-		ClassDependenciesLocal toRet = fillRefMap(initalRefs);
+		ClassAssociationsLocal toRet = fillRefMap(initalRefs);
 		cache.putDependenciesIfAbsent(toRet);
 		return toRet;
 	}
@@ -93,21 +93,21 @@ public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 	 * @throws ClassNotFoundException
 	 */
 	protected void fillRefMapWithParents(String className,
-			I_ClassDependenciesLocal initalRefs) throws IOException,
+			I_ClassAssociationsLocal initalRefs) throws IOException,
 			ClassNotFoundException {
 		//ok get the parent inital references
 		List<I_ClassParentsLocal> parents = initalRefs.getParentsLocal();
 		for (I_ClassParentsLocal parent: parents) {
 			Class<?> pc = parent.getTarget();
-			I_ClassDependenciesLocal parentRefs = initialDependenciesDiscovery.findOrLoad(pc);
+			I_ClassAssociationsLocal parentRefs = initialDependenciesDiscovery.findOrLoad(pc);
 			refMap.put(new ClassAliasLocal(parent), parentRefs);
 			
-			I_ClassDependenciesLocal prefs =  cache.getDependencies(className);
+			I_ClassAssociationsLocal prefs =  cache.getDependencies(className);
 			if (prefs != null) {
 				fullRefsFound.add(prefs);
 				refMap.put(prefs, prefs);
 			} else if (classFilter.isFiltered(pc)) {
-				prefs = new ClassDependenciesLocal(initialDependenciesDiscovery.findOrLoad(pc));
+				prefs = new ClassAssociationsLocal(initialDependenciesDiscovery.findOrLoad(pc));
 				cache.putDependenciesIfAbsent(prefs);
 				fullRefsFound.add(prefs);
 				refMap.put(prefs, prefs);
@@ -132,7 +132,7 @@ public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 	 * @throws IOException 
 	 * @throws ClassNotFoundException 
 	 */
-	private ClassDependenciesLocal fillRefMap(I_ClassDependenciesLocal initalRefs) throws ClassNotFoundException, IOException {
+	private ClassAssociationsLocal fillRefMap(I_ClassAssociationsLocal initalRefs) throws ClassNotFoundException, IOException {
 	
 		
 		//should include the parents at this point in the references
@@ -145,14 +145,14 @@ public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 		while (initalRefsToIdentify.size() >= 1) {
 			I_ClassParentsLocal ref = initalRefsToIdentify.iterator().next();
 			
-			I_ClassDependenciesLocal cached = cache.getDependencies(ref.getName());
+			I_ClassAssociationsLocal cached = cache.getDependencies(ref.getName());
 			if (cached != null) {
 				refMap.put(ref, cached);
 				fullRefsFound.add(ref);
 				initalRefsToIdentify.remove(0);
 			}
 			if (cached == null) {
-				I_ClassDependenciesLocal initalDelRefs = refMap.get(ref);
+				I_ClassAssociationsLocal initalDelRefs = refMap.get(ref);
 				if (initalDelRefs == null) {
 					initalDelRefs = initialDependenciesDiscovery.findOrLoad(ref.getTarget());
 					refMap.put(initalDelRefs, initalDelRefs);
@@ -178,15 +178,15 @@ public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 	 * @diagram_sync with DiscoveryOverview.seq on 8/17/2014
 	 * @return
 	 */
-	private ClassDependenciesLocal buildModel(I_ClassDependenciesLocal initalRefs) {
-		ClassDependenciesLocalMutant crlm = new ClassDependenciesLocalMutant(initalRefs);
+	private ClassAssociationsLocal buildModel(I_ClassAssociationsLocal initalRefs) {
+		ClassAssociationsLocalMutant crlm = new ClassAssociationsLocalMutant(initalRefs);
 		
-		Set<Entry<I_ClassAliasLocal, I_ClassDependenciesLocal>> entries = refMap.entrySet();
-		for (Entry<I_ClassAliasLocal, I_ClassDependenciesLocal> e: entries) {
-			I_ClassDependenciesLocal refs = e.getValue();
+		Set<Entry<I_ClassAliasLocal, I_ClassAssociationsLocal>> entries = refMap.entrySet();
+		for (Entry<I_ClassAliasLocal, I_ClassAssociationsLocal> e: entries) {
+			I_ClassAssociationsLocal refs = e.getValue();
 			crlm.addDependencies(refs.getDependenciesLocal());
 		}
-		return new ClassDependenciesLocal(crlm);
+		return new ClassAssociationsLocal(crlm);
 	}
 
 	public I_Tests4J_Log getLog() {
@@ -197,7 +197,7 @@ public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 		return classFilter;
 	}
 
-	public I_ClassDependenciesCache getCache() {
+	public I_ClassAssociationsCache getCache() {
 		return cache;
 	}
 
@@ -213,7 +213,7 @@ public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 		this.classFilter = classFilter;
 	}
 
-	public void setCache(I_ClassDependenciesCache cache) {
+	public void setCache(I_ClassAssociationsCache cache) {
 		this.cache = cache;
 	}
 

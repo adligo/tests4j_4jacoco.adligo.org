@@ -2,7 +2,7 @@ package org.adligo.tests4j_4jacoco.plugin.discovery;
 
 import java.util.List;
 
-import org.adligo.tests4j.shared.asserts.dependency.ClassAttributes;
+import org.adligo.tests4j.shared.asserts.reference.ClassAttributes;
 import org.objectweb.asm.ClassVisitor;
 
 /**
@@ -25,5 +25,5 @@ public abstract class AbstractReferenceTrackingClassVisitor extends ClassVisitor
 	 * of the classes referenced in the byte code methods/fields
 	 * @return
 	 */
-	public abstract List<ClassAttributes> getClassCalls();
+	public abstract List<ClassAttributes> getClassReferences();
 }

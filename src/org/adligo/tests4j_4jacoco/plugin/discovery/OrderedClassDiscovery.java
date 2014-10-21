@@ -11,15 +11,15 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache;
-import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
-import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
-import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
-import org.adligo.tests4j.shared.asserts.dependency.ClassAlias;
-import org.adligo.tests4j.shared.asserts.dependency.ClassAliasLocal;
-import org.adligo.tests4j.shared.asserts.dependency.DependencyMutant;
-import org.adligo.tests4j.shared.asserts.dependency.I_ClassAliasLocal;
-import org.adligo.tests4j.shared.asserts.dependency.I_Dependency;
+import org.adligo.tests4j.models.shared.association.I_ClassAssociationsCache;
+import org.adligo.tests4j.models.shared.association.I_ClassAssociationsLocal;
+import org.adligo.tests4j.models.shared.association.I_ClassFilter;
+import org.adligo.tests4j.models.shared.association.I_ClassParentsLocal;
+import org.adligo.tests4j.shared.asserts.reference.ClassAlias;
+import org.adligo.tests4j.shared.asserts.reference.ClassAliasLocal;
+import org.adligo.tests4j.shared.asserts.reference.DependencyMutant;
+import org.adligo.tests4j.shared.asserts.reference.I_ClassAliasLocal;
+import org.adligo.tests4j.shared.asserts.reference.I_Dependency;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDependencies;
 import org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscovery;
@@ -44,8 +44,8 @@ import org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscovery;
 public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 	private I_Tests4J_Log log;
 	private I_ClassFilter classFilter;
-	private I_ClassDependenciesCache cache;
-	private Map<I_ClassAliasLocal, I_ClassDependenciesLocal> refMap = new HashMap<I_ClassAliasLocal,I_ClassDependenciesLocal>();
+	private I_ClassAssociationsCache cache;
+	private Map<I_ClassAliasLocal, I_ClassAssociationsLocal> refMap = new HashMap<I_ClassAliasLocal,I_ClassAssociationsLocal>();
 	private I_ClassDependenciesDiscovery fullDependenciesDiscovery;
 	private I_ClassDependenciesDiscovery circularDependenciesDiscovery;
 	
@@ -64,7 +64,7 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 		}
 		String className = c.getName();
 		refMap.clear();
-		I_ClassDependenciesLocal crefs =  cache.getDependencies(className);
+		I_ClassAssociationsLocal crefs =  cache.getDependencies(className);
 		if (crefs != null) {
 			refMap.put(new ClassAliasLocal(crefs), crefs);
 			fillRefMapFromFullRef(crefs);
@@ -76,10 +76,10 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 		return new OrderedClassDependencies(crefs, refOrder);
 	}
 
-	private void fillRefMapFromFullRef(I_ClassDependenciesLocal full) throws ClassNotFoundException, IOException {
+	private void fillRefMapFromFullRef(I_ClassAssociationsLocal full) throws ClassNotFoundException, IOException {
 		Set<I_ClassParentsLocal> refs = full.getDependenciesLocal();
 		for (I_ClassParentsLocal ref: refs) {
-			I_ClassDependenciesLocal refLoc = circularDependenciesDiscovery.findOrLoad(ref.getTarget());
+			I_ClassAssociationsLocal refLoc = circularDependenciesDiscovery.findOrLoad(ref.getTarget());
 			refMap.put(refLoc, refLoc);
 		}
 	}
@@ -90,14 +90,14 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	private I_ClassDependenciesLocal fillRefMapFromClass(Class<?> c) throws ClassNotFoundException, IOException {
+	private I_ClassAssociationsLocal fillRefMapFromClass(Class<?> c) throws ClassNotFoundException, IOException {
 		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
-		I_ClassDependenciesLocal initial = fullDependenciesDiscovery.findOrLoad(c);
+		I_ClassAssociationsLocal initial = fullDependenciesDiscovery.findOrLoad(c);
 		
 		List<I_ClassParentsLocal> parents =  initial.getParentsLocal();
 		for (I_ClassParentsLocal cpl : parents) {
 			//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
-			I_ClassDependenciesLocal parentFull = circularDependenciesDiscovery.findOrLoad(cpl.getTarget());
+			I_ClassAssociationsLocal parentFull = circularDependenciesDiscovery.findOrLoad(cpl.getTarget());
 			refMap.put(parentFull, parentFull);
 		}
 		
@@ -106,12 +106,12 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 		refsCopy.removeAll(parents);
 		for (I_ClassParentsLocal ref : refsCopy) {
 			//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
-			I_ClassDependenciesLocal refFull = circularDependenciesDiscovery.findOrLoad(ref.getTarget());
+			I_ClassAssociationsLocal refFull = circularDependenciesDiscovery.findOrLoad(ref.getTarget());
 			refMap.put(refFull, refFull);
 		}
 		
 		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
-		I_ClassDependenciesLocal full = circularDependenciesDiscovery.findOrLoad(c);
+		I_ClassAssociationsLocal full = circularDependenciesDiscovery.findOrLoad(c);
 		refMap.put(full, full);
 		Set<I_ClassParentsLocal> fullRefs = full.getDependenciesLocal();
 		Set<I_ClassParentsLocal> fullRefsCopy = new HashSet<I_ClassParentsLocal>(fullRefs);
@@ -119,7 +119,7 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 		fullRefsCopy.removeAll(refsCopy);
 		for (I_ClassParentsLocal ref : fullRefsCopy) {
 			//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
-			I_ClassDependenciesLocal refFull = circularDependenciesDiscovery.findOrLoad(ref.getTarget());
+			I_ClassAssociationsLocal refFull = circularDependenciesDiscovery.findOrLoad(ref.getTarget());
 			refMap.put(refFull, refFull);
 		}
 		return full;
@@ -157,7 +157,7 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 						}
 						it.remove();
 					} else {
-						I_ClassDependenciesLocal local = refMap.get(alias);
+						I_ClassAssociationsLocal local = refMap.get(alias);
 						if (local == null) {
 							throw new NullPointerException("problem finding refs for " + depName 
 									+ " on " + c);
@@ -187,7 +187,7 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 								 toRet.add(parentName);
 							 }
 						} else {
-							I_ClassDependenciesLocal local = refMap.get(alias);
+							I_ClassAssociationsLocal local = refMap.get(alias);
 							Set<String> refNames =  local.getDependencyNames();
 							refNames = new HashSet<String>(refNames);
 							if (local.hasCircularDependencies()) {
@@ -229,11 +229,11 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 	public Set<I_Dependency> toDependencies(String topName) {
 		Map<String,DependencyMutant> refCounts = new HashMap<String,DependencyMutant>();
 		
-		Set<Entry<I_ClassAliasLocal, I_ClassDependenciesLocal>> refs =  refMap.entrySet();
-		for (Entry<I_ClassAliasLocal,I_ClassDependenciesLocal> e: refs) {
+		Set<Entry<I_ClassAliasLocal, I_ClassAssociationsLocal>> refs =  refMap.entrySet();
+		for (Entry<I_ClassAliasLocal,I_ClassAssociationsLocal> e: refs) {
 			I_ClassAliasLocal key = e.getKey();
 			String className = key.getName();
-			I_ClassDependenciesLocal crs = e.getValue();
+			I_ClassAssociationsLocal crs = e.getValue();
 			Set<I_ClassParentsLocal> classes = crs.getDependenciesLocal();
 			
 			DependencyMutant count = null;
@@ -293,7 +293,7 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 	 * @param className
 	 * @return
 	 */
-	public I_ClassDependenciesLocal getReferences(I_ClassAliasLocal alias) {
+	public I_ClassAssociationsLocal getReferences(I_ClassAliasLocal alias) {
 		return refMap.get(alias);
 	}
 
@@ -305,7 +305,7 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 		return classFilter;
 	}
 
-	public I_ClassDependenciesCache getCache() {
+	public I_ClassAssociationsCache getCache() {
 		return cache;
 	}
 
@@ -325,7 +325,7 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 		this.classFilter = classFilter;
 	}
 
-	public void setCache(I_ClassDependenciesCache cache) {
+	public void setCache(I_ClassAssociationsCache cache) {
 		this.cache = cache;
 	}
 

@@ -5,12 +5,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.adligo.tests4j.models.shared.dependency.ClassFilter;
-import org.adligo.tests4j.models.shared.dependency.ClassFilterMutant;
-import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache;
-import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
-import org.adligo.tests4j.models.shared.dependency.I_ClassParentsCache;
-import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
+import org.adligo.tests4j.models.shared.association.ClassFilter;
+import org.adligo.tests4j.models.shared.association.ClassFilterMutant;
+import org.adligo.tests4j.models.shared.association.I_ClassAssociationsCache;
+import org.adligo.tests4j.models.shared.association.I_ClassFilter;
+import org.adligo.tests4j.models.shared.association.I_ClassParentsCache;
+import org.adligo.tests4j.models.shared.association.I_ClassParentsLocal;
 import org.adligo.tests4j.run.helpers.CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.shared.common.CacheControl;
@@ -125,14 +125,14 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 		return basicClassFilter;
 	}
 
-	public I_ClassDependenciesCache getIDependencyCache() {
+	public I_ClassAssociationsCache getIDependencyCache() {
 		return dependencyCache;
 	}
-	public I_ClassDependenciesCache getInitialDependencyCache() {
+	public I_ClassAssociationsCache getInitialDependencyCache() {
 		return initalDependencyCache;
 	}
 
-	public I_ClassDependenciesCache getFullDependencyCache() {
+	public I_ClassAssociationsCache getFullDependencyCache() {
 		return fullDependencyCache;
 	}
 	
@@ -185,7 +185,7 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 	}
 
 	@Override
-	public I_ClassDependenciesCache getDependencyCache() {
+	public I_ClassAssociationsCache getDependencyCache() {
 		return dependencyCache;
 	}
 

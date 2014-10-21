@@ -8,19 +8,19 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
 
-import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocal;
-import org.adligo.tests4j.models.shared.dependency.ClassDependenciesLocalMutant;
-import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesCache;
-import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
-import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
-import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
+import org.adligo.tests4j.models.shared.association.ClassAssociationsLocal;
+import org.adligo.tests4j.models.shared.association.ClassAssociationsLocalMutant;
+import org.adligo.tests4j.models.shared.association.I_ClassAssociationsCache;
+import org.adligo.tests4j.models.shared.association.I_ClassAssociationsLocal;
+import org.adligo.tests4j.models.shared.association.I_ClassFilter;
+import org.adligo.tests4j.models.shared.association.I_ClassParentsLocal;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
-import org.adligo.tests4j.shared.asserts.dependency.ClassAttributes;
-import org.adligo.tests4j.shared.asserts.dependency.ClassAttributesMutant;
-import org.adligo.tests4j.shared.asserts.dependency.FieldSignature;
-import org.adligo.tests4j.shared.asserts.dependency.I_FieldSignature;
-import org.adligo.tests4j.shared.asserts.dependency.I_MethodSignature;
-import org.adligo.tests4j.shared.asserts.dependency.MethodSignature;
+import org.adligo.tests4j.shared.asserts.reference.ClassAttributes;
+import org.adligo.tests4j.shared.asserts.reference.ClassAttributesMutant;
+import org.adligo.tests4j.shared.asserts.reference.FieldSignature;
+import org.adligo.tests4j.shared.asserts.reference.I_FieldSignature;
+import org.adligo.tests4j.shared.asserts.reference.I_MethodSignature;
+import org.adligo.tests4j.shared.asserts.reference.MethodSignature;
 import org.adligo.tests4j.shared.common.ClassMethods;
 import org.adligo.tests4j.shared.common.StringMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
@@ -52,7 +52,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 	private I_CachedClassBytesClassLoader classLoader;
 	private I_Tests4J_Log log;
 	private AbstractReferenceTrackingClassVisitor classVisitor;
-	private I_ClassDependenciesCache cache;
+	private I_ClassAssociationsCache cache;
 	private I_ClassFilter basicClassFilter;
 	private I_ClassParentsDiscovery classParentsDiscovery;
 	private I_ClassFilter classFilter;
@@ -64,9 +64,9 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 	 * @see org.adligo.tests4j_4jacoco.plugin.discovery.I_ClassDependenciesDiscovery#findOrLoad(java.lang.Class)
 	 */
 	@Override
-	public I_ClassDependenciesLocal findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
+	public I_ClassAssociationsLocal findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
 		String className = c.getName();
-		I_ClassDependenciesLocal refs = cache.getDependencies(className);
+		I_ClassAssociationsLocal refs = cache.getDependencies(className);
 		if (refs != null) {
 			return refs;
 		}
@@ -85,7 +85,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	private I_ClassDependenciesLocal loadInitalReferences(Class<?> c) 
+	private I_ClassAssociationsLocal loadInitalReferences(Class<?> c) 
 		throws IOException, ClassNotFoundException {
 		
 		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
@@ -93,30 +93,30 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 		
 		
 		if (classFilter.isFiltered(c)) {
-			return new ClassDependenciesLocal(classParentsDiscovery.findOrLoad(c));
+			return new ClassAssociationsLocal(classParentsDiscovery.findOrLoad(c));
 		}
 		String className = c.getName();
 		
 		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
-		ClassDependenciesLocalMutant crm = new ClassDependenciesLocalMutant(cps);
+		ClassAssociationsLocalMutant crm = new ClassAssociationsLocalMutant(cps);
 		//add references from ASM, byte code inspection
 		InputStream in = classLoader.getCachedBytesStream(className);
 		ClassReader classReader=new ClassReader(in);
 		classVisitor.reset();
 		classReader.accept(classVisitor, 0);
 		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
-		List<ClassAttributes> asmRefs = classVisitor.getClassCalls();
-		addCalls(crm, asmRefs);
+		List<ClassAttributes> asmRefs = classVisitor.getClassReferences();
+		addAsmRefs(crm, asmRefs);
 		//@diagram_sync with DiscoveryOverview.seq on 9/2/2014
 		readReflectionReferences(c, crm);
 		
-		ClassDependenciesLocal result = new ClassDependenciesLocal(crm);
+		ClassAssociationsLocal result = new ClassAssociationsLocal(crm);
 		
 		cache.putDependenciesIfAbsent(result);
 		return result;
 	}
 
-	public void addCalls(ClassDependenciesLocalMutant crm,
+	public void addAsmRefs(ClassAssociationsLocalMutant crm,
 			List<ClassAttributes> asmRefs) throws ClassNotFoundException,
 			IOException {
 		for (ClassAttributes asmRef: asmRefs ) {
@@ -179,7 +179,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	public void addTypes(ClassDependenciesLocalMutant crm, String javaClassName)
+	public void addTypes(ClassAssociationsLocalMutant crm, String javaClassName)
 			throws ClassNotFoundException, IOException {
 		
 		if (ClassMethods.isArray(javaClassName)) {
@@ -203,7 +203,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 	 * @param classNames
 	 * @return
 	 */
-	protected void readReflectionReferences(Class<?> c, ClassDependenciesLocalMutant crm) 
+	protected void readReflectionReferences(Class<?> c, ClassAssociationsLocalMutant crm) 
 		throws ClassNotFoundException, IOException {
 		
 		if (c.isInterface()) {
@@ -211,7 +211,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 			I_ClassParentsLocal cps =  classParentsDiscovery.findOrLoad(c);
 			crm.addDependency(cps);
 		}	
-		Annotation [] annotations =  c.getAnnotations();
+		Annotation [] annotations =  c.getDeclaredAnnotations();
 		addAnnotations(c, crm, annotations);
 		
 		//add references from reflection, for abstract methods, with no byte code,
@@ -257,7 +257,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 		}
 	}
 
-	public void addAnnotations(Class<?> c, ClassDependenciesLocalMutant crm,
+	public void addAnnotations(Class<?> c, ClassAssociationsLocalMutant crm,
 			Annotation[] annotations) throws ClassNotFoundException,
 			IOException {
 		for (int i = 0; i < annotations.length; i++) {
@@ -275,7 +275,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 	}
 	
 	protected void addReflectionNames( Class<?> clazz, Class<?> referencingClass, 
-			ClassDependenciesLocalMutant classReferences) throws ClassNotFoundException, IOException {
+			ClassAssociationsLocalMutant classReferences) throws ClassNotFoundException, IOException {
 		if (clazz != null) {
 			//don't add arrays
 			if (clazz.isArray()) {
@@ -305,7 +305,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 		return classVisitor;
 	}
 
-	public I_ClassDependenciesCache getCache() {
+	public I_ClassAssociationsCache getCache() {
 		return cache;
 	}
 
@@ -333,7 +333,7 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 		this.classVisitor = classVisitor;
 	}
 
-	public void setCache(I_ClassDependenciesCache cache) {
+	public void setCache(I_ClassAssociationsCache cache) {
 		this.cache = cache;
 	}
 

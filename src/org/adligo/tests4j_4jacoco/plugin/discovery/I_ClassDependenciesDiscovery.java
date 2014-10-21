@@ -2,7 +2,7 @@ package org.adligo.tests4j_4jacoco.plugin.discovery;
 
 import java.io.IOException;
 
-import org.adligo.tests4j.models.shared.dependency.I_ClassDependenciesLocal;
+import org.adligo.tests4j.models.shared.association.I_ClassAssociationsLocal;
 
 /**
  * implementations should discover something about the class
@@ -25,7 +25,7 @@ public interface I_ClassDependenciesDiscovery {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	public abstract I_ClassDependenciesLocal findOrLoad(Class<?> c)
+	public abstract I_ClassAssociationsLocal findOrLoad(Class<?> c)
 			throws IOException, ClassNotFoundException;
 
 }

@@ -8,11 +8,11 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeMap;
 
-import org.adligo.tests4j.models.shared.dependency.ClassParentsLocal;
-import org.adligo.tests4j.models.shared.dependency.ClassParentsLocalMutant;
-import org.adligo.tests4j.models.shared.dependency.I_ClassFilter;
-import org.adligo.tests4j.models.shared.dependency.I_ClassParentsCache;
-import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
+import org.adligo.tests4j.models.shared.association.ClassParentsLocal;
+import org.adligo.tests4j.models.shared.association.ClassParentsLocalMutant;
+import org.adligo.tests4j.models.shared.association.I_ClassFilter;
+import org.adligo.tests4j.models.shared.association.I_ClassParentsCache;
+import org.adligo.tests4j.models.shared.association.I_ClassParentsLocal;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.shared.common.ClassMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;

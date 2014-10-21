@@ -2,7 +2,7 @@ package org.adligo.tests4j_4jacoco.plugin.discovery;
 
 import java.io.IOException;
 
-import org.adligo.tests4j.models.shared.dependency.I_ClassParentsLocal;
+import org.adligo.tests4j.models.shared.association.I_ClassParentsLocal;
 
 public interface I_ClassParentsDiscovery {
 
