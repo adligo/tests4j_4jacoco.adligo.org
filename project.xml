@@ -10,6 +10,6 @@
     </tns:stages>
     <tns1:dependencies>
         <tns1:library>jacoco</tns1:library>
-        
+        <tns1:project>tests4j.adligo.org</tns1:project>
     </tns1:dependencies>
  </tns:fabricate_project>
