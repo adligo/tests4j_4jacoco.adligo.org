@@ -51,6 +51,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.results.I_ApiTrialResult");
 		
 		toRet.add("org.adligo.tests4j.models.shared.results.I_Duration");
+		toRet.add("org.adligo.tests4j.models.shared.results.I_PhaseState");
 		toRet.add("org.adligo.tests4j.models.shared.results.I_SourceFileTrialResult");
 		
 		toRet.add("org.adligo.tests4j.models.shared.results.I_TestResult");
@@ -74,8 +75,8 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_Listener");
 		
 		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_Params");
-		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_ProcessInfo");
-		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_ProgressMonitor");
+		
+		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_ProgressParams");
 		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_RemoteInfo");
 		toRet.add("org.adligo.tests4j.system.shared.api.I_Tests4J_Runnable");
 		
@@ -181,6 +182,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.shared.common.I_Platform");
 		toRet.add("org.adligo.tests4j.shared.common.I_PlatformContainer");
 		toRet.add("org.adligo.tests4j.shared.common.I_Immutable");
+		toRet.add("org.adligo.tests4j.shared.common.I_Time");
 		toRet.add("org.adligo.tests4j.shared.common.I_System");
 		
 		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_AnnotationMessages");
