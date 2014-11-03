@@ -22,15 +22,12 @@ import org.adligo.tests4j.shared.output.I_Tests4J_Log;
  */
 public class MultiProbesMap implements Map<Integer, Boolean>{
 	
-	/**
+	public static final String METHOD_NOT_IMPLEMENTED = "Method not implemented";
+  /**
 	 * each entry in the list pertains to a different recorder
 	 */
 	private final boolean[] probes;
 	private final ThreadGroupLocal<CascadingProbeMap> threadGroupProbes;
-	/*
-	private InheritableThreadLocal<ConcurrentHashMap<Integer, Boolean>> localProbes = 
-			new InheritableThreadLocal<ConcurrentHashMap<Integer, Boolean>>();
-	*/
 	private final String clazzCovered;
 	private final int probeCount;
 	private final I_Tests4J_Log logger;
@@ -71,30 +68,31 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 
 	@Override
 	public int size() {
-		throw new IllegalStateException("Method not implemented");
+		throw new IllegalStateException(METHOD_NOT_IMPLEMENTED);
 	}
 
 	@Override
 	public boolean isEmpty() {
-		throw new IllegalStateException("Method not implemented");
+		throw new IllegalStateException(METHOD_NOT_IMPLEMENTED);
 	}
 
 	@Override
 	public boolean containsKey(Object key) {
-		throw new IllegalStateException("Method not implemented");
+		throw new IllegalStateException(METHOD_NOT_IMPLEMENTED);
 	}
 
 	@Override
 	public boolean containsValue(Object value) {
-		throw new IllegalStateException("Method not implemented");
+		throw new IllegalStateException(METHOD_NOT_IMPLEMENTED);
 	}
 
 	@Override
 	public Boolean get(Object key) {
-		throw new IllegalStateException("Method not implemented");
+		throw new IllegalStateException(METHOD_NOT_IMPLEMENTED);
 	}
 
-	@Override
+	@SuppressWarnings("boxing")
+  @Override
 	public Boolean put(Integer key, Boolean value) {
 		
 		if (key == null || value == null) {
@@ -144,53 +142,40 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 
 	@Override
 	public Boolean remove(Object key) {
-		throw new IllegalStateException("Method not implemented");
+		throw new IllegalStateException(METHOD_NOT_IMPLEMENTED);
 	}
 
 	@Override
 	public void putAll(Map<? extends Integer, ? extends Boolean> m) {
-		throw new IllegalStateException("Method not implemented");
+		throw new IllegalStateException(METHOD_NOT_IMPLEMENTED);
 	}
 
 	@Override
 	public void clear() {
-		throw new IllegalStateException("Method not implemented");
+		throw new IllegalStateException(METHOD_NOT_IMPLEMENTED);
 	}
 
 	@Override
 	public Set<Integer> keySet() {
-		throw new IllegalStateException("Method not implemented");
+		throw new IllegalStateException(METHOD_NOT_IMPLEMENTED);
 	}
 
 	@Override
 	public Collection<Boolean> values() {
-		throw new IllegalStateException("Method not implemented");
+		throw new IllegalStateException(METHOD_NOT_IMPLEMENTED);
 	}
 
 	@Override
 	public Set<Entry<Integer, Boolean>> entrySet() {
-		throw new IllegalStateException("Method not implemented");
+		throw new IllegalStateException(METHOD_NOT_IMPLEMENTED);
 	}
 	
 	public void releaseRecording() {
-		/*
-		if (creationThread.equals(Thread.currentThread())) {
-			probes = null;
-		}
-		*/
-		/*
-		MultiProbesMap delegate = threadGroupLocalDelegate.get();
-		if (delegate != null) {
-			delegate.probes = getEmptyProbes(probeCount);
-		}
-		*/
 		if (logger.isLogEnabled(MultiProbesMap.class)) {
 			logger.log("" + super.toString() + " " + ThreadLogMessageBuilder.getThreadWithGroupNameForLog() +
 					" is clearing probes \n" +
 					toString());
-			//logger.onError(new IllegalStateException("tracing release recording"));
 		}
-		threadGroupProbes.getValue().clear();
 	}
 
 	public String getClazzCovered() {
