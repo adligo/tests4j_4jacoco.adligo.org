@@ -69,18 +69,18 @@ public class ConcurrentQualifiedMap<K,V> implements ConcurrentMap<K, V>{
 	public synchronized void await(K o) {
 		while (!entries_.containsKey(o)) {
 			try {
-			  notifier_.waitDelegate(25);
+			  notifier_.waitDelegate(26);
 			} catch (InterruptedException e) {
 			  //http://www.ibm.com/developerworks/library/j-jtp05236/
-			  Thread.currentThread().interrupt();
+			  notifier_.interrupt();
 			}
 		}
-		while (entries_.get(o) != null) {
+		while (entries_.get(o) == null) {
 			try {
 			  notifier_.waitDelegate(25);
 			} catch (InterruptedException e) {
 			  //http://www.ibm.com/developerworks/library/j-jtp05236/
-			  Thread.currentThread().interrupt();
+			  notifier_.interrupt();
 			}
 		}
 	}

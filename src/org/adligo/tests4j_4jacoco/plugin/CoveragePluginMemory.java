@@ -72,6 +72,8 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 		packagesNotRequired.add("sun.");
 		packagesNotRequired.add("org.jacoco.");
 		packagesNotRequired.add("org.objectweb.");
+		
+		
 		Set<String> classesNotRequired = SharedClassList.WHITELIST;
 		instrumentedClassLoader = new CachedClassBytesClassLoader(log, 
 				packagesNotRequired, classesNotRequired, null);
@@ -90,6 +92,13 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 		pkgNamesToSet.add("sun.");
 		pkgNamesToSet.add("org.jacoco.");
 		pkgNamesToSet.add("org.objectweb.");
+		pkgNamesToSet.add("net.sf.cglib.");
+		pkgNamesToSet.add("com.google.dexmaker.");
+		pkgNamesToSet.add("org.objenesis.");
+		pkgNamesToSet.add("org.easymock.");
+		pkgNamesToSet.add("org.junit.");
+		pkgNamesToSet.add("org.mockito.");
+    
 		cfm.setIgnoredPackageNames(pkgNamesToSet);
 		classFilter = new ClassFilter(cfm);
 		

@@ -208,6 +208,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.shared.xml.I_XML_Producer");
 		
 		add4JacocoAndAsmClasses(toRet);
+		addMockitoClasses(toRet);
 		
 		for (String clazz: toRet) {
 			checkClass(clazz);
@@ -254,6 +255,10 @@ public class SharedClassList {
 		toRet.add("org.objectweb.asm.MethodVisitor");
 	}
 
+	protected static void addMockitoClasses(Set<String> toRet) {
+	  toRet.add("org.mockito.Mockito");
+	  toRet.add("org.mockito.stubbing.OngoingStubbing");
+	}
 	/**
 	 * extracted so it can be tested for the runtime exception
 	 * @param clazz
