@@ -33,12 +33,12 @@ public class MultiProbeDataStoreAdaptor extends AbstractRuntimeData implements I
 	}
 
 	@Override
-	public I_ProbesDataStore endTracking(boolean main) {
-		return dataStore.endRecording(main);
+	public I_ProbesDataStore getRecordedProbes(boolean main) {
+		return dataStore.getRecordedProbes(main);
 	}
 
 	@Override
-	public void startTracking() {
+	public void startup() {
 		dataStore.startRecording();
 	}
 

@@ -63,4 +63,8 @@ public class ProbesDataStoreMutant implements I_ProbesDataStoreMutant {
 		classesToProbes.remove(id);
 	}
 	
+	public void clear() {
+	  classesToProbes.clear();
+	  classNames.clear();
+	}
 }

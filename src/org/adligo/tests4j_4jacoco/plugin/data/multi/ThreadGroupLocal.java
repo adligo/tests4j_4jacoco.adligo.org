@@ -22,38 +22,38 @@ public class ThreadGroupLocal<T> extends ThreadLocal<Holder<T>>{
 	}
 	
 	@Override 
-    protected Holder<T> initialValue() {
-		String groupName = filter.getThreadGroupNameMatchingFilter();
-		Holder<T> holder = threadGroupLocalMap.get(groupName);
-		if (holder == null) {
-			holder = new Holder<T>();
-			if (reporter.isLogEnabled(ThreadGroupLocal.class)) {
-				reporter.log("" + this + " " + ThreadLogMessageBuilder.getThreadWithGroupNameForLog() +
-						"\n created new holder " + holder +
-						"\n for class " + instrumentedClassName);
-			}
-			holder.setHeld(factory.createNew());
-			threadGroupLocalMap.putIfAbsent(groupName,holder);
-			holder = threadGroupLocalMap.get(groupName);
-		}
-		return holder;
-    }
-	
-    public T getValue() { 
-    	Holder<T> holder = super.get();
-    	T toRet = holder.getHeld();
-    	if (toRet == null) {
-    		toRet = factory.createNew();
-    		holder.setHeld(toRet);
-    	}
-    	return toRet;
-    }
-	
-    
-    public void clear() {
-    	Holder<T> holder = super.get();
-    	holder.setHeld(null);
-    }
+  protected Holder<T> initialValue() {
+  	String groupName = filter.getThreadGroupNameMatchingFilter();
+  	Holder<T> holder = threadGroupLocalMap.get(groupName);
+  	if (holder == null) {
+  		holder = new Holder<T>();
+  		if (reporter.isLogEnabled(ThreadGroupLocal.class)) {
+  			reporter.log("" + this + " " + ThreadLogMessageBuilder.getThreadWithGroupNameForLog() +
+  					"\n created new holder " + holder +
+  					"\n for class " + instrumentedClassName);
+  		}
+  		holder.setHeld(factory.createNew());
+  		threadGroupLocalMap.putIfAbsent(groupName,holder);
+  		holder = threadGroupLocalMap.get(groupName);
+  	}
+  	return holder;
+  }
+
+  public T getValue() { 
+  	Holder<T> holder = super.get();
+  	T toRet = holder.getHeld();
+  	if (toRet == null) {
+  		toRet = factory.createNew();
+  		holder.setHeld(toRet);
+  	}
+  	return toRet;
+  }
+
+  
+  public void clear() {
+  	Holder<T> holder = super.get();
+  	holder.setHeld(null);
+  }
 	
 	
 }

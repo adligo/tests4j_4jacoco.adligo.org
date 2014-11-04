@@ -117,7 +117,8 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.system.shared.trials.UseCaseScope");
 		
 		toRet.add("org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader");
-		toRet.add("org.adligo.tests4j.run.common.I_Tests4J_Memory");
+		toRet.add("org.adligo.tests4j.run.common.I_Memory");
+		toRet.add("org.adligo.tests4j.run.common.I_Notifier");
 		
 		toRet.add("org.adligo.tests4j.run.remote.socket_api.I_AfterMessageHandler");
 

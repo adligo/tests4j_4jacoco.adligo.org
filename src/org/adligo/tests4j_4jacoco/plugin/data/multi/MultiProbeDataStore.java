@@ -1,12 +1,5 @@
 package org.adligo.tests4j_4jacoco.plugin.data.multi;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageRecorder;
@@ -18,6 +11,13 @@ import org.adligo.tests4j_4jacoco.plugin.data.common.Probes;
 import org.adligo.tests4j_4jacoco.plugin.data.common.ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.ProbesDataStoreMutant;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * This class represents a in memory data store for probes
  * which can be used for multiple {@link I_Tests4J_CoverageRecorder}'s
@@ -27,46 +27,39 @@ import org.adligo.tests4j_4jacoco.plugin.data.common.ProbesDataStoreMutant;
  *
  */
 public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
-	private final ConcurrentHashMap<Long,MultiProbesMap> classIdsToMulti = 
-			new ConcurrentHashMap<Long,MultiProbesMap>();
-	private final ConcurrentMapValueAvailableNotifier<Long, MultiProbesMap> classIds = 
-			new ConcurrentMapValueAvailableNotifier<Long, MultiProbesMap>(classIdsToMulti);
+	private final ConcurrentMapValueAvailableNotifier<Long, MultiProbesMap> classIds_;
 
-	private final I_Tests4J_Log reporter;
+	private final I_Tests4J_Log log_;
 	
 	public MultiProbeDataStore(I_Tests4J_Log p) {
-		reporter = p;
+		this(p, null);
 	}
+	
+	public MultiProbeDataStore(I_Tests4J_Log p, ConcurrentMapValueAvailableNotifier<Long, MultiProbesMap> map) {
+    log_ = p;
+    if (map != null) {
+      classIds_ = map;
+    } else {
+      classIds_ = new ConcurrentMapValueAvailableNotifier<Long, MultiProbesMap>(
+          new ConcurrentHashMap<Long, MultiProbesMap>());
+    }
+  }
 	
 	@Override
 	public Map<Integer, Boolean> get(final Long id, final String name, final int probecount) {
-		if (reporter.isLogEnabled(MultiProbeDataStore.class)) {
-			reporter.log(ThreadLogMessageBuilder.getThreadWithGroupNameForLog() +
+		if (log_.isLogEnabled(MultiProbeDataStore.class)) {
+			log_.log(ThreadLogMessageBuilder.getThreadWithGroupNameForLog() +
 					"\n is getting probes for class " + name);
 		}
-		MultiProbesMap toRet = classIdsToMulti.get(id);
+		MultiProbesMap toRet = classIds_.get(id);
 		if (toRet == null) {
-			if (!classIds.containsKey(id)) {
-				classIds.put(id, new I_ValueCreator<MultiProbesMap>() {
-					
-					@Override
-					public MultiProbesMap create() {
-						return new MultiProbesMap(name, probecount, reporter);
-					}
-				});
-				
-				toRet =  classIdsToMulti.get(id);
-				if (toRet == null) {
-					//block until the id shows up
-					classIds.await(id);
-					toRet = classIdsToMulti.get(id);
-				}
+			if (!classIds_.containsKey(id)) {
+				classIds_.putIfAbsent(id, 
+				    new MultiProbesMap(name, probecount, log_));
 			} 
+		  //this may block until the id shows up in the map
+      toRet =  classIds_.obtain(id);
 		} 
-		if (toRet == null) {
-			toRet =  classIdsToMulti.get(id);
-		}
-		
 		return toRet;
 	}
 
@@ -75,11 +68,12 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 	}
 
 	@Override
-	public synchronized I_ProbesDataStore endRecording(boolean main) {
+	public synchronized I_ProbesDataStore getRecordedProbes(boolean main) {
 		ProbesDataStoreMutant pdsm = new ProbesDataStoreMutant();
 		
 		//spin through a snapshot, of all threads
-		Set<Entry<Long, MultiProbesMap>> entries =  new HashMap<Long, MultiProbesMap>(classIdsToMulti).entrySet();
+		Set<Entry<Long, MultiProbesMap>> entries =  new HashSet<Entry<Long, MultiProbesMap>>(
+		    classIds_.entrySet());
 		Iterator<Entry<Long, MultiProbesMap>> it =  entries.iterator();
 		while (it.hasNext()) {
 			Entry<Long, MultiProbesMap> entry = it.next();
@@ -101,9 +95,8 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 			cpm.setProbes(new Probes(probeVals));
 			pdsm.put(clazzId, new ClassProbes(cpm));
 			
-			val.releaseRecording();
-			
 		}
+
 		return new ProbesDataStore(pdsm);
 	}
 

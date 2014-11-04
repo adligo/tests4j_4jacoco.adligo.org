@@ -88,9 +88,7 @@ public class CascadingProbeMap implements Map<Integer, Boolean> {
 
 	@Override
 	public void clear() {
-		for (int i = 0; i < initalProbes.length; i++) {
-			backed[i] = initalProbes[i];
-		}
+	  throw new IllegalStateException("method not implemented");
 	}
 
 	@Override

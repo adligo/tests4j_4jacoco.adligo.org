@@ -170,14 +170,6 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		throw new IllegalStateException(METHOD_NOT_IMPLEMENTED);
 	}
 	
-	public void releaseRecording() {
-		if (logger.isLogEnabled(MultiProbesMap.class)) {
-			logger.log("" + super.toString() + " " + ThreadLogMessageBuilder.getThreadWithGroupNameForLog() +
-					" is clearing probes \n" +
-					toString());
-		}
-	}
-
 	public String getClazzCovered() {
 		return clazzCovered;
 	}

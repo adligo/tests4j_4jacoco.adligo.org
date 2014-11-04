@@ -5,9 +5,16 @@ import org.jacoco.core.data.ISessionInfoVisitor;
 
 /**
  * this is called IRuntimeData in jacoco,
- * I changed the name to match better with what I think it is intended for.
+ * I changed the name to match better with what I think it is intended for
+ * and how it is getting used in tests4j_4jacoco.
  * This is to adapt the I_ProbeDataStore (aka jacoco's IExecutionDataStore)
- * to the jacoco runtime, most notibly getProbes(Object []); 
+ * to the jacoco runtime, most notably getProbes(Object []); 
+ * 
+ * Note at one time I had some code to try to clean out unused probes
+ * to keep memory footprint smaller.  After having considerable trouble
+ * with this I ended up just keeping all the probes all the time.
+ * The difference in memory spikes was about 7% or 100m out of 1.5g
+ * for a tests4_tests run.
  * 
  * @author scott
  *
@@ -64,20 +71,15 @@ public interface I_ProbesDataStoreAdaptor {
 	public void getProbes(final Object[] args);
 	
 	/**
-	 * start tracking for a particular scope
-	 * so that code covered while tracking is on
-	 * it will end up in the coverage data.
-	 * @param scope
+	 * start tracking probes
 	 */
-	public void startTracking();
+	public void startup();
 	/**
-	 * end tracking for a particular scope
-	 * and return all of the coverage data (I_ProbesDataStore)
-	 * that pertains to a particular scope.
-	 * This should also release any memory 
-	 * used for tracking coverage data.
-	 * 
-	 * @param scope
+	 * @param mainScope
+	 * @return the current recorded probes for the 
+	 * scope either mainScope (all the probes from any thread),
+	 * or not the mainScope (the thread group of trial and
+	 * test thread pertaining to a trial).
 	 */
-	public I_ProbesDataStore endTracking(boolean main);
+	public I_ProbesDataStore getRecordedProbes(boolean mainScope);
 }

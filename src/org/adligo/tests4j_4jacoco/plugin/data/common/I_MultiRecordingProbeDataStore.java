@@ -20,10 +20,12 @@ public interface I_MultiRecordingProbeDataStore {
 	 */
 	public void startRecording();
 	/**
-	 * return the coverage data 
-	 * and cleanup memory
-	 * @param scope
-	 * @return
+	 *     
+	 * @param mainScope
+	 * @return the current coverage data either
+   * for the entire recording (mainScope = true),
+   * or for a ThreadGroup (combination of trial and test
+   * thread locals).
 	 */
-	public I_ProbesDataStore endRecording(boolean main);
+	public I_ProbesDataStore getRecordedProbes(boolean mainScope);
 }

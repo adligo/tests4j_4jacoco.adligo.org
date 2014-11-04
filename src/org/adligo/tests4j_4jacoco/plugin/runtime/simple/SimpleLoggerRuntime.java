@@ -43,7 +43,7 @@ public class SimpleLoggerRuntime implements I_Runtime {
 		if (data == null) {
 			throw new IllegalStateException("Null data at startup.");
 		}
-		data.startTracking();
+		data.startup();
 		this.logger.addHandler(handler);
 	}
 	
@@ -83,7 +83,7 @@ public class SimpleLoggerRuntime implements I_Runtime {
 
 	@Override
 	public I_ProbesDataStore end(boolean root) {
-		return data.endTracking(root);
+		return data.getRecordedProbes(root);
 	}
 
 
