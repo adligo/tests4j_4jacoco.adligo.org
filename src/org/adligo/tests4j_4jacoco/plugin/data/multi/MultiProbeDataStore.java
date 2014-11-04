@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  */
 public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
-	private final ConcurrentMapValueAvailableNotifier<Long, MultiProbesMap> classIds_;
+	private final ConcurrentQualifiedMap<Long, MultiProbesMap> classIds_;
 
 	private final I_Tests4J_Log log_;
 	
@@ -35,12 +35,12 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 		this(p, null);
 	}
 	
-	public MultiProbeDataStore(I_Tests4J_Log p, ConcurrentMapValueAvailableNotifier<Long, MultiProbesMap> map) {
+	public MultiProbeDataStore(I_Tests4J_Log p, ConcurrentQualifiedMap<Long, MultiProbesMap> map) {
     log_ = p;
     if (map != null) {
       classIds_ = map;
     } else {
-      classIds_ = new ConcurrentMapValueAvailableNotifier<Long, MultiProbesMap>(
+      classIds_ = new ConcurrentQualifiedMap<Long, MultiProbesMap>(
           new ConcurrentHashMap<Long, MultiProbesMap>());
     }
   }
@@ -54,10 +54,11 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 		MultiProbesMap toRet = classIds_.get(id);
 		if (toRet == null) {
 			if (!classIds_.containsKey(id)) {
-				classIds_.putIfAbsent(id, 
+			  classIds_.putIfAbsent(id, 
 				    new MultiProbesMap(name, probecount, log_));
 			} 
-		  //this may block until the id shows up in the map
+		  //this may block until the id shows up in the map,
+			//this could be from another thread
       toRet =  classIds_.obtain(id);
 		} 
 		return toRet;
