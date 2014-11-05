@@ -1,15 +1,14 @@
 package org.adligo.tests4j_4jacoco.plugin.data.multi;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
 import org.adligo.tests4j.run.memory.Tests4J_ThreadFactory;
 import org.adligo.tests4j.shared.common.ClassMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * a wrapper around probe data for different recorders.
@@ -41,7 +40,7 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		probeCount = pProbeCount;
 		probes = getEmptyProbes(probeCount);
 		threadGroupProbes = 
-				new ThreadGroupLocal<CascadingProbeMap>(Tests4J_ThreadFactory.TRIAL_THREAD_NAME,
+				new ThreadGroupLocal<CascadingProbeMap>(Tests4J_ThreadFactory.TRIAL_THREAD_GROUP,
 						new I_InitalValueFactory<CascadingProbeMap>() {
 							volatile AtomicBoolean set = new AtomicBoolean(false);
 							volatile CascadingProbeMap first;

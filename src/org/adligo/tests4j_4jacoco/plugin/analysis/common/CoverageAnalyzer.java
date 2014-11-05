@@ -9,8 +9,8 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassProbes;
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_Probes;
+import org.adligo.tests4j.models.shared.coverage.I_ClassProbes;
+import org.adligo.tests4j.models.shared.coverage.I_Probes;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.jacoco.core.analysis.ICoverageVisitor;
 import org.jacoco.core.data.ExecutionDataStore;

@@ -17,17 +17,19 @@ public class SharedClassList {
 	private static Set<String> getSharedClassWhitelist() {
 		Set<String> toRet = new HashSet<String>();
 	
-
-		
+    
+    toRet.add("org.adligo.tests4j.models.shared.coverage.I_ClassProbes");
+    toRet.add("org.adligo.tests4j.models.shared.coverage.I_ClassProbesMutant");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnits");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnitsContainer");
+		
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_LineCoverage");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_LineCoverageSegment");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_PackageCoverage");
+		
+		toRet.add("org.adligo.tests4j.models.shared.coverage.I_Probes");
+		toRet.add("org.adligo.tests4j.models.shared.coverage.I_ProbeCoverageContainer");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage");
-		
-
-		
 		
 		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassFilter");
 		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassFilterModel");
@@ -37,9 +39,6 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassAssociations");
 		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassAssociationsCache");
 		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassAssociationsLocal");
-		
-		
-		
 		
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_SourceInfoMetadata");
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TestMetadata");
@@ -232,10 +231,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_TrialInstrumenter");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_TrialInstrumenterFactory");
 		
-		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_Probes");
-		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassProbes");
-		
-		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_ClassProbesMutant");
+
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_MultiRecordingProbeDataStore");
 
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore");

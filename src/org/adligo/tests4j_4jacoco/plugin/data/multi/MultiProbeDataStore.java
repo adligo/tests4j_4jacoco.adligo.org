@@ -1,13 +1,13 @@
 package org.adligo.tests4j_4jacoco.plugin.data.multi;
 
+import org.adligo.tests4j.models.shared.coverage.ClassProbes;
+import org.adligo.tests4j.models.shared.coverage.ClassProbesMutant;
+import org.adligo.tests4j.models.shared.coverage.Probes;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageRecorder;
-import org.adligo.tests4j_4jacoco.plugin.data.common.ClassProbes;
-import org.adligo.tests4j_4jacoco.plugin.data.common.ClassProbesMutant;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_MultiRecordingProbeDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
-import org.adligo.tests4j_4jacoco.plugin.data.common.Probes;
 import org.adligo.tests4j_4jacoco.plugin.data.common.ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.ProbesDataStoreMutant;
 

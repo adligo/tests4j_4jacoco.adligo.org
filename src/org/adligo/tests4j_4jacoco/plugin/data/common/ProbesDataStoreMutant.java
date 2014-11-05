@@ -1,5 +1,9 @@
 package org.adligo.tests4j_4jacoco.plugin.data.common;
 
+import org.adligo.tests4j.models.shared.coverage.ClassProbesMutant;
+import org.adligo.tests4j.models.shared.coverage.I_ClassProbes;
+import org.adligo.tests4j.models.shared.coverage.I_ClassProbesMutant;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;

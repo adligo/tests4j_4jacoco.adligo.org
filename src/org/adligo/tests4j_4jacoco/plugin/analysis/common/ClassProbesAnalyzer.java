@@ -1,6 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.analysis.common;
 
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_Probes;
+import org.adligo.tests4j.models.shared.coverage.I_Probes;
 import org.jacoco.core.analysis.IMethodCoverage;
 import org.jacoco.core.internal.analysis.ClassCoverageImpl;
 import org.jacoco.core.internal.analysis.MethodAnalyzer;

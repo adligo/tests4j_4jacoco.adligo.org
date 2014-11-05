@@ -104,4 +104,10 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 		return progress.getPctDone();
 	}
 
+  @Override
+  public I_Tests4J_CoverageRecorder createRecorder(String threadGroup, String javaFilter) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }
