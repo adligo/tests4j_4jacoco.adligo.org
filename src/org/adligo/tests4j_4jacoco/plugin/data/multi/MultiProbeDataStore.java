@@ -3,6 +3,7 @@ package org.adligo.tests4j_4jacoco.plugin.data.multi;
 import org.adligo.tests4j.models.shared.coverage.ClassProbes;
 import org.adligo.tests4j.models.shared.coverage.ClassProbesMutant;
 import org.adligo.tests4j.models.shared.coverage.Probes;
+import org.adligo.tests4j.run.common.ConcurrentQualifiedMap;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageRecorder;

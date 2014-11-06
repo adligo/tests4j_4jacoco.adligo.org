@@ -66,12 +66,14 @@ public class CascadingProbeMap implements Map<Integer, Boolean> {
 		return backed;
 	}
 	
-	@Override
+	@SuppressWarnings("boxing")
+  @Override
 	public Boolean get(Object key) {
 		return backed[(Integer) key];
 	}
 
-	@Override
+	@SuppressWarnings("boxing")
+  @Override
 	public Boolean put(Integer key, Boolean value) {
 		backed[(Integer) key] = value;
 		return true;
