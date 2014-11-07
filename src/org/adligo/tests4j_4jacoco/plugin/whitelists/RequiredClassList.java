@@ -1,4 +1,7 @@
-package org.adligo.tests4j_4jacoco.plugin;
+package org.adligo.tests4j_4jacoco.plugin.whitelists;
+
+import org.adligo.tests4j.run.common.ClassesDelegate;
+import org.adligo.tests4j.run.common.I_Classes;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -11,9 +14,7 @@ import java.util.Set;
  * @author scott
  *
  */
-public class SharedClassList {
-	public static Set<String> WHITELIST = getSharedClassWhitelist();
-
+public class RequiredClassList extends BaseClassList {
 	private static Set<String> getSharedClassWhitelist() {
 		Set<String> toRet = new HashSet<String>();
 	
@@ -116,6 +117,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.system.shared.trials.UseCaseScope");
 		
 		toRet.add("org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader");
+		toRet.add("org.adligo.tests4j.run.common.I_JseSystem");
 		toRet.add("org.adligo.tests4j.run.common.I_Memory");
 		toRet.add("org.adligo.tests4j.run.common.I_Notifier");
 		
@@ -207,11 +209,7 @@ public class SharedClassList {
 		toRet.add("org.adligo.tests4j.shared.xml.I_XML_Producer");
 		
 		add4JacocoAndAsmClasses(toRet);
-		addMockitoClasses(toRet);
 		
-		for (String clazz: toRet) {
-			checkClass(clazz);
-		}
 		return Collections.unmodifiableSet(toRet);
 	}
 
@@ -250,21 +248,12 @@ public class SharedClassList {
 		
 		toRet.add("org.objectweb.asm.MethodVisitor");
 	}
-
-	protected static void addMockitoClasses(Set<String> toRet) {
-	  toRet.add("org.mockito.Mockito");
-	  toRet.add("org.mockito.stubbing.OngoingStubbing");
-	}
-	/**
-	 * extracted so it can be tested for the runtime exception
-	 * @param clazz
-	 */
-	public static void checkClass(String clazz) {
-		try {
-			//actually load all of the classes using the default classloader here
-			Class.forName(clazz, false, ClassLoader.getSystemClassLoader());
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
-	}
+	
+	public RequiredClassList() {
+    this(new ClassesDelegate());
+  }
+  
+  public RequiredClassList(I_Classes classes) {
+    super(getSharedClassWhitelist(), classes);
+  }
 }

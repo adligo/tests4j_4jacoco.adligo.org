@@ -63,8 +63,9 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 	private String instrumentedClassFileOutputFolder = "instrumentedClasses";
 	private boolean writeOutInstrumentedClassFiles = false;
 	private boolean concurrentRecording = true;
+	private Set<String> whitelist_;
 	
-	protected CoveragePluginMemory(I_Tests4J_Log pLog) {
+	protected CoveragePluginMemory(I_Tests4J_Log pLog, Set<String> classWhitelist) {
 		log = pLog;
 		
 		Set<String> packagesNotRequired = new HashSet<String>();
@@ -73,19 +74,18 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 		packagesNotRequired.add("org.jacoco.");
 		packagesNotRequired.add("org.objectweb.");
 		
-		
-		Set<String> classesNotRequired = SharedClassList.WHITELIST;
+		whitelist_ = classWhitelist;
 		instrumentedClassLoader = new CachedClassBytesClassLoader(log, 
-				packagesNotRequired, classesNotRequired, null);
+				packagesNotRequired, classWhitelist, null);
 		/**
 		 * note the original classes are required for 
 		 * re-instrumentation for coverage in the LazyCoverage classes
 		 */
 		cachedClassLoader = new CachedClassBytesClassLoader(log, 
-				packagesNotRequired, classesNotRequired, null);
+				packagesNotRequired, classWhitelist, null);
 		
 		ClassFilterMutant cfm = new ClassFilterMutant();
-		cfm.setIgnoredClassNames(SharedClassList.WHITELIST);
+		cfm.setIgnoredClassNames(classWhitelist);
 		Set<String> pkgNames = cfm.getIgnoredPackageNames();
 		Set<String> pkgNamesToSet = new HashSet<String>(pkgNames);
 		pkgNamesToSet.add("java.");
@@ -257,11 +257,15 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 		return parentsCache;
 	}
 
-	protected boolean isConcurrentRecording() {
+	public boolean isConcurrentRecording() {
 		return concurrentRecording;
 	}
 
-	protected void setConcurrentRecording(boolean concurrentRecording) {
+	public void setConcurrentRecording(boolean concurrentRecording) {
 		this.concurrentRecording = concurrentRecording;
 	}
+
+  public Set<String> getWhitelist() {
+    return whitelist_;
+  }
 }

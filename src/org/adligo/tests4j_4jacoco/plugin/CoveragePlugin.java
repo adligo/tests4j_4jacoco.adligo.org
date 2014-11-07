@@ -1,11 +1,5 @@
 package org.adligo.tests4j_4jacoco.plugin;
 
-import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.adligo.tests4j.models.shared.association.I_ClassAssociationsCache;
-import org.adligo.tests4j.models.shared.association.I_ClassAssociationsLocal;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePlugin;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageRecorder;
@@ -19,6 +13,11 @@ import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapClassInstrumente
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleLoggerRuntime;
 
+import java.io.IOException;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 	private CoveragePluginMemory memory;
 	private I_Tests4J_Log tests4jLogger;
@@ -27,13 +26,13 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 	private ConcurrentHashMap<String, I_TrialInstrumenter> trialIntrumenterByWork = 
 			new ConcurrentHashMap<String, I_TrialInstrumenter>();
 	
-	public CoveragePlugin(I_Tests4J_Log logger) {
+	public CoveragePlugin(I_Tests4J_Log logger, Set<String> whiteList) {
 		
 		ProbeDataAccessorByLoggingApiFactory factory = new ProbeDataAccessorByLoggingApiFactory(
 				MapInstrConstants.DATAFIELD_DESC);
 		tests4jLogger = logger;
 		
-		memory = new CoveragePluginMemory(logger);
+		memory = new CoveragePluginMemory(logger, whiteList);
 		memory.setProbeDataAccessorFactory(factory);
 		memory.setInstrumenterFactory(new MapClassInstrumenterFactory());
 		
@@ -72,7 +71,7 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 		return rec;
 	}
 
-	protected CoveragePluginMemory getMemory() {
+	public CoveragePluginMemory getMemory() {
 		return memory;
 	}
 
