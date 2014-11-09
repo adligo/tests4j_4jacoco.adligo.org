@@ -1,49 +1,70 @@
 package org.adligo.tests4j_4jacoco.plugin;
 
-import java.lang.reflect.Method;
-import java.text.DecimalFormat;
-import java.util.List;
-import java.util.Set;
-
+import org.adligo.tests4j.models.shared.coverage.I_ClassProbes;
+import org.adligo.tests4j.models.shared.coverage.I_CoverageUnits;
 import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage;
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileProbes;
+import org.adligo.tests4j.models.shared.coverage.SourceFileProbes;
+import org.adligo.tests4j.models.shared.coverage.SourceFileProbesMutant;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageRecorder;
 import org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory;
 import org.adligo.tests4j_4jacoco.plugin.common.I_Runtime;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
+import org.adligo.tests4j_4jacoco.plugin.data.common.ProbesDataStoreMutant;
 import org.adligo.tests4j_4jacoco.plugin.data.coverage.LazyPackageCoverageFactory;
 
+import java.lang.reflect.Method;
+import java.text.DecimalFormat;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public class Recorder implements I_Tests4J_CoverageRecorder {
-	protected I_Tests4J_Log reporter;
-	protected I_CoveragePluginMemory memory;
-	private boolean main;
-	private I_Runtime runtime;
-	private boolean jacocoInitOnFirstRecording = true;
+	protected I_Tests4J_Log log_;
+	protected I_CoveragePluginMemory memory_;
+	private boolean main_ = false;
+	private I_Runtime runtime_;
+	private boolean jacocoInitOnFirstRecording_ = true;
+	private String threadGroupName_;
+	private String filter_;
 	
 	public Recorder(I_CoveragePluginMemory pMemory, I_Tests4J_Log pLog) {
-		memory = pMemory;
-		reporter = pLog;
-		runtime = memory.getRuntime();
+		memory_ = pMemory;
+		log_ = pLog;
+		runtime_ = memory_.getRuntime();
+		main_ = true;
 	}
 	
+	public Recorder(I_CoveragePluginMemory pMemory, I_Tests4J_Log pLog, 
+	    String threadGroupName, String filter) {
+    memory_ = pMemory;
+    log_ = pLog;
+    runtime_ = memory_.getRuntime();
+    threadGroupName_ = threadGroupName;
+    filter_ = filter;
+    runtime_.putThreadGroupFilter(threadGroupName, filter);
+    runtime_.clearClassesCovered(threadGroupName);
+  }
 
 	@Override
 	public void startRecording() {
-		if (reporter != null) {
-			if (reporter.isLogEnabled(Recorder.class)) {
-				reporter.log("Recorder starting ");
+		if (log_ != null) {
+			if (log_.isLogEnabled(Recorder.class)) {
+				log_.log("Recorder starting ");
 			}
 		}
 		try {
-			runtime.startup();
+			runtime_.startup();
 		} catch (Exception x) {
 			throw new RuntimeException(x);
 		}
 		
-		if (jacocoInitOnFirstRecording) {
-			if (main) {
-				I_CachedClassBytesClassLoader mcl = memory.getInstrumentedClassLoader();
+		if (jacocoInitOnFirstRecording_) {
+			if (main_) {
+				I_CachedClassBytesClassLoader mcl = memory_.getInstrumentedClassLoader();
 				List<String> allClasses = mcl.getAllCachedClasses();
 				int progress = 0;
 				double nextProgressLog = 10.0;
@@ -55,7 +76,7 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 					if (dp/tot >= nextProgressLog) {
 						nextProgressLog = nextProgressLog + 10.0;
 						DecimalFormat df = new DecimalFormat("###.#%");
-						reporter.log("tests4j_4jacoco " + df.format(dp/tot) + "% calling $jacocoInit()s");
+						log_.log("tests4j_4jacoco " + df.format(dp/tot) + "% calling $jacocoInit()s");
 					}
 					if (clazz.indexOf("$") == -1) {
 						Class<?> loadedClass = mcl.getCachedClass(clazz);
@@ -80,21 +101,15 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 	
 	@Override
 	public List<I_PackageCoverage> endRecording(Set<String> classNames) {
-		if (reporter != null) {
-			if (reporter.isLogEnabled(Recorder.class)) {
-				reporter.log("Ending Recording " + Thread.currentThread().getName());
+		if (log_ != null) {
+			if (log_.isLogEnabled(Recorder.class)) {
+				log_.log("Ending Recording " + Thread.currentThread().getName());
 			}
 		}
-		/*
-		final ExecutionDataStore executionData = new ExecutionDataStore();
-		final SessionInfoStore sessionInfos = new SessionInfoStore();
-		data.collect(executionData, sessionInfos, false);
-		*/
-		I_ProbesDataStore executionData = runtime.end(main);
+		I_ProbesDataStore executionData = runtime_.end(main_);
 		
-		return LazyPackageCoverageFactory.create(executionData, memory, classNames);
+		return LazyPackageCoverageFactory.create(executionData, memory_, classNames);
 	}
-
 
 	public static String getPackageDir(final String name) {
 		final String resource = '/' + name.replace('.', '/');
@@ -102,16 +117,35 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 		return resource.substring(0, lastDot);
 	}
 	
-
-
-
 	public boolean isMain() {
-		return main;
+		return main_;
 	}
 
-	public void setMain(boolean root) {
-		this.main = root;
-	}
+  @Override
+  public I_SourceFileProbes getSourceFileCoverage() {
+    I_SourceFileProbes probes = runtime_.getSourceFileCoverage(threadGroupName_, filter_);
+    ProbesDataStoreMutant mut = new ProbesDataStoreMutant();
+    Set<String> classNames = new HashSet<String>();
+    mut.put(probes.getClassId(), probes);
+    List<I_ClassProbes> cps = probes.getClassProbes();
+    for (I_ClassProbes cp: cps) {
+      mut.put(cp.getClassId(), cp);
+      classNames.add(probes.getClassName());
+    }
+    I_SourceFileCoverage sfc;
+    try {
+      sfc = LazyPackageCoverageFactory.createSourceFileCoverage(
+          mut, memory_, filter_, classNames);
+      I_CoverageUnits cus = sfc.getCoverageUnits();
+      
+      SourceFileProbesMutant sfpm = new SourceFileProbesMutant(probes);
+      sfpm.setCoverageUnits(cus.get());
+      I_CoverageUnits ccus = sfc.getCoveredCoverageUnits();
+      sfpm.setCoveredCoverageUnits(ccus.get());
+      return new SourceFileProbes(sfpm);
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
-	
 }

@@ -1,7 +1,11 @@
 package org.adligo.tests4j_4jacoco.plugin.data.common;
 
+import org.adligo.tests4j.models.shared.coverage.I_ClassProbes;
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileProbes;
 import org.jacoco.core.data.IExecutionDataVisitor;
 import org.jacoco.core.data.ISessionInfoVisitor;
+
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * this is called IRuntimeData in jacoco,
@@ -19,7 +23,7 @@ import org.jacoco.core.data.ISessionInfoVisitor;
  * @author scott
  *
  */
-public interface I_ProbesDataStoreAdaptor {
+public interface I_ProbesDataStoreAdaptor extends I_MultiProbesStore {
 	
 	/**
 	 * Sets a session identifier for this runtime. The identifier is used when
@@ -82,4 +86,5 @@ public interface I_ProbesDataStoreAdaptor {
 	 * test thread pertaining to a trial).
 	 */
 	public I_ProbesDataStore getRecordedProbes(boolean mainScope);
+	
 }

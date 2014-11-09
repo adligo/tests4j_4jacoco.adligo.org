@@ -28,9 +28,11 @@ public class RequiredList extends BaseClassList {
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_LineCoverageSegment");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_PackageCoverage");
 		
+		toRet.add("org.adligo.tests4j.models.shared.coverage.I_PercentCovered");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_Probes");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_ProbeCoverageContainer");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage");
+		toRet.add("org.adligo.tests4j.models.shared.coverage.I_SourceFileProbes");
 		
 		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassFilter");
 		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassFilterModel");

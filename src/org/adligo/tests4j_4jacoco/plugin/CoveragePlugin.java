@@ -7,6 +7,7 @@ import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageTrialInstrumentati
 import org.adligo.tests4j.system.shared.trials.I_AbstractTrial;
 import org.adligo.tests4j_4jacoco.plugin.common.I_TrialInstrumenter;
 import org.adligo.tests4j_4jacoco.plugin.common.I_TrialInstrumenterFactory;
+import org.adligo.tests4j_4jacoco.plugin.data.multi.MultiContext;
 import org.adligo.tests4j_4jacoco.plugin.data.multi.MultiProbeDataStoreAdaptor;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.ProbeDataAccessorByLoggingApiFactory;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapClassInstrumenterFactory;
@@ -21,7 +22,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 	private CoveragePluginMemory memory;
 	private I_Tests4J_Log log_;
-	private AtomicBoolean firstRecorder = new AtomicBoolean(false);
 	private ThreadLocal<I_TrialInstrumenter> trialIntrumenters = new ThreadLocal<I_TrialInstrumenter>();
 	private ConcurrentHashMap<String, I_TrialInstrumenter> trialIntrumenterByWork = 
 			new ConcurrentHashMap<String, I_TrialInstrumenter>();
@@ -37,7 +37,9 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 		memory.setInstrumenterFactory(new MapClassInstrumenterFactory());
 		
 		SimpleLoggerRuntime runtime = new SimpleLoggerRuntime(factory);
-		runtime.setup(new MultiProbeDataStoreAdaptor(log_));
+		runtime.setup(
+		    new MultiProbeDataStoreAdaptor(
+		    new MultiContext(log_, runtime)));
 		memory.setRuntime(runtime);
 	}
 	
@@ -59,16 +61,7 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 	
 	@Override
 	public synchronized I_Tests4J_CoverageRecorder createRecorder() {
-		Recorder rec = new Recorder(memory, log_);
-		if (memory.isConcurrentRecording()) {
-			if (!firstRecorder.get()) {
-				firstRecorder.set(true);
-				rec.setMain(true);
-			}
-		} else {
-			rec.setMain(true);
-		}
-		return rec;
+		return new Recorder(memory, log_);
 	}
 
 	public CoveragePluginMemory getMemory() {
@@ -105,8 +98,7 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 
   @Override
   public I_Tests4J_CoverageRecorder createRecorder(String threadGroup, String javaFilter) {
-    // TODO Auto-generated method stub
-    return null;
+    return new Recorder(memory, log_, threadGroup, javaFilter);
   }
 
 }

@@ -2,9 +2,14 @@ package org.adligo.tests4j_4jacoco.plugin.data.multi;
 
 import org.adligo.tests4j.models.shared.coverage.ClassProbes;
 import org.adligo.tests4j.models.shared.coverage.ClassProbesMutant;
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileProbes;
 import org.adligo.tests4j.models.shared.coverage.Probes;
+import org.adligo.tests4j.models.shared.coverage.ProbesMutant;
+import org.adligo.tests4j.models.shared.coverage.SourceFileProbes;
+import org.adligo.tests4j.models.shared.coverage.SourceFileProbesMutant;
 import org.adligo.tests4j.run.common.ConcurrentQualifiedMap;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
+import org.adligo.tests4j.shared.common.ClassMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageRecorder;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_MultiRecordingProbeDataStore;
@@ -12,12 +17,12 @@ import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.ProbesDataStoreMutant;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class represents a in memory data store for probes
@@ -29,21 +34,17 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 	private final ConcurrentQualifiedMap<Long, MultiProbesMap> classIds_;
-
+	private final MultiContext ctx_;
 	private final I_Tests4J_Log log_;
 	
-	public MultiProbeDataStore(I_Tests4J_Log p) {
-		this(p, null);
+	public MultiProbeDataStore(MultiContext ctx) {
+		this(ctx, null);
 	}
 	
-	public MultiProbeDataStore(I_Tests4J_Log p, ConcurrentQualifiedMap<Long, MultiProbesMap> map) {
-    log_ = p;
-    if (map != null) {
-      classIds_ = map;
-    } else {
-      classIds_ = new ConcurrentQualifiedMap<Long, MultiProbesMap>(
-          new ConcurrentHashMap<Long, MultiProbesMap>());
-    }
+	public MultiProbeDataStore(MultiContext ctx, ConcurrentQualifiedMap<Long, MultiProbesMap> map) {
+    log_ = ctx.getLog();
+    ctx_ = ctx;
+    classIds_ = ctx_.getMultiProbesMap();
   }
 	
 	@Override
@@ -55,8 +56,12 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 		MultiProbesMap toRet = classIds_.get(id);
 		if (toRet == null) {
 			if (!classIds_.containsKey(id)) {
+			  ClassProbesMutant cpm = new ClassProbesMutant();
+			  cpm.setClassId(id);
+			  cpm.setClassName(name);
+			  cpm.setProbes(new Probes(new boolean[probecount]));
 			  classIds_.putIfAbsent(id, 
-				    new MultiProbesMap(name, probecount, log_));
+				    new MultiProbesMap(cpm, ctx_));
 			} 
 		  //this may block until the id shows up in the map,
 			//this could be from another thread
@@ -102,4 +107,55 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 		return new ProbesDataStore(pdsm);
 	}
 
+	@SuppressWarnings("boxing")
+  public I_SourceFileProbes getSourceFileProbes(String threadGroupName, 
+	    String sourceFileClassName, Iterator<Long> classIds) {
+	  
+	  String sourceFileName = ClassMethods.toResource(sourceFileClassName);
+	  //remove first slash and .class
+	  sourceFileName = sourceFileName.substring(1, sourceFileName.length() - 6);
+	  SourceFileProbesMutant mut = new SourceFileProbesMutant();
+    mut.setClassName(sourceFileClassName);
+    if (classIds != null) {
+      while (classIds.hasNext()) {
+        Long l = classIds.next();
+        MultiProbesMap multiProbes = classIds_.get(l);
+        if (multiProbes != null) {
+          String clazzCovered = multiProbes.getClazzCovered();
+          //double check the classCovered is part of the sourceFileClassName
+          if (sourceFileName.indexOf(clazzCovered) == 0) {
+            boolean [] probes = multiProbes.getThreadGroupProbes();
+            if (sourceFileClassName.equals(clazzCovered)) {
+              mut.setProbes(new ProbesMutant(probes));
+              mut.setClassId(l);
+            } else {
+              ClassProbesMutant cpm = new ClassProbesMutant();
+              String clazzName = clazzCovered.replaceAll("/", ".");
+              cpm.setClassName(clazzName);
+              cpm.setClassId(l);
+              cpm.setProbes(new ProbesMutant(probes));
+              mut.addClassProbe(cpm);
+            }
+          }
+        }
+      }
+    } 
+    if (mut.getProbes() == null) {
+      Collection<MultiProbesMap> maps = classIds_.values();
+      for (MultiProbesMap map: maps) {
+        if (sourceFileName.equals(map.getClazzCovered())) {
+          mut.setProbes(new ProbesMutant(map.getProbes()));
+          mut.setClassId(map.getClassId());
+          break;
+        }
+      }
+    }
+    SourceFileProbes toRet = null;
+    try {
+      toRet = new SourceFileProbes(mut);
+    } catch (Exception x) {
+      throw new RuntimeException("There was a problem getting probes for class " + sourceFileClassName);
+    }
+    return toRet;
+	}
 }

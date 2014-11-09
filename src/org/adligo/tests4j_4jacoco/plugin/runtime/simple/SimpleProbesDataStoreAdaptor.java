@@ -1,5 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.runtime.simple;
 
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileProbes;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStoreAdaptor;
@@ -12,6 +13,8 @@ import org.jacoco.core.data.SessionInfo;
 import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+
+import java.util.Iterator;
 
 public class SimpleProbesDataStoreAdaptor implements I_ProbesDataStoreAdaptor {
 	/** store for execution data */
@@ -170,5 +173,12 @@ public class SimpleProbesDataStoreAdaptor implements I_ProbesDataStoreAdaptor {
 	public void startup() {
 		//do nothing, everything is in one scope for this class
 	}
+
+  @Override
+  public I_SourceFileProbes getSourceFileProbes(String threadGroupName, String sourceFileClassName,
+      Iterator<Long> classIds) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
 }

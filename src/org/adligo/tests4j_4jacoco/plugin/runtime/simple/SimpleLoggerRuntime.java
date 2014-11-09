@@ -1,24 +1,35 @@
 package org.adligo.tests4j_4jacoco.plugin.runtime.simple;
 
-import java.lang.reflect.Field;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileProbes;
+import org.adligo.tests4j.models.shared.coverage.SourceFileProbesMutant;
 import org.adligo.tests4j_4jacoco.plugin.common.I_LoggerDataAccessorFactory;
 import org.adligo.tests4j_4jacoco.plugin.common.I_Runtime;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStoreAdaptor;
 import org.jacoco.core.internal.instr.InstrSupport;
 
+import java.lang.reflect.Field;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class SimpleLoggerRuntime implements I_Runtime {
 	private final I_LoggerDataAccessorFactory factory;
 
-	private final Logger logger;
-	private final String key;
-	private final Handler handler;
+	private final Logger logger_;
+	private final String key_;
+	private final Handler handler_;
 	/** access to the runtime data */
-	protected I_ProbesDataStoreAdaptor data;
+	protected I_ProbesDataStoreAdaptor data_;
+	private ConcurrentHashMap<String,String> threadGroupsToProbeModificationFilters_ =
+    new ConcurrentHashMap<String,String>();
+	private ConcurrentHashMap<String,ConcurrentSkipListSet<Long>> threadGroupClassIds_ =
+    new ConcurrentHashMap<String,ConcurrentSkipListSet<Long>>();
 	
 	/**
 	 * Creates a new runtime.
@@ -26,9 +37,9 @@ public class SimpleLoggerRuntime implements I_Runtime {
 	public SimpleLoggerRuntime(I_LoggerDataAccessorFactory pFactory) {
 		super();
 		this.factory = pFactory;
-		key = factory.getKey();
-		this.logger = configureLogger();
-		this.handler = new RuntimeLoggingHandler(this);
+		key_ = factory.getKey();
+		this.logger_ = configureLogger();
+		this.handler_ = new RuntimeLoggingHandler(this);
 	}
 
 	private Logger configureLogger() {
@@ -40,16 +51,16 @@ public class SimpleLoggerRuntime implements I_Runtime {
 
 	@Override
 	public void startup() throws SecurityException {
-		if (data == null) {
+		if (data_ == null) {
 			throw new IllegalStateException("Null data at startup.");
 		}
-		data.startup();
-		this.logger.addHandler(handler);
+		data_.startup();
+		this.logger_.addHandler(handler_);
 	}
 	
 	@Override
 	public void shutdown() {
-		this.logger.removeHandler(handler);
+		this.logger_.removeHandler(handler_);
 	}
 	
 	public void disconnect(final Class<?> type) throws Exception {
@@ -62,29 +73,78 @@ public class SimpleLoggerRuntime implements I_Runtime {
 	}
 
 	public String getKey() {
-		return key;
+		return key_;
 	}
 
 	public Logger getLogger() {
-		return logger;
+		return logger_;
 	}
 
 	public Handler getHandler() {
-		return handler;
+		return handler_;
 	}
 
 	public I_ProbesDataStoreAdaptor getData() {
-		return data;
+		return data_;
 	}
 
 	public void setup(I_ProbesDataStoreAdaptor p) {
-		data = p;
+		data_ = p;
 	}
 
 	@Override
 	public I_ProbesDataStore end(boolean root) {
-		return data.getRecordedProbes(root);
+		return data_.getRecordedProbes(root);
 	}
 
+  @Override
+  public void putThreadGroupFilter(String threadGroupName, String javaProbeFilter) {
+    threadGroupsToProbeModificationFilters_.put(threadGroupName, javaProbeFilter);
+  }
 
+  @Override
+  public String getThreadGroupFilter(String threadGroupName) {
+    return threadGroupsToProbeModificationFilters_.get(threadGroupName);
+  }
+
+  @Override
+  public Set<Long> getClassesCovered(String threadGroupName) {
+    return getClassIds(threadGroupName);
+  }
+
+  @SuppressWarnings("boxing")
+  @Override
+  public void putClassCovered(String threadGroupName, long classId) {
+    ConcurrentSkipListSet<Long> set = getClassIds(threadGroupName);
+    set.add(classId);
+  }
+
+  private ConcurrentSkipListSet<Long> getClassIds(String threadGroupName) {
+    ConcurrentSkipListSet<Long> toRet =  threadGroupClassIds_.get(threadGroupName);
+    if (toRet == null) {
+      return createClassIds(threadGroupName);
+    }
+    return toRet;
+  }
+  
+  private synchronized ConcurrentSkipListSet<Long> createClassIds(String threadGroupName) {
+    ConcurrentSkipListSet<Long> toRet = new ConcurrentSkipListSet<Long>();
+    threadGroupClassIds_.putIfAbsent(threadGroupName, toRet);
+    return threadGroupClassIds_.get(threadGroupName);
+  }
+
+  @Override
+  public void clearClassesCovered(String threadGroupName) {
+    threadGroupClassIds_.put(threadGroupName, new ConcurrentSkipListSet<Long>());
+  }
+
+  @Override
+  public I_SourceFileProbes getSourceFileCoverage(String threadGroupName, String sourceFileClassName) {
+    ConcurrentSkipListSet<Long> classIds = threadGroupClassIds_.get(threadGroupName);
+    Iterator<Long> it = null;
+    if (classIds != null) {
+      it = classIds.iterator();
+    }
+    return data_.getSourceFileProbes(threadGroupName, sourceFileClassName, it);
+  }
 }

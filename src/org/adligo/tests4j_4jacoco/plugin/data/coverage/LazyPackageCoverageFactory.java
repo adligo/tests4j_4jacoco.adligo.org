@@ -1,17 +1,19 @@
 package org.adligo.tests4j_4jacoco.plugin.data.coverage;
 
+import org.adligo.tests4j.models.shared.coverage.CoverageUnits;
+import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage;
+import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageMutant;
+import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
+import org.adligo.tests4j.shared.output.I_Tests4J_Log;
+import org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
-import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
-import org.adligo.tests4j.shared.common.ClassMethods;
-import org.adligo.tests4j.shared.output.I_Tests4J_Log;
-import org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory;
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 
 public class LazyPackageCoverageFactory {
 
@@ -41,6 +43,52 @@ public class LazyPackageCoverageFactory {
 		return toRet;
 	}
 
+	/**
+	 * 
+	 * @param data
+	 * @param memory
+	 * @param testedClass classes/inner classes for the same source outer class
+	 * @return
+	 * @throws ClassNotFoundException
+	 */
+	public static I_SourceFileCoverage createSourceFileCoverage(I_ProbesDataStore data, 
+      I_CoveragePluginMemory memory, String testedClass, Collection<String> innerClasses) throws ClassNotFoundException {
+   
+    I_CachedClassBytesClassLoader classLoader = memory.getInstrumentedClassLoader();
+    List<String> classNames = classLoader.getAllCachedClasses();
+    
+    List<String> allClassNames = new ArrayList<String>(classNames);
+    allClassNames.add(testedClass);
+    for (String clazz: innerClasses) {
+      allClassNames.add(clazz);
+    }
+    Class<?> clazz = Class.forName(testedClass);
+    String packageName = clazz.getPackage().getName();
+    
+    
+    LazyPackageCoverageInput input = new LazyPackageCoverageInput();
+    input.setClassNames(allClassNames);
+    input.setProbeData(data);
+    input.setPackageName(packageName);
+    LazyPackageCoverage lpc = new LazyPackageCoverage(input, memory);
+    
+    
+    I_SourceFileCoverage sfc = lpc.getCoverage(clazz.getSimpleName());
+    int coverageUnits = sfc.getCoverageUnits().get();
+    int covered = sfc.getCoveredCoverageUnits().get();
+    for (String clazzName: innerClasses) {
+      clazz = Class.forName(clazzName);
+      sfc = lpc.getCoverage(clazz.getSimpleName());
+      coverageUnits += sfc.getCoverageUnits().get();
+      covered += sfc.getCoveredCoverageUnits().get();
+    }
+    SourceFileCoverageMutant toRet = new SourceFileCoverageMutant();
+    toRet.setClassName(testedClass);
+    toRet.setCoverageUnits(new CoverageUnits(coverageUnits));
+    toRet.setCoveredCoverageUnits(new CoverageUnits(covered));
+    return toRet;
+  }
+	
 	public static Set<String> getAllPackages(List<String> classNames,
 			I_Tests4J_Log log) {
 		Set<String> allPackages  = new HashSet<String>();

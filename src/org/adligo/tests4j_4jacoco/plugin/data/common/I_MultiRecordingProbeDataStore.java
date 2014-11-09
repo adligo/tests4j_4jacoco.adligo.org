@@ -2,7 +2,7 @@ package org.adligo.tests4j_4jacoco.plugin.data.common;
 
 import java.util.Map;
 
-public interface I_MultiRecordingProbeDataStore {
+public interface I_MultiRecordingProbeDataStore extends I_MultiProbesStore {
 	/**
 	 * obtain a Map which represents the current state of the probes
 	 *    Note the Map may be backed by data for multiple recorders
