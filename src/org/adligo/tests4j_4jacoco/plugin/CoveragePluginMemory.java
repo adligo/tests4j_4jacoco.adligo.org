@@ -1,23 +1,17 @@
 package org.adligo.tests4j_4jacoco.plugin;
 
-import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.adligo.tests4j.models.shared.association.ClassFilter;
 import org.adligo.tests4j.models.shared.association.ClassFilterMutant;
 import org.adligo.tests4j.models.shared.association.I_ClassAssociationsCache;
 import org.adligo.tests4j.models.shared.association.I_ClassFilter;
 import org.adligo.tests4j.models.shared.association.I_ClassParentsCache;
-import org.adligo.tests4j.models.shared.association.I_ClassParentsLocal;
 import org.adligo.tests4j.run.helpers.CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.shared.common.CacheControl;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.common.I_ClassInstrumenterFactory;
-import org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscoveryFactory;
 import org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory;
+import org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscoveryFactory;
 import org.adligo.tests4j_4jacoco.plugin.common.I_ProbeDataAccessorFactory;
 import org.adligo.tests4j_4jacoco.plugin.common.I_Runtime;
 import org.adligo.tests4j_4jacoco.plugin.common.I_TrialInstrumenterFactory;
@@ -25,10 +19,12 @@ import org.adligo.tests4j_4jacoco.plugin.discovery.ClassDependenciesCache;
 import org.adligo.tests4j_4jacoco.plugin.discovery.ClassParentsCache;
 import org.adligo.tests4j_4jacoco.plugin.discovery.OrderedClassDiscoveryFactory;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.TrialInstrumenterFactory;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.ProbeDataAccessorByLoggingApiFactory;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapClassInstrumenterFactory;
-import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
-import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleLoggerRuntime;
+
+import java.io.File;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class CoveragePluginMemory implements I_CoveragePluginMemory {
 	/**
@@ -65,41 +61,29 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 	private boolean concurrentRecording = true;
 	private Set<String> whitelist_;
 	
-	protected CoveragePluginMemory(I_Tests4J_Log pLog, Set<String> classWhitelist) {
-		log = pLog;
+	@SuppressWarnings("unchecked")
+  protected CoveragePluginMemory(Map<String,Object> input) {
+		log = (I_Tests4J_Log) input.get(CoveragePluginMapParams.LOGGER);
 		
-		Set<String> packagesNotRequired = new HashSet<String>();
-		packagesNotRequired.add("java.");
-		packagesNotRequired.add("sun.");
-		packagesNotRequired.add("org.jacoco.");
-		packagesNotRequired.add("org.objectweb.");
+		Set<String> packagesNotRequired = (Set<String>) input.get(
+		    CoveragePluginMapParams.NON_INSTRUMENTED_PACKAGES);
 		
-		whitelist_ = classWhitelist;
+		whitelist_ = (Set<String>) input.get(CoveragePluginMapParams.WHITELIST);
 		instrumentedClassLoader = new CachedClassBytesClassLoader(log, 
-				packagesNotRequired, classWhitelist, null);
+				packagesNotRequired, whitelist_, null);
 		/**
 		 * note the original classes are required for 
 		 * re-instrumentation for coverage in the LazyCoverage classes
 		 */
 		cachedClassLoader = new CachedClassBytesClassLoader(log, 
-				packagesNotRequired, classWhitelist, null);
+				packagesNotRequired, whitelist_, null);
 		
 		ClassFilterMutant cfm = new ClassFilterMutant();
-		cfm.setIgnoredClassNames(classWhitelist);
+		cfm.setIgnoredClassNames(whitelist_);
 		Set<String> pkgNames = cfm.getIgnoredPackageNames();
-		Set<String> pkgNamesToSet = new HashSet<String>(pkgNames);
-		pkgNamesToSet.add("java.");
-		pkgNamesToSet.add("sun.");
-		pkgNamesToSet.add("org.jacoco.");
-		pkgNamesToSet.add("org.objectweb.");
-		pkgNamesToSet.add("net.sf.cglib.");
-		pkgNamesToSet.add("com.google.dexmaker.");
-		pkgNamesToSet.add("org.objenesis.");
-		pkgNamesToSet.add("org.easymock.");
-		pkgNamesToSet.add("org.junit.");
-		pkgNamesToSet.add("org.mockito.");
+		pkgNames.addAll(packagesNotRequired);
     
-		cfm.setIgnoredPackageNames(pkgNamesToSet);
+		cfm.setIgnoredPackageNames(packagesNotRequired);
 		classFilter = new ClassFilter(cfm);
 		
 		ClassFilterMutant primitiveCFM = new ClassFilterMutant();

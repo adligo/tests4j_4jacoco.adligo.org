@@ -14,7 +14,7 @@ import java.util.Set;
  * @author scott
  *
  */
-public class MockitoClassList extends BaseClassList {
+public class MockitoList extends BaseClassList {
 	
 	private static Set<String> getSharedClassWhitelist() {
 		Set<String> toRet = new HashSet<String>();
@@ -41,11 +41,19 @@ public class MockitoClassList extends BaseClassList {
 	  return Collections.unmodifiableSet(toRet);
 	}
 
-	public MockitoClassList() {
+  public Set<String> getNonInstrumentedPackages() {
+    Set<String> names = new HashSet<String>();
+    names.add("org.hamcrest.");
+    names.add("org.junit.");
+    names.add("org.mockito.");
+    return names;
+  }
+  
+	public MockitoList() {
 	  this(new ClassesDelegate());
 	}
 	
-	public MockitoClassList(I_Classes classes) {
+	public MockitoList(I_Classes classes) {
     super(getSharedClassWhitelist(), classes);
   }
 }

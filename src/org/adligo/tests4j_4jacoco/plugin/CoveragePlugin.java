@@ -14,30 +14,30 @@ import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
 import org.adligo.tests4j_4jacoco.plugin.runtime.simple.SimpleLoggerRuntime;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 	private CoveragePluginMemory memory;
-	private I_Tests4J_Log tests4jLogger;
+	private I_Tests4J_Log log_;
 	private AtomicBoolean firstRecorder = new AtomicBoolean(false);
 	private ThreadLocal<I_TrialInstrumenter> trialIntrumenters = new ThreadLocal<I_TrialInstrumenter>();
 	private ConcurrentHashMap<String, I_TrialInstrumenter> trialIntrumenterByWork = 
 			new ConcurrentHashMap<String, I_TrialInstrumenter>();
 	
-	public CoveragePlugin(I_Tests4J_Log logger, Set<String> whiteList) {
+	public CoveragePlugin(Map<String,Object> input) {
 		
 		ProbeDataAccessorByLoggingApiFactory factory = new ProbeDataAccessorByLoggingApiFactory(
 				MapInstrConstants.DATAFIELD_DESC);
-		tests4jLogger = logger;
+		log_ = (I_Tests4J_Log) input.get(CoveragePluginMapParams.LOGGER);
 		
-		memory = new CoveragePluginMemory(logger, whiteList);
+		memory = new CoveragePluginMemory(input);
 		memory.setProbeDataAccessorFactory(factory);
 		memory.setInstrumenterFactory(new MapClassInstrumenterFactory());
 		
 		SimpleLoggerRuntime runtime = new SimpleLoggerRuntime(factory);
-		runtime.setup(new MultiProbeDataStoreAdaptor(logger));
+		runtime.setup(new MultiProbeDataStoreAdaptor(log_));
 		memory.setRuntime(runtime);
 	}
 	
@@ -59,7 +59,7 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 	
 	@Override
 	public synchronized I_Tests4J_CoverageRecorder createRecorder() {
-		Recorder rec = new Recorder(memory, tests4jLogger);
+		Recorder rec = new Recorder(memory, log_);
 		if (memory.isConcurrentRecording()) {
 			if (!firstRecorder.get()) {
 				firstRecorder.set(true);
@@ -76,11 +76,11 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 	}
 
 	public I_Tests4J_Log getTests4jLogger() {
-		return tests4jLogger;
+		return log_;
 	}
 
 	public void setTests4jLogger(I_Tests4J_Log log) {
-		this.tests4jLogger = log;
+		this.log_ = log;
 	}
 
 	@Override

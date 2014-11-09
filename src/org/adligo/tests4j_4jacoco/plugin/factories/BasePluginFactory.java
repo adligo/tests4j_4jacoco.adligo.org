@@ -6,9 +6,11 @@ import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePlugin;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePluginFactory;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePluginParams;
 import org.adligo.tests4j_4jacoco.plugin.CoveragePlugin;
+import org.adligo.tests4j_4jacoco.plugin.CoveragePluginMapParams;
 import org.adligo.tests4j_4jacoco.plugin.CoveragePluginMemory;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,8 +34,12 @@ public abstract class BasePluginFactory implements I_Tests4J_CoveragePluginFacto
     if (system_ == null) {
       throw new NullPointerException(NO_SYSTEM);
     }
-    Set<String> whitelist = getWhitelist();
-    CoveragePlugin toRet =  new CoveragePlugin(log_, whitelist);
+    Map<String,Object> input = new HashMap<String,Object>();
+    input.put(CoveragePluginMapParams.LOGGER, log_);
+    input.put(CoveragePluginMapParams.WHITELIST, getWhitelist());
+    input.put(CoveragePluginMapParams.NON_INSTRUMENTED_PACKAGES, getNonInstrumentedClasses());
+    
+    CoveragePlugin toRet =  new CoveragePlugin(input);
     
     CoveragePluginMemory memory = toRet.getMemory();
     memory.setCanThreadGroupLocalRecord(params.isCanThreadLocalGroupRecord());
@@ -63,4 +69,5 @@ public abstract class BasePluginFactory implements I_Tests4J_CoveragePluginFacto
   }
   
   protected abstract Set<String> getWhitelist();
+  protected abstract Set<String> getNonInstrumentedClasses();
 }

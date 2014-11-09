@@ -14,7 +14,7 @@ import java.util.Set;
  * @author scott
  *
  */
-public class RequiredClassList extends BaseClassList {
+public class RequiredList extends BaseClassList {
 	private static Set<String> getSharedClassWhitelist() {
 		Set<String> toRet = new HashSet<String>();
 	
@@ -249,11 +249,21 @@ public class RequiredClassList extends BaseClassList {
 		toRet.add("org.objectweb.asm.MethodVisitor");
 	}
 	
-	public RequiredClassList() {
+	public RequiredList() {
     this(new ClassesDelegate());
   }
   
-  public RequiredClassList(I_Classes classes) {
+  public RequiredList(I_Classes classes) {
     super(getSharedClassWhitelist(), classes);
+  }
+  
+  public Set<String> getNonInstrumentedPackages() {
+    Set<String> names = new HashSet<String>();
+    names.add("java.");
+    names.add("javax.");
+    names.add("sun.");
+    names.add("org.jacoco.");
+    names.add("org.objectweb.");
+    return names;
   }
 }
