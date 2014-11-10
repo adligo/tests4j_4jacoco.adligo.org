@@ -2,7 +2,7 @@ package org.adligo.tests4j_4jacoco.plugin.data.common;
 
 import org.adligo.tests4j.models.shared.coverage.ClassProbes;
 import org.adligo.tests4j.models.shared.coverage.I_ClassProbes;
-import org.adligo.tests4j.models.shared.coverage.I_SourceFileProbes;
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBrief;
 
 import java.util.Collections;
 import java.util.HashMap;

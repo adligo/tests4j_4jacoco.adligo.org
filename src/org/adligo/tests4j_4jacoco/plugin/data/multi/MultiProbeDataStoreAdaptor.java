@@ -1,6 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.data.multi;
 
-import org.adligo.tests4j.models.shared.coverage.I_SourceFileProbes;
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBrief;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.data.common.AbstractRuntimeData;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_MultiRecordingProbeDataStore;
@@ -45,7 +45,7 @@ public class MultiProbeDataStoreAdaptor extends AbstractRuntimeData implements I
 		dataStore.startRecording();
 	}
   @Override
-  public I_SourceFileProbes getSourceFileProbes(String threadGroupName,
+  public I_SourceFileCoverageBrief getSourceFileProbes(String threadGroupName,
       String sourceFileClassName, Iterator<Long> classIds) {
     return dataStore.getSourceFileProbes(threadGroupName, sourceFileClassName, classIds);
   }

@@ -1,7 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin.runtime.simple;
 
-import org.adligo.tests4j.models.shared.coverage.I_SourceFileProbes;
-import org.adligo.tests4j.models.shared.coverage.SourceFileProbesMutant;
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBrief;
+import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBriefMutant;
 import org.adligo.tests4j_4jacoco.plugin.common.I_LoggerDataAccessorFactory;
 import org.adligo.tests4j_4jacoco.plugin.common.I_Runtime;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
@@ -139,7 +139,7 @@ public class SimpleLoggerRuntime implements I_Runtime {
   }
 
   @Override
-  public I_SourceFileProbes getSourceFileCoverage(String threadGroupName, String sourceFileClassName) {
+  public I_SourceFileCoverageBrief getSourceFileCoverage(String threadGroupName, String sourceFileClassName) {
     ConcurrentSkipListSet<Long> classIds = threadGroupClassIds_.get(threadGroupName);
     Iterator<Long> it = null;
     if (classIds != null) {

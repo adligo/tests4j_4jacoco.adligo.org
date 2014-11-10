@@ -2,11 +2,11 @@ package org.adligo.tests4j_4jacoco.plugin.data.multi;
 
 import org.adligo.tests4j.models.shared.coverage.ClassProbes;
 import org.adligo.tests4j.models.shared.coverage.ClassProbesMutant;
-import org.adligo.tests4j.models.shared.coverage.I_SourceFileProbes;
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBrief;
 import org.adligo.tests4j.models.shared.coverage.Probes;
 import org.adligo.tests4j.models.shared.coverage.ProbesMutant;
-import org.adligo.tests4j.models.shared.coverage.SourceFileProbes;
-import org.adligo.tests4j.models.shared.coverage.SourceFileProbesMutant;
+import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBrief;
+import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBriefMutant;
 import org.adligo.tests4j.run.common.ConcurrentQualifiedMap;
 import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
 import org.adligo.tests4j.shared.common.ClassMethods;
@@ -108,13 +108,13 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 	}
 
 	@SuppressWarnings("boxing")
-  public I_SourceFileProbes getSourceFileProbes(String threadGroupName, 
+  public I_SourceFileCoverageBrief getSourceFileProbes(String threadGroupName, 
 	    String sourceFileClassName, Iterator<Long> classIds) {
 	  
 	  String sourceFileName = ClassMethods.toResource(sourceFileClassName);
 	  //remove first slash and .class
 	  sourceFileName = sourceFileName.substring(1, sourceFileName.length() - 6);
-	  SourceFileProbesMutant mut = new SourceFileProbesMutant();
+	  SourceFileCoverageBriefMutant mut = new SourceFileCoverageBriefMutant();
     mut.setClassName(sourceFileClassName);
     if (classIds != null) {
       while (classIds.hasNext()) {
@@ -150,9 +150,9 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
         }
       }
     }
-    SourceFileProbes toRet = null;
+    SourceFileCoverageBrief toRet = null;
     try {
-      toRet = new SourceFileProbes(mut);
+      toRet = new SourceFileCoverageBrief(mut);
     } catch (Exception x) {
       throw new RuntimeException("There was a problem getting probes for class " + sourceFileClassName);
     }

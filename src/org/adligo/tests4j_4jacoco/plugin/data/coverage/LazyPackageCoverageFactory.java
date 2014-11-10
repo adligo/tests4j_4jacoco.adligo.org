@@ -1,7 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin.data.coverage;
 
 import org.adligo.tests4j.models.shared.coverage.CoverageUnits;
-import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
+import org.adligo.tests4j.models.shared.coverage.I_PackageCoverageBrief;
 import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageMutant;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
@@ -17,9 +17,9 @@ import java.util.Set;
 
 public class LazyPackageCoverageFactory {
 
-	public static List<I_PackageCoverage> create(I_ProbesDataStore data, 
+	public static List<I_PackageCoverageBrief> create(I_ProbesDataStore data, 
 			I_CoveragePluginMemory memory, Set<String> testedClasses) {
-		List<I_PackageCoverage> toRet = new ArrayList<I_PackageCoverage>();
+		List<I_PackageCoverageBrief> toRet = new ArrayList<I_PackageCoverageBrief>();
 		
 		
 		I_CachedClassBytesClassLoader classLoader = memory.getInstrumentedClassLoader();

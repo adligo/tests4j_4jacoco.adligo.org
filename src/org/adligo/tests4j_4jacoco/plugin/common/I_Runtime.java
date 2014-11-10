@@ -1,6 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.common;
 
-import org.adligo.tests4j.models.shared.coverage.I_SourceFileProbes;
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBrief;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 
 import java.util.Set;
@@ -75,5 +75,5 @@ public interface I_Runtime {
    * source file which is getting tested by 
    * the trial running in thread with threadGroupName.
 	 */
-	public I_SourceFileProbes getSourceFileCoverage(String threadGroupName, String sourceFileClassName);
+	public I_SourceFileCoverageBrief getSourceFileCoverage(String threadGroupName, String sourceFileClassName);
 }

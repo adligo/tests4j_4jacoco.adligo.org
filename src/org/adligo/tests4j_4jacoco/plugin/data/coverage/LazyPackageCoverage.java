@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.adligo.tests4j.models.shared.coverage.CoverageUnitContinerMutant;
 import org.adligo.tests4j.models.shared.coverage.CoverageUnits;
 import org.adligo.tests4j.models.shared.coverage.I_CoverageUnits;
-import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
+import org.adligo.tests4j.models.shared.coverage.I_PackageCoverageBrief;
 import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverage;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageMutant;
@@ -40,7 +40,7 @@ import org.jacoco.core.analysis.ISourceFileCoverage;
  * @author scott
  *
  */
-public class LazyPackageCoverage implements I_PackageCoverage {
+public class LazyPackageCoverage implements I_PackageCoverageBrief {
 	private AtomicBoolean loadedAllSourceFiles = new AtomicBoolean(false);
 	private String packageName;
 	private List<LazyPackageCoverage> children = new ArrayList<LazyPackageCoverage>();
@@ -278,8 +278,8 @@ public class LazyPackageCoverage implements I_PackageCoverage {
 	}
 
 	@Override
-	public List<I_PackageCoverage> getChildPackageCoverage() {
-		List<I_PackageCoverage> toRet = new ArrayList<I_PackageCoverage>();
+	public List<I_PackageCoverageBrief> getChildPackageCoverage() {
+		List<I_PackageCoverageBrief> toRet = new ArrayList<I_PackageCoverageBrief>();
 		toRet.addAll(children);
 		return toRet;
 	}

@@ -2,11 +2,11 @@ package org.adligo.tests4j_4jacoco.plugin;
 
 import org.adligo.tests4j.models.shared.coverage.I_ClassProbes;
 import org.adligo.tests4j.models.shared.coverage.I_CoverageUnits;
-import org.adligo.tests4j.models.shared.coverage.I_PackageCoverage;
+import org.adligo.tests4j.models.shared.coverage.I_PackageCoverageBrief;
 import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage;
-import org.adligo.tests4j.models.shared.coverage.I_SourceFileProbes;
-import org.adligo.tests4j.models.shared.coverage.SourceFileProbes;
-import org.adligo.tests4j.models.shared.coverage.SourceFileProbesMutant;
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBrief;
+import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBrief;
+import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBriefMutant;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageRecorder;
@@ -100,7 +100,7 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 	}
 	
 	@Override
-	public List<I_PackageCoverage> endRecording(Set<String> classNames) {
+	public List<I_PackageCoverageBrief> endRecording(Set<String> classNames) {
 		if (log_ != null) {
 			if (log_.isLogEnabled(Recorder.class)) {
 				log_.log("Ending Recording " + Thread.currentThread().getName());
@@ -122,15 +122,15 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 	}
 
   @Override
-  public I_SourceFileProbes getSourceFileCoverage() {
-    I_SourceFileProbes probes = runtime_.getSourceFileCoverage(threadGroupName_, filter_);
+  public I_SourceFileCoverageBrief getSourceFileCoverage() {
+    I_SourceFileCoverageBrief probes = runtime_.getSourceFileCoverage(threadGroupName_, filter_);
     ProbesDataStoreMutant mut = new ProbesDataStoreMutant();
     Set<String> classNames = new HashSet<String>();
     mut.put(probes.getClassId(), probes);
     List<I_ClassProbes> cps = probes.getClassProbes();
     for (I_ClassProbes cp: cps) {
       mut.put(cp.getClassId(), cp);
-      classNames.add(probes.getClassName());
+      classNames.add(cp.getClassName());
     }
     I_SourceFileCoverage sfc;
     try {
@@ -138,11 +138,11 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
           mut, memory_, filter_, classNames);
       I_CoverageUnits cus = sfc.getCoverageUnits();
       
-      SourceFileProbesMutant sfpm = new SourceFileProbesMutant(probes);
+      SourceFileCoverageBriefMutant sfpm = new SourceFileCoverageBriefMutant(probes);
       sfpm.setCoverageUnits(cus.get());
       I_CoverageUnits ccus = sfc.getCoveredCoverageUnits();
       sfpm.setCoveredCoverageUnits(ccus.get());
-      return new SourceFileProbes(sfpm);
+      return new SourceFileCoverageBrief(sfpm);
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
     }

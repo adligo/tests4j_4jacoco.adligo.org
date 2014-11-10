@@ -1,6 +1,6 @@
 package org.adligo.tests4j_4jacoco.plugin.runtime.simple;
 
-import org.adligo.tests4j.models.shared.coverage.I_SourceFileProbes;
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBrief;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStoreAdaptor;
@@ -175,7 +175,7 @@ public class SimpleProbesDataStoreAdaptor implements I_ProbesDataStoreAdaptor {
 	}
 
   @Override
-  public I_SourceFileProbes getSourceFileProbes(String threadGroupName, String sourceFileClassName,
+  public I_SourceFileCoverageBrief getSourceFileProbes(String threadGroupName, String sourceFileClassName,
       Iterator<Long> classIds) {
     // TODO Auto-generated method stub
     return null;
