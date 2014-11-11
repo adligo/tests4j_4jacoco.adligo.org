@@ -1,5 +1,22 @@
 package org.adligo.tests4j_4jacoco.plugin.data.coverage;
 
+import org.adligo.tests4j.models.shared.coverage.CoverageUnitContinerMutant;
+import org.adligo.tests4j.models.shared.coverage.CoverageUnits;
+import org.adligo.tests4j.models.shared.coverage.I_CoverageUnits;
+import org.adligo.tests4j.models.shared.coverage.I_PackageCoverageBrief;
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage;
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBrief;
+import org.adligo.tests4j.models.shared.coverage.SourceFileCoverage;
+import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageMutant;
+import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
+import org.adligo.tests4j.shared.common.ClassMethods;
+import org.adligo.tests4j.shared.output.I_Tests4J_Log;
+import org.adligo.tests4j_4jacoco.plugin.analysis.common.CoverageAnalyzer;
+import org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory;
+import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
+import org.jacoco.core.analysis.CoverageBuilder;
+import org.jacoco.core.analysis.ISourceFileCoverage;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -11,22 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.adligo.tests4j.models.shared.coverage.CoverageUnitContinerMutant;
-import org.adligo.tests4j.models.shared.coverage.CoverageUnits;
-import org.adligo.tests4j.models.shared.coverage.I_CoverageUnits;
-import org.adligo.tests4j.models.shared.coverage.I_PackageCoverageBrief;
-import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage;
-import org.adligo.tests4j.models.shared.coverage.SourceFileCoverage;
-import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageMutant;
-import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
-import org.adligo.tests4j.shared.common.ClassMethods;
-import org.adligo.tests4j.shared.output.I_Tests4J_Log;
-import org.adligo.tests4j_4jacoco.plugin.analysis.common.CoverageAnalyzer;
-import org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory;
-import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
-import org.jacoco.core.analysis.CoverageBuilder;
-import org.jacoco.core.analysis.ISourceFileCoverage;
 
 /**
  * Note this is lazy mostly to;
@@ -46,7 +47,7 @@ public class LazyPackageCoverage implements I_PackageCoverageBrief {
 	private List<LazyPackageCoverage> children = new ArrayList<LazyPackageCoverage>();
 	private Set<String> classNames = new HashSet<String>();
 	private I_ProbesDataStore probeData;
-	private Map<String,I_SourceFileCoverage> sourceCoverage = new HashMap<String, I_SourceFileCoverage>();
+	private Map<String,LazySourceFileCoverage> sourceCoverage = new HashMap<String, LazySourceFileCoverage>();
 	private CoverageUnitContinerMutant countTotals = new CoverageUnitContinerMutant();
 	private CoverageUnitContinerMutant counts = new CoverageUnitContinerMutant();
 	private I_CachedClassBytesClassLoader classLoader;
@@ -65,30 +66,7 @@ public class LazyPackageCoverage implements I_PackageCoverageBrief {
 			sb.append("LazyPackageCoverage " +
 					Thread.currentThread().getName() + " "+ packageName);
 		}
-		/*
-		try {
-			PackageDiscovery discovery = new PackageDiscovery(packageName);
-			for (String className: discovery.getClassNames()) {
-				if (inClassNames.contains(className)) {
-					String classShortName = className;
-					
-					int lastDot = className.lastIndexOf(".");
-					if (lastDot  != -1) {
-						classShortName = className.substring(lastDot+1, className.length());
-					}
-					classNames.add(classShortName);
-				}
-			}
-			
-			List<PackageDiscovery> subs =  discovery.getSubPackages();
-			for (PackageDiscovery pd: subs) {
-				input.setPackageName(pd.getPackageName());
-				children.add(new LazyPackageCoverage(input, memory));
-			}
-		} catch (IOException x) {
-			log.onThrowable(x);
-		}
-		*/
+		
 		Set<String> subPackages = new HashSet<String>();
 		
 		for (String className: input.getClassNames()) {
@@ -127,8 +105,8 @@ public class LazyPackageCoverage implements I_PackageCoverageBrief {
 	}
 	
 	
-	private I_SourceFileCoverage getOrLoadSourceFileCoverage(String classSimpleName) {
-		I_SourceFileCoverage toRet = sourceCoverage.get(classSimpleName);
+	private LazySourceFileCoverage getOrLoadSourceFileCoverage(String classSimpleName) {
+	  LazySourceFileCoverage toRet = sourceCoverage.get(classSimpleName);
 		if (toRet != null) {
 			return toRet;
 		}
@@ -137,17 +115,14 @@ public class LazyPackageCoverage implements I_PackageCoverageBrief {
 		
 		String fullName = packageName  + "." + classSimpleName;
 		
+		Class<?> clazz = null;
 		try {	
-			Class<?> c =  Class.forName(fullName);
-			if (c.isInterface()) {
-				SourceFileCoverageMutant sfcm = new SourceFileCoverageMutant();
-				sfcm.setClassName(classSimpleName);
-				sfcm.setCoverageUnits(new CoverageUnits(0));
-				sfcm.setCoveredCoverageUnits(new CoverageUnits(0));
-				sourceCoverage.put(classSimpleName, sfcm);
-				return sfcm;
+			clazz =  Class.forName(fullName);
+			if (clazz.isInterface()) {
+			  return loadLazySouceFileCoverageForInterface(clazz.getSimpleName(), fullName);
+			} else {
+			  analyzer.analyzeClass(classLoader.getCachedBytesStream(fullName), fullName);
 			}
-			analyzer.analyzeClass(classLoader.getCachedBytesStream(fullName), fullName);
 		} catch (ClassNotFoundException x) {
 			log.onThrowable(x);
 			return null;
@@ -165,14 +140,21 @@ public class LazyPackageCoverage implements I_PackageCoverageBrief {
 		int lastDot = shortName.lastIndexOf(".");
 		shortName = shortName.substring(0, lastDot);
 		
-		LazySourceFileCoverage lsfc = new LazySourceFileCoverage(sfc);
+		LazySourceFileCoverage lsfc = null;
+		if (clazz.isInterface()) {
+		  lsfc = new LazySourceFileCoverage(InterfaceSourceFileCoverage.INSTANCE,
+		      probeData.createBriefWithoutCUs(fullName));
+		} else {
+		  lsfc = new LazySourceFileCoverage(sfc,
+		      probeData.createBriefWithoutCUs(fullName));
+		}
 		sourceCoverage.put(shortName, lsfc);
 		return lsfc;
 		
 	}
 	private  Map<String,I_SourceFileCoverage> getOrLoadAllCoverage() {
 		if (loadedAllSourceFiles.get()) {
-			return sourceCoverage;
+			return new HashMap<String,I_SourceFileCoverage>(sourceCoverage);
 		} else {
 			int cus = 0;
 			int covered_cus = 0;
@@ -181,16 +163,13 @@ public class LazyPackageCoverage implements I_PackageCoverageBrief {
 			CoverageAnalyzer analyzer = new CoverageAnalyzer(probeData, coverageBuilder);
 			
 			for (String fileName: classNames) {
-				if (!sourceCoverage.containsKey(fileName)) {
-					String fullName = packageName  + "." + fileName;
+			  if (!sourceCoverage.containsKey(fileName)) {
+			    String fullName = packageName  + "." + fileName;
+	        
 					try {
 						Class<?> clazz = Class.forName(packageName + "." + fileName);
 						if (clazz.isInterface()) {
-							String shortName = ClassMethods.getSimpleName(fileName);
-							SourceFileCoverageMutant sfcm = new SourceFileCoverageMutant();
-							sfcm.setCoverageUnits(new CoverageUnits(0));
-							SourceFileCoverage sfc = new SourceFileCoverage(sfcm);
-							sourceCoverage.put(shortName, sfc);
+							loadLazySouceFileCoverageForInterface(fileName, fullName);
 						}
 					} catch (ClassNotFoundException x) {
 						log.onThrowable(x);
@@ -208,14 +187,17 @@ public class LazyPackageCoverage implements I_PackageCoverageBrief {
 			Collection<ISourceFileCoverage> sourceCoverages = coverageBuilder.getSourceFiles();
 			for (ISourceFileCoverage sfc: sourceCoverages) {
 				String shortName = sfc.getName();
+				
 				int lastDot = shortName.lastIndexOf(".");
 				shortName = shortName.substring(0, lastDot);
 				
-				LazySourceFileCoverage lsfc = new LazySourceFileCoverage(sfc);
+				String fullName = packageName  + "." + shortName;
+				LazySourceFileCoverage lsfc = new LazySourceFileCoverage(sfc, 
+				    probeData.createBriefWithoutCUs(fullName));
 				sourceCoverage.put(shortName, lsfc);
 			}
-			Collection<I_SourceFileCoverage> entries = sourceCoverage.values();
-			for (I_SourceFileCoverage sfc: entries) {
+			Collection<LazySourceFileCoverage> entries = sourceCoverage.values();
+			for (LazySourceFileCoverage sfc: entries) {
 				cus = cus + sfc.getCoverageUnits().get();
 				I_CoverageUnits ccus = sfc.getCoveredCoverageUnits();
 				if (ccus != null) {
@@ -235,8 +217,17 @@ public class LazyPackageCoverage implements I_PackageCoverageBrief {
 			countTotals.setCoverageUnits(new CoverageUnits(total_cus));
 			countTotals.setCoveredCoverageUnits(new CoverageUnits(total_covered_cus));
 		}
-		return sourceCoverage;
+		return new HashMap<String,I_SourceFileCoverage>(sourceCoverage);
 	}
+
+
+  public LazySourceFileCoverage loadLazySouceFileCoverageForInterface(String fileName, String fullName) {
+    String shortName = ClassMethods.getSimpleName(fileName);
+    LazySourceFileCoverage sfc = new LazySourceFileCoverage(
+        InterfaceSourceFileCoverage.INSTANCE, probeData.createBriefWithoutCUs(fullName));
+    sourceCoverage.put(shortName, sfc);
+    return sfc;
+  }
 	
 	@Override
 	public I_CoverageUnits getCoverageUnits() {
@@ -268,8 +259,17 @@ public class LazyPackageCoverage implements I_PackageCoverageBrief {
 	}
 
 	@Override
-	public I_SourceFileCoverage getCoverage(String sourceFileName) {
-		return getOrLoadSourceFileCoverage(sourceFileName);
+	public I_SourceFileCoverageBrief getCoverage(String sourceFileName) {
+		I_SourceFileCoverage sfc = getOrLoadSourceFileCoverage(sourceFileName);
+		if (sfc instanceof LazySourceFileCoverage) {
+		  return ((LazySourceFileCoverage) sfc).toBrief();
+		}
+		LazySourceFileCoverage lsfc = getOrLoadSourceFileCoverage(sourceFileName);
+		if (lsfc != null) {
+		  return lsfc.toBrief();
+		} else {
+		  return null;
+		}
 	}
 
 	@Override

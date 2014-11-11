@@ -1,6 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin.data.common;
 
 import org.adligo.tests4j.models.shared.coverage.I_ClassProbes;
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBriefMutant;
 
 import java.util.Map;
 import java.util.Set;
@@ -30,10 +31,18 @@ public interface I_ProbesDataStore {
 	 * @return
 	 */
 	public Set<String> getAllClassNames();
+	
 	/**
 	 * return true if the className had probes
 	 * @param className
 	 * @return
 	 */
 	public boolean contains(String className);
+	
+	/**
+	 * @param clazzName
+	 * @return the SourceFileCoverageBriefMutant including class
+	 * names (as full names) and probes,  coverage units.
+	 */
+	public I_SourceFileCoverageBriefMutant createBriefWithoutCUs(String clazzName);
 }

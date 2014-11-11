@@ -3,6 +3,7 @@ package org.adligo.tests4j_4jacoco.plugin.data.coverage;
 import org.adligo.tests4j.models.shared.coverage.CoverageUnits;
 import org.adligo.tests4j.models.shared.coverage.I_PackageCoverageBrief;
 import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage;
+import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBrief;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageMutant;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
@@ -73,14 +74,14 @@ public class LazyPackageCoverageFactory {
     LazyPackageCoverage lpc = new LazyPackageCoverage(input, memory);
     
     
-    I_SourceFileCoverage sfc = lpc.getCoverage(clazz.getSimpleName());
-    int coverageUnits = sfc.getCoverageUnits().get();
-    int covered = sfc.getCoveredCoverageUnits().get();
+    I_SourceFileCoverageBrief sfc = lpc.getCoverage(clazz.getSimpleName());
+    int coverageUnits = sfc.getCoverageUnits();
+    int covered = sfc.getCoveredCoverageUnits();
     for (String clazzName: innerClasses) {
       clazz = Class.forName(clazzName);
       sfc = lpc.getCoverage(clazz.getSimpleName());
-      coverageUnits += sfc.getCoverageUnits().get();
-      covered += sfc.getCoveredCoverageUnits().get();
+      coverageUnits += sfc.getCoverageUnits();
+      covered += sfc.getCoveredCoverageUnits();
     }
     SourceFileCoverageMutant toRet = new SourceFileCoverageMutant();
     toRet.setClassName(testedClass);

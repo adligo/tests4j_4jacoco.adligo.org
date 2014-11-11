@@ -3,16 +3,19 @@ package org.adligo.tests4j_4jacoco.plugin.data.common;
 import org.adligo.tests4j.models.shared.coverage.ClassProbesMutant;
 import org.adligo.tests4j.models.shared.coverage.I_ClassProbes;
 import org.adligo.tests4j.models.shared.coverage.I_ClassProbesMutant;
+import org.adligo.tests4j.models.shared.coverage.Probes;
+import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBriefMutant;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 public class ProbesDataStoreMutant implements I_ProbesDataStoreMutant {
-	private Map<Long, ClassProbesMutant> classesToProbes = new HashMap<Long, ClassProbesMutant>();
-	private Set<String> classNames = new HashSet<String>();
+	private Map<Long, ClassProbesMutant> classesToProbes_ = new HashMap<Long, ClassProbesMutant>();
+	private Map<String,ClassProbesMutant> classNamesToProbes_ = new HashMap<String, ClassProbesMutant>();
 	
 	public ProbesDataStoreMutant() {}
 	
@@ -22,12 +25,11 @@ public class ProbesDataStoreMutant implements I_ProbesDataStoreMutant {
 		for (Entry<Long, I_ClassProbes> e: all) {
 			put(e.getKey(), e.getValue());
 		}
-		classNames.addAll(other.getAllClassNames());
 	}
 	@Override
 	public Map<Long, I_ClassProbes> getAllCoverage() {
 		Map<Long, I_ClassProbes> toRet = new HashMap<Long, I_ClassProbes>();
-		Set<Entry<Long, ClassProbesMutant>> all = classesToProbes.entrySet();
+		Set<Entry<Long, ClassProbesMutant>> all = classesToProbes_.entrySet();
 		for (Entry<Long, ClassProbesMutant> e: all) {
 			toRet.put(e.getKey(), e.getValue());
 		}
@@ -35,11 +37,11 @@ public class ProbesDataStoreMutant implements I_ProbesDataStoreMutant {
 	}
 	@Override
 	public I_ClassProbes get(long classId) {
-		return classesToProbes.get(classId);
+		return classesToProbes_.get(classId);
 	}
 	@Override
 	public Set<String> getAllClassNames() {
-		return classNames;
+		return classNamesToProbes_.keySet();
 	}
 	
 	@Override
@@ -49,26 +51,59 @@ public class ProbesDataStoreMutant implements I_ProbesDataStoreMutant {
 	
 	@Override
 	public I_ClassProbesMutant getMutable(long classId) {
-		return classesToProbes.get(classId);
+		return classesToProbes_.get(classId);
 	}
 	
 	@Override
 	public void put(long id, I_ClassProbes classProbes) {
-		classesToProbes.put(id, new ClassProbesMutant(classProbes));
-		classNames.add(classProbes.getClassName());
+	  ClassProbesMutant mut = new ClassProbesMutant(classProbes);
+		classesToProbes_.put(id, mut);
+		classNamesToProbes_.put(classProbes.getClassName(), mut);
 	}
 	
 	@Override
 	public void remove(long id) {
-		I_ClassProbes cp = classesToProbes.get(id);
+		I_ClassProbes cp = classesToProbes_.get(id);
 		if (cp != null) {
-			classNames.remove(cp.getClassName());
+			classNamesToProbes_.remove(cp.getClassName());
 		}
-		classesToProbes.remove(id);
+		classesToProbes_.remove(id);
 	}
 	
 	public void clear() {
-	  classesToProbes.clear();
-	  classNames.clear();
+	  classesToProbes_.clear();
+	  classNamesToProbes_.clear();
 	}
+
+  @Override
+
+  public SourceFileCoverageBriefMutant createBriefWithoutCUs(String sourceClassName) {
+    SourceFileCoverageBriefMutant toRet = null;
+    try {
+      Class<?> c = Class.forName(sourceClassName);
+      
+      ClassProbesMutant cp = classNamesToProbes_.get(sourceClassName);
+      if (cp == null) {
+        if (c.isInterface()) {
+          toRet = new SourceFileCoverageBriefMutant();
+          toRet.setClassName(sourceClassName);
+          toRet.setProbes(new Probes(new boolean[]{}));
+          toRet.setCoverageUnits(0);
+          toRet.setCoveredCoverageUnits(0);
+          return toRet;
+        } 
+      }
+      toRet = new SourceFileCoverageBriefMutant(cp);
+      
+      Class<?> [] innerClasses = c.getDeclaredClasses();
+      List<ClassProbesMutant> innerClassProbes = new ArrayList<ClassProbesMutant>();
+      for (int i = 0; i < innerClasses.length; i++) {
+        ClassProbesMutant icpm = classNamesToProbes_.get(sourceClassName);
+        innerClassProbes.add(icpm);
+      }
+    } catch (ClassNotFoundException x) {
+      throw new RuntimeException(x);
+    }
+    return toRet;
+  }
 }

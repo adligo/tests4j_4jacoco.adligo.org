@@ -31,8 +31,10 @@ public class RequiredList extends BaseClassList {
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_PercentCovered");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_Probes");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_ProbesCoverageContainer");
+		toRet.add("org.adligo.tests4j.models.shared.coverage.I_ProbesCoverageContainerMutant");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBrief");
+		toRet.add("org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBriefMutant");
 		
 		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassFilter");
 		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassFilterModel");
@@ -235,6 +237,7 @@ public class RequiredList extends BaseClassList {
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_MultiRecordingProbeDataStore");
 
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStoreMutant");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStoreAdaptor");
 		
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.AbstractProbeInserter");

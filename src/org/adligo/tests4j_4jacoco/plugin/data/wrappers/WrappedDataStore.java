@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.adligo.tests4j.models.shared.coverage.I_ClassProbes;
+import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBriefMutant;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.jacoco.core.data.ExecutionData;
 import org.jacoco.core.data.ExecutionDataStore;
@@ -38,5 +39,11 @@ public class WrappedDataStore implements I_ProbesDataStore {
 		//impl was not available with ExecutionDataStore
 		return null;
 	}
+
+  @Override
+  public SourceFileCoverageBriefMutant createBriefWithoutCUs(String clazzName) {
+  //impl was not available with ExecutionDataStore
+    return null;
+  }
 
 }

@@ -148,4 +148,16 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
     }
   }
 
+  @Override
+  public I_PackageCoverageBrief getPackageCoverage() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<I_PackageCoverageBrief> getAllCoverage() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }
