@@ -33,6 +33,8 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 	
 	public Recorder(I_CoveragePluginMemory pMemory, I_Tests4J_Log pLog) {
 		memory_ = pMemory;
+		 
+	    
 		log_ = pLog;
 		runtime_ = memory_.getRuntime();
 		main_ = true;
@@ -41,6 +43,7 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 	public Recorder(I_CoveragePluginMemory pMemory, I_Tests4J_Log pLog, 
 	    String threadGroupName, String filter) {
     memory_ = pMemory;
+    memory_.addFilter(filter);
     log_ = pLog;
     runtime_ = memory_.getRuntime();
     threadGroupName_ = threadGroupName;
@@ -156,7 +159,8 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 
   @Override
   public List<I_PackageCoverageBrief> getAllCoverage() {
-    // TODO Auto-generated method stub
+    Set<String> filters = memory_.getAllFilters();
+    
     return null;
   }
 

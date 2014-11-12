@@ -25,6 +25,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class CoveragePluginMemory implements I_CoveragePluginMemory {
 	/**
@@ -60,6 +61,7 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 	private boolean writeOutInstrumentedClassFiles = false;
 	private boolean concurrentRecording = true;
 	private Set<String> whitelist_;
+	private ConcurrentSkipListSet<String> allFilters_ = new ConcurrentSkipListSet<String>();
 	
 	@SuppressWarnings("unchecked")
   protected CoveragePluginMemory(Map<String,Object> input) {
@@ -251,5 +253,13 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 
   public Set<String> getWhitelist() {
     return whitelist_;
+  }
+
+  public Set<String> getAllFilters() {
+    return allFilters_;
+  }
+
+  public void addFilter(String filter) {
+    allFilters_.add(filter);
   }
 }

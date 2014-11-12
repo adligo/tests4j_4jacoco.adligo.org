@@ -8,6 +8,8 @@ import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePlugin;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePluginParams;
 
+import java.util.Set;
+
 /**
  * the main memory interface for tests4j_4jacoco.
  * @author scott
@@ -101,4 +103,7 @@ public interface I_CoveragePluginMemory {
 	 * @return
 	 */
 	public I_ClassParentsCache getParentsCache();
+	
+	public void addFilter(String filter);
+	public Set<String> getAllFilters();
 }

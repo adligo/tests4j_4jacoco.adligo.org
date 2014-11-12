@@ -49,7 +49,7 @@ public class RequiredList extends BaseClassList {
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TestMetadata");
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TrialMetadata");
 		toRet.add("org.adligo.tests4j.models.shared.metadata.I_TrialRunMetadata");
-		toRet.add("org.adligo.tests4j.models.shared.metadata.I_UseCaseMetadata");
+		toRet.add("org.adligo.tests4j.models.shared.metadata.I_UseCaseBrief");
 		
 		
 		toRet.add("org.adligo.tests4j.models.shared.results.I_ApiTrialResult");
