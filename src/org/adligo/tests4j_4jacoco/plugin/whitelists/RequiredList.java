@@ -21,7 +21,9 @@ public class RequiredList extends BaseClassList {
     
     toRet.add("org.adligo.tests4j.models.shared.coverage.I_ClassProbes");
     toRet.add("org.adligo.tests4j.models.shared.coverage.I_ClassProbesMutant");
-		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnits");
+    toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageIntContainer");
+    toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageIntContainerMutant");
+    toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnits");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_CoverageUnitsContainer");
 		
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_LineCoverage");
@@ -30,8 +32,7 @@ public class RequiredList extends BaseClassList {
 		
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_PercentCovered");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_Probes");
-		toRet.add("org.adligo.tests4j.models.shared.coverage.I_ProbesCoverageContainer");
-		toRet.add("org.adligo.tests4j.models.shared.coverage.I_ProbesCoverageContainerMutant");
+
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBrief");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBriefMutant");
@@ -269,6 +270,7 @@ public class RequiredList extends BaseClassList {
     names.add("sun.");
     names.add("org.jacoco.");
     names.add("org.objectweb.");
+    names.add("org.w3c.");
     return names;
   }
 }

@@ -32,14 +32,4 @@ public class WrappedExecutionData implements I_ClassProbes {
 		return data.getId();
 	}
 
-  @Override
-  public int getCoverageUnits() {
-    return data.getProbes().length;
-  }
-
-  @Override
-  public int getCoveredCoverageUnits() {
-    return ProbesMutant.getCoveredCoverageUnits(data.getProbes());
-  }
-	
 }

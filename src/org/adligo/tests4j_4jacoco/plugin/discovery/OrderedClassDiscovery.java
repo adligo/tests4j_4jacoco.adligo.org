@@ -155,7 +155,9 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 						if (!toRet.contains(depName)) {
 							toRet.add(depName);
 						}
-						it.remove();
+						if (deps.contains(dep)) {
+              it.remove();
+            }
 					} else {
 						I_ClassAssociationsLocal local = refMap.get(alias);
 						if (local == null) {
@@ -172,7 +174,9 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 							 if (!toRet.contains(depName)) {
 								 toRet.add(depName);
 							 }
-							 it.remove();
+							 if (deps.contains(dep)) {
+                 it.remove();
+               }
 						}
 					}
 				} else {
@@ -198,7 +202,9 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 								 if (!toRet.contains(depName)) {
 									 toRet.add(depName);
 								 }
-								 it.remove();
+								 if (deps.contains(dep)) {
+								   it.remove();
+								 }
 							}
 						}
 					}
