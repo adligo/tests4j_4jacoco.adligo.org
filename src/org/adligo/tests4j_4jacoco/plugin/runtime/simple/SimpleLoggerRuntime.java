@@ -140,7 +140,7 @@ public class SimpleLoggerRuntime implements I_Runtime {
 
   @Override
   public I_SourceFileCoverageBrief getSourceFileCoverage(String threadGroupName, String sourceFileClassName) {
-    ConcurrentSkipListSet<Long> classIds = threadGroupClassIds_.get(threadGroupName);
+    ConcurrentSkipListSet<Long> classIds = threadGroupClassIds_.get(threadGroupName + "-group");
     Iterator<Long> it = null;
     if (classIds != null) {
       it = classIds.iterator();

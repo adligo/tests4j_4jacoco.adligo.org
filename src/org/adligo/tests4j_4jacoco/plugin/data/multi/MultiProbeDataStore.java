@@ -125,7 +125,7 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
           //double check the classCovered is part of the sourceFileClassName
           if (sourceFileName.indexOf(clazzCovered) == 0) {
             boolean [] probes = multiProbes.getThreadGroupProbes();
-            if (sourceFileClassName.equals(clazzCovered)) {
+            if (sourceFileName.equals(clazzCovered)) {
               mut.setProbes(new ProbesMutant(probes));
               mut.setClassId(l);
             } else {

@@ -271,6 +271,7 @@ public class RequiredList extends BaseClassList {
     names.add("org.jacoco.");
     names.add("org.objectweb.");
     names.add("org.w3c.");
+    names.add("org.xml.");
     return names;
   }
 }
