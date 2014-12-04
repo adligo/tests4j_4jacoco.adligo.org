@@ -6,8 +6,6 @@ import org.adligo.tests4j.models.shared.coverage.I_CoverageUnits;
 import org.adligo.tests4j.models.shared.coverage.I_PackageCoverageBrief;
 import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage;
 import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBrief;
-import org.adligo.tests4j.models.shared.coverage.SourceFileCoverage;
-import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageMutant;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.shared.common.ClassMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
@@ -322,4 +320,11 @@ public class LazyPackageCoverage implements I_PackageCoverageBrief {
 	public String toString() {
 		return "LazyPackageCoverage [" + packageName + "]";
 	}
+
+
+  @Override
+  public I_PackageCoverageBrief getPackageCoverage(String packageName) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }
