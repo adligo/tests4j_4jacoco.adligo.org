@@ -1,0 +1,6 @@
+
+For 0.2
+
+0.2 issue 1) I am pretty sure static code is not getting correct code coverage numbers (as in none),
+on 12/17/2014 while writing css.adligo.org using org.adligo.tests4j_4jacoco.plugin.factories.Tests4J_4MockitoPluginFactory
+on SequenceOfSimpleSelectorsMutant.hasNonElementNameSimpleSelector() noticed this.
