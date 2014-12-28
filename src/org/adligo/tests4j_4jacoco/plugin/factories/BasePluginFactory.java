@@ -5,12 +5,15 @@ import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePlugin;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePluginFactory;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePluginParams;
+import org.adligo.tests4j.system.shared.api.I_Tests4J_Params;
 import org.adligo.tests4j_4jacoco.plugin.CoveragePlugin;
 import org.adligo.tests4j_4jacoco.plugin.CoveragePluginMapParams;
 import org.adligo.tests4j_4jacoco.plugin.CoveragePluginMemory;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,7 +26,7 @@ public abstract class BasePluginFactory implements I_Tests4J_CoveragePluginFacto
   protected I_JseSystem system_;
   
   @Override
-  public I_Tests4J_CoveragePlugin create(I_Tests4J_CoveragePluginParams params, Map<String,Object> runtimeParams) {
+  public I_Tests4J_CoveragePlugin create(I_Tests4J_Params params, I_Tests4J_CoveragePluginParams pluginParams, Map<String,Object> runtimeParams) {
     I_Tests4J_Log log_ = (I_Tests4J_Log)
         runtimeParams.get(I_Tests4J_CoveragePluginFactory.LOG);
     if (log_ == null) {
@@ -37,16 +40,22 @@ public abstract class BasePluginFactory implements I_Tests4J_CoveragePluginFacto
     Map<String,Object> input = new HashMap<String,Object>();
     input.put(CoveragePluginMapParams.LOGGER, log_);
     input.put(CoveragePluginMapParams.WHITELIST, getWhitelist());
-    input.put(CoveragePluginMapParams.NON_INSTRUMENTED_PACKAGES, getNonInstrumentedClasses());
+    
+    Set<String> nonInstrumentedPackages_ = new HashSet<String>();
+    if (params != null) {
+      nonInstrumentedPackages_.addAll(params.getAdditionalNonInstrumentedPackages());
+    }
+    nonInstrumentedPackages_.addAll(getNonInstrumentedClasses());
+    input.put(CoveragePluginMapParams.NON_INSTRUMENTED_PACKAGES, nonInstrumentedPackages_);
     
     CoveragePlugin toRet =  new CoveragePlugin(input);
     
     CoveragePluginMemory memory = toRet.getMemory();
-    memory.setCanThreadGroupLocalRecord(params.isCanThreadLocalGroupRecord());
-    boolean writeOutClasses = params.isWriteOutInstrumentedClasses();
+    memory.setCanThreadGroupLocalRecord(pluginParams.isCanThreadLocalGroupRecord());
+    boolean writeOutClasses = pluginParams.isWriteOutInstrumentedClasses();
     
-    memory.setWriteOutInstrumentedClassFiles(params.isWriteOutInstrumentedClasses());
-    String output = params.getInstrumentedClassOutputFolder();
+    memory.setWriteOutInstrumentedClassFiles(pluginParams.isWriteOutInstrumentedClasses());
+    String output = pluginParams.getInstrumentedClassOutputFolder();
     memory.setInstrumentedClassFileOutputFolder(output);
     
     if (writeOutClasses) {
@@ -64,7 +73,7 @@ public abstract class BasePluginFactory implements I_Tests4J_CoveragePluginFacto
         }
       }
     }
-    memory.setConcurrentRecording(params.isConcurrentRecording());
+    memory.setConcurrentRecording(pluginParams.isConcurrentRecording());
     return toRet;
   }
   

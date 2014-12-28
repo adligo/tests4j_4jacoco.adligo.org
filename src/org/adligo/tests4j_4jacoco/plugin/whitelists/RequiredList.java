@@ -37,8 +37,6 @@ public class RequiredList extends BaseClassList {
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBrief");
 		toRet.add("org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBriefMutant");
 		
-		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassFilter");
-		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassFilterModel");
 		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassParents");
 		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassParentsCache");
 		toRet.add("org.adligo.tests4j.models.shared.association.I_ClassParentsLocal");
@@ -213,6 +211,9 @@ public class RequiredList extends BaseClassList {
 		toRet.add("org.adligo.tests4j.shared.xml.I_XML_Consumer");
 		toRet.add("org.adligo.tests4j.shared.xml.I_XML_Producer");
 		
+
+    toRet.add("org.adligo.tests4j.run.helpers.I_ClassFilter");
+    toRet.add("org.adligo.tests4j.run.helpers.I_ClassFilterModel");
 		add4JacocoAndAsmClasses(toRet);
 		
 		return Collections.unmodifiableSet(toRet);
@@ -263,6 +264,13 @@ public class RequiredList extends BaseClassList {
     super(getSharedClassWhitelist(), classes);
   }
   
+  /**
+   * Note if you were testing java, org.w3c, org.jacoco, org.objectweb.
+   * or org.xml you would need your own implementation
+   * to allow those classes to be instrumented.  This
+   * was done for general ease of use.
+   * @return
+   */
   public Set<String> getNonInstrumentedPackages() {
     Set<String> names = new HashSet<String>();
     names.add("java.");

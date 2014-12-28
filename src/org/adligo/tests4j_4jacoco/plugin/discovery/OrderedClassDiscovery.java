@@ -13,8 +13,8 @@ import java.util.TreeSet;
 
 import org.adligo.tests4j.models.shared.association.I_ClassAssociationsCache;
 import org.adligo.tests4j.models.shared.association.I_ClassAssociationsLocal;
-import org.adligo.tests4j.models.shared.association.I_ClassFilter;
 import org.adligo.tests4j.models.shared.association.I_ClassParentsLocal;
+import org.adligo.tests4j.run.helpers.I_ClassFilter;
 import org.adligo.tests4j.shared.asserts.reference.ClassAlias;
 import org.adligo.tests4j.shared.asserts.reference.ClassAliasLocal;
 import org.adligo.tests4j.shared.asserts.reference.DependencyMutant;
