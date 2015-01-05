@@ -1,4 +1,5 @@
-/bin
-/classes
-tests4j_4jacoco*.jar
+/bin/
 /build/
+/classes/
+tests4j_4jacoco*.jar
+

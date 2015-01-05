@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tns:fabricate_project xmlns:tns="http://www.adligo.org/fabricate/xml/io/project/v1_0" 
-    xmlns:tns1="http://www.adligo.org/fabricate/xml/io/library/v1_0" 
+<tns:fabricate_project xmlns:tns="http://www.adligo.org/fabricate/xml/io_v1/project_v1_0.xsd" 
+    xmlns:lns="http://www.adligo.org/fabricate/xml/io_v1/library_v1_0.xsd" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
     <tns:stages>
         <tns:stage name="jar" />
     </tns:stages>
-    <tns1:dependencies>
-        <tns1:library>jacoco</tns1:library>
-        <tns1:library>mockito</tns1:library>
-        <tns1:project>tests4j.adligo.org</tns1:project>
-    </tns1:dependencies>
+    <tns:dependencies>
+        <lns:library>jacoco</lns:library>
+        <lns:library>mockito</lns:library>
+        <lns:project>tests4j.adligo.org</lns:project>
+    </tns:dependencies>
  </tns:fabricate_project>
