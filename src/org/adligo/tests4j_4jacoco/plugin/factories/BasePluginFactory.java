@@ -11,9 +11,9 @@ import org.adligo.tests4j_4jacoco.plugin.CoveragePluginMapParams;
 import org.adligo.tests4j_4jacoco.plugin.CoveragePluginMemory;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,7 +40,13 @@ public abstract class BasePluginFactory implements I_Tests4J_CoveragePluginFacto
     Map<String,Object> input = new HashMap<String,Object>();
     input.put(CoveragePluginMapParams.LOGGER, log_);
     input.put(CoveragePluginMapParams.WHITELIST, getWhitelist());
-    
+    if (params != null) {
+      List<String> nonResult = params.getAdditionalNonResultPackages();
+      if (nonResult != null) {
+        input.put(CoveragePluginMapParams.NON_RESULT_PACKAGES, 
+            new HashSet<String>(nonResult));
+      }
+    }
     Set<String> nonInstrumentedPackages_ = new HashSet<String>();
     if (params != null) {
       nonInstrumentedPackages_.addAll(params.getAdditionalNonInstrumentedPackages());

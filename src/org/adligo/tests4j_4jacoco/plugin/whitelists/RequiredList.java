@@ -2,6 +2,7 @@ package org.adligo.tests4j_4jacoco.plugin.whitelists;
 
 import org.adligo.tests4j.run.common.ClassesDelegate;
 import org.adligo.tests4j.run.common.I_Classes;
+import org.adligo.tests4j_4jacoco.plugin.common.I_InstrumentedClassDependencies;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -211,7 +212,7 @@ public class RequiredList extends BaseClassList {
 		toRet.add("org.adligo.tests4j.shared.xml.I_XML_Consumer");
 		toRet.add("org.adligo.tests4j.shared.xml.I_XML_Producer");
 		
-
+		toRet.add("org.adligo.tests4j.run.discovery.I_PackageDiscovery");
     toRet.add("org.adligo.tests4j.run.helpers.I_ClassFilter");
     toRet.add("org.adligo.tests4j.run.helpers.I_ClassFilterModel");
 		add4JacocoAndAsmClasses(toRet);
@@ -223,11 +224,15 @@ public class RequiredList extends BaseClassList {
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_ClassInstrumenter");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_ClassInstrumenterFactory");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_Instrumenter");
+		
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_InstrumentedClassDependencies");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_LoggerDataAccessorFactory");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_ObtainProbesStrategy");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDependencies");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscovery");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscoveryFactory");
+		
 		
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_ProbeDataAccessorFactory");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.common.I_Runtime");
@@ -247,6 +252,9 @@ public class RequiredList extends BaseClassList {
 		
 		
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassInstrumentationInfo");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassInstrumentationMetadata");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassInstrumentationMetadataStore");
+		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassInstrumentationMetadataStoreMutant");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassProbesVisitor");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_MethodProbesVisitor");
 		toRet.add("org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ProbeIdGenerator");

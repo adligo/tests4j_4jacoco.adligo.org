@@ -1,15 +1,14 @@
 package org.adligo.tests4j_4jacoco.plugin.runtime.simple;
 
 import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBrief;
-import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBriefMutant;
 import org.adligo.tests4j_4jacoco.plugin.common.I_LoggerDataAccessorFactory;
 import org.adligo.tests4j_4jacoco.plugin.common.I_Runtime;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStoreAdaptor;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassInstrumentationMetadata;
 import org.jacoco.core.internal.instr.InstrSupport;
 
 import java.lang.reflect.Field;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -146,5 +145,15 @@ public class SimpleLoggerRuntime implements I_Runtime {
       it = classIds.iterator();
     }
     return data_.getSourceFileProbes(threadGroupName, sourceFileClassName, it);
+  }
+
+  @Override
+  public I_SourceFileCoverageBrief getSourceFileCoverage(String sourceFileClassName) {
+    return data_.getSourceFileProbes(sourceFileClassName);
+  }
+
+  @Override
+  public void ensureProbesInitialized(I_ClassInstrumentationMetadata info) {
+    data_.ensureProbesInitialized(info);
   }
 }

@@ -247,7 +247,7 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		if (threadGroupLocalProbesMap != null) {
 			threadGroupLocalProbes = threadGroupLocalProbesMap.get();
 		}
-		return "MultiProbesMap [classCovered=" + ClassMethods.fromTypeDescription(clazzCovered_) +
+		return "MultiProbesMap [classCovered=" + clazzCovered_ +
 				", probes=" + probesToString(probes_) + ",threadGroupLocalProbes=" + 
 				probesToString(threadGroupLocalProbes)+ "]";
 	}

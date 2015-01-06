@@ -25,4 +25,9 @@ public class CoveragePluginMapParams {
    * key which points to a Set<String> value
    */
   public static final String WHITELIST = "whitelist";
+  
+  /**
+   * key which points to a Set<String> value
+   */
+  public static final String NON_RESULT_PACKAGES = "nonResultPackages";
 }

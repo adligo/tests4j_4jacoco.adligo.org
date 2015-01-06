@@ -15,7 +15,10 @@ public interface I_ClassInstrumentationInfo {
 	 */
 	public long getId();
 	/**
-	 * the name of the class
+	 * the name of the class,
+	 * using path syntax,
+	 * not regular java class name or
+	 * byte code type syntax.
 	 * @return
 	 */
 	public String getClassName();

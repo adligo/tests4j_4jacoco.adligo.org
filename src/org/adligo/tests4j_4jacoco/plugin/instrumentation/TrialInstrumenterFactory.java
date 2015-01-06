@@ -7,11 +7,11 @@ import org.adligo.tests4j_4jacoco.plugin.common.I_TrialInstrumenter;
 import org.adligo.tests4j_4jacoco.plugin.common.I_TrialInstrumenterFactory;
 
 public class TrialInstrumenterFactory implements I_TrialInstrumenterFactory {
-	private TrialInstrumenterSharedMemory localMemory = new TrialInstrumenterSharedMemory();
+	private ClassInstrumenterSharedMemory localMemory = new ClassInstrumenterSharedMemory();
 	
 	@Override
 	public I_TrialInstrumenter create(I_CoveragePluginMemory memory) {
-		TrialInstrumenter ti = new TrialInstrumenter(localMemory);
+		TrialInstrumenter ti = new TrialInstrumenter(localMemory, memory);
 		ti.setLog(memory.getLog());
 		
 		I_ClassInstrumenterFactory classInstrumenterFactory = memory.getClassInstrumenterFactory();

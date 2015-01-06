@@ -11,12 +11,14 @@ import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePlugin;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageRecorder;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageTrialInstrumentation;
 import org.adligo.tests4j.system.shared.trials.I_AbstractTrial;
+import org.adligo.tests4j_4jacoco.plugin.common.I_Instrumenter;
 import org.adligo.tests4j_4jacoco.plugin.common.I_TrialInstrumenter;
 import org.adligo.tests4j_4jacoco.plugin.common.I_TrialInstrumenterFactory;
 import org.adligo.tests4j_4jacoco.plugin.data.common.ProbesDataStoreMutant;
 import org.adligo.tests4j_4jacoco.plugin.data.coverage.LazyPackageCoverageFactory;
 import org.adligo.tests4j_4jacoco.plugin.data.multi.MultiContext;
 import org.adligo.tests4j_4jacoco.plugin.data.multi.MultiProbeDataStoreAdaptor;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.ClassInstrumenter;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.ProbeDataAccessorByLoggingApiFactory;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapClassInstrumenterFactory;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapInstrConstants;
@@ -37,6 +39,8 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 	private ConcurrentHashMap<String, I_TrialInstrumenter> trialIntrumenterByWork_ = 
 			new ConcurrentHashMap<String, I_TrialInstrumenter>();
 	private AtomicBoolean instrumentedTrials_ = new AtomicBoolean(false);
+	private Recorder mainRecorder_ = null;
+	private I_Instrumenter mainInstrumenter_;
 	
 	public CoveragePlugin(Map<String,Object> input) {
 		
@@ -55,7 +59,7 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 		memory_.setRuntime(runtime);
 	}
 	
-	public I_Tests4J_CoverageTrialInstrumentation instrument(Class<? extends I_AbstractTrial> trial) 
+	public I_Tests4J_CoverageTrialInstrumentation instrumentTrial(Class<? extends I_AbstractTrial> trial) 
 			throws IOException  {
 	  synchronized (instrumentedTrials_) {
 	    instrumentedTrials_.set(true); 
@@ -76,7 +80,11 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 	
 	@Override
 	public synchronized I_Tests4J_CoverageRecorder createRecorder() {
-		return new Recorder(memory_, log_);
+	  Recorder rec = new Recorder(memory_, log_);
+		if (rec.isMain() && mainRecorder_ == null) {
+		  mainRecorder_ = rec;
+		}
+		return rec;
 	}
 
 	public CoveragePluginMemory getMemory() {
@@ -93,6 +101,13 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 
 	@Override
 	public void instrumentationComplete() {
+	  if (mainRecorder_ == null ) {
+      throw new IllegalStateException("The main recorder must be initialized at this point");
+    }
+    if (!mainRecorder_.isStarted()) {
+      throw new IllegalStateException("The main recorder must be started at this point");
+    }
+    mainRecorder_.finishInstrumentation();
 		memory_.clearTemporaryCaches();
 	}
 
@@ -146,6 +161,15 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
   @Override
   public I_SourceFileCoverage analyze(I_SourceFileCoverageBrief sourceFileBrief) {
     return analyze(sourceFileBrief, false);
+  }
+
+  @Override
+  public void instrument(Class<?> clazz) throws IOException {
+    if (mainInstrumenter_ == null) {
+      I_TrialInstrumenterFactory factory =  memory_.getTrialInstrumenterFactory();
+      mainInstrumenter_ = factory.create(memory_);
+    }
+    mainInstrumenter_.instrumentClass(clazz);
   }
 
 }

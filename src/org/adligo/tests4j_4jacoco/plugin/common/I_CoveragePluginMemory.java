@@ -2,11 +2,13 @@ package org.adligo.tests4j_4jacoco.plugin.common;
 
 import org.adligo.tests4j.models.shared.association.I_ClassAssociationsCache;
 import org.adligo.tests4j.models.shared.association.I_ClassParentsCache;
+import org.adligo.tests4j.run.discovery.I_PackageDiscovery;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.I_ClassFilter;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePlugin;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePluginParams;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassInstrumentationMetadataStoreMutant;
 
 import java.util.Set;
 
@@ -104,6 +106,20 @@ public interface I_CoveragePluginMemory {
 	 */
 	public I_ClassParentsCache getParentsCache();
 	
-	public void addFilter(String filter);
-	public Set<String> getAllFilters();
+	
+	public boolean isFiltered(String javaClassOrPackage);
+	
+	/**
+	 * The shared high level instrumentation information
+	 * @return
+	 */
+	public I_ClassInstrumentationMetadataStoreMutant getClassInstrumentationInfoStore();
+	
+	public I_PackageDiscovery getPackage(String packageName);
+	
+	public boolean isResultPackage(String packageName);
+	
+	public Set<String> getAllSourceFileTrials();
+  
+  public void addSourceFileTrial(String className);
 }

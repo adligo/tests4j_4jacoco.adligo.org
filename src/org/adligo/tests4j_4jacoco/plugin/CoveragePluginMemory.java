@@ -2,6 +2,8 @@ package org.adligo.tests4j_4jacoco.plugin;
 
 import org.adligo.tests4j.models.shared.association.I_ClassAssociationsCache;
 import org.adligo.tests4j.models.shared.association.I_ClassParentsCache;
+import org.adligo.tests4j.run.discovery.I_PackageDiscovery;
+import org.adligo.tests4j.run.discovery.PackageDiscovery;
 import org.adligo.tests4j.run.helpers.CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.ClassFilter;
 import org.adligo.tests4j.run.helpers.ClassFilterMutant;
@@ -19,16 +21,20 @@ import org.adligo.tests4j_4jacoco.plugin.discovery.ClassDependenciesCache;
 import org.adligo.tests4j_4jacoco.plugin.discovery.ClassParentsCache;
 import org.adligo.tests4j_4jacoco.plugin.discovery.OrderedClassDiscoveryFactory;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.TrialInstrumenterFactory;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.ClassInstrumentationMetadataStoreMutant;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassInstrumentationMetadataStoreMutant;
 import org.adligo.tests4j_4jacoco.plugin.instrumentation.map.MapClassInstrumenterFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 public class CoveragePluginMemory implements I_CoveragePluginMemory {
-	/**
+  /**
 	 * this holds regular versions of the class which
 	 * have been instrumented 
 	 */
@@ -48,6 +54,7 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 	private I_TrialInstrumenterFactory trialInstrumenterFactory = new TrialInstrumenterFactory();
 	private I_ClassInstrumenterFactory classInstrumenterFactory = new MapClassInstrumenterFactory();
 	private I_OrderedClassDiscoveryFactory orderedClassDiscoveryFactory = new OrderedClassDiscoveryFactory();
+	private I_ClassInstrumentationMetadataStoreMutant classInstrumentationInfoStore_ = new ClassInstrumentationMetadataStoreMutant();
 	
 	private I_ClassFilter classFilter;
 	private I_ClassFilter basicClassFilter;
@@ -61,7 +68,8 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 	private boolean writeOutInstrumentedClassFiles = false;
 	private boolean concurrentRecording = true;
 	private Set<String> whitelist_;
-	private ConcurrentSkipListSet<String> allFilters_ = new ConcurrentSkipListSet<String>();
+	private ConcurrentSkipListSet<String> allSourceFiles_ = new ConcurrentSkipListSet<String>();
+	private ConcurrentSkipListSet<String> nonResultPackageParts_ = new ConcurrentSkipListSet<String>();
 	
 	@SuppressWarnings("unchecked")
   protected CoveragePluginMemory(Map<String,Object> input) {
@@ -73,6 +81,11 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 		whitelist_ = (Set<String>) input.get(CoveragePluginMapParams.WHITELIST);
 		instrumentedClassLoader = new CachedClassBytesClassLoader(log, 
 				packagesNotRequired, whitelist_, null);
+		
+		Set<String> nonResultPackages = (Set<String>) input.get(CoveragePluginMapParams.NON_RESULT_PACKAGES);
+		if (nonResultPackages != null) {
+		  nonResultPackageParts_.addAll(nonResultPackages);
+		}
 		/**
 		 * note the original classes are required for 
 		 * re-instrumentation for coverage in the LazyCoverage classes
@@ -255,11 +268,33 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
     return whitelist_;
   }
 
-  public Set<String> getAllFilters() {
-    return allFilters_;
+  public I_ClassInstrumentationMetadataStoreMutant getClassInstrumentationInfoStore() {
+    return classInstrumentationInfoStore_;
   }
 
-  public void addFilter(String filter) {
-    allFilters_.add(filter);
+  @Override
+  public I_PackageDiscovery getPackage(String packageName) {
+    try {
+      return new PackageDiscovery(packageName);
+    } catch (IOException x) {
+      throw new RuntimeException(x);
+    }
+  }
+  
+  public boolean isResultPackage(String packageName) {
+    for(String pkgPart: nonResultPackageParts_) {
+      if (packageName.indexOf(pkgPart) == 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  public Set<String> getAllSourceFileTrials() {
+    return allSourceFiles_;
+  }
+  
+  public void addSourceFileTrial(String className) {
+    allSourceFiles_.add(className);
   }
 }

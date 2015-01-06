@@ -5,14 +5,12 @@ import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStoreAdaptor;
 import org.adligo.tests4j_4jacoco.plugin.data.wrappers.WrappedDataStore;
+import org.adligo.tests4j_4jacoco.plugin.instrumentation.common.I_ClassInstrumentationMetadata;
 import org.jacoco.core.data.ExecutionData;
 import org.jacoco.core.data.ExecutionDataStore;
 import org.jacoco.core.data.IExecutionDataVisitor;
 import org.jacoco.core.data.ISessionInfoVisitor;
 import org.jacoco.core.data.SessionInfo;
-import org.jacoco.core.internal.instr.InstrSupport;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 
 import java.util.Iterator;
 
@@ -177,8 +175,17 @@ public class SimpleProbesDataStoreAdaptor implements I_ProbesDataStoreAdaptor {
   @Override
   public I_SourceFileCoverageBrief getSourceFileProbes(String threadGroupName, String sourceFileClassName,
       Iterator<Long> classIds) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new IllegalStateException("Todo implement this method");
+  }
+
+  @Override
+  public I_SourceFileCoverageBrief getSourceFileProbes(String sourceFileClassName) {
+    throw new IllegalStateException("Todo implement this method");
+  }
+
+  @Override
+  public void ensureProbesInitialized(I_ClassInstrumentationMetadata info) {
+    throw new IllegalStateException("Todo implement this method");
   }
 
 }
