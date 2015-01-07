@@ -199,6 +199,7 @@ public class RequiredList extends BaseClassList {
 		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_EclipseErrors");
 		
 		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_LineDiffTextDisplayMessages");
+		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_LogMessages");
 		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_ParamsReaderMessages");
 		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_ReportMessages");
 		

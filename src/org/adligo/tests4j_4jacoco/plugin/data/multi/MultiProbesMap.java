@@ -3,11 +3,11 @@ package org.adligo.tests4j_4jacoco.plugin.data.multi;
 import org.adligo.tests4j.models.shared.coverage.I_ClassProbes;
 import org.adligo.tests4j.models.shared.coverage.I_Probes;
 import org.adligo.tests4j.run.common.I_InitalValueFactory;
-import org.adligo.tests4j.run.common.ThreadGroupFilter;
-import org.adligo.tests4j.run.common.ThreadGroupLocal;
-import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
+import org.adligo.tests4j.run.common.I_ThreadGroupFilter;
+import org.adligo.tests4j.run.common.I_ThreadGroupLocal;
+import org.adligo.tests4j.run.common.I_ThreadingFactory;
+import org.adligo.tests4j.run.common.ThreadingFactory;
 import org.adligo.tests4j.run.memory.Tests4J_ThreadFactory;
-import org.adligo.tests4j.shared.common.ClassMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.common.I_Runtime;
 
@@ -27,19 +27,54 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class MultiProbesMap implements Map<Integer, Boolean>{
 	
-	public static final String METHOD_NOT_IMPLEMENTED = "Method not implemented";
+	public static final String THE_I_CLASS_PROBES_MUST_CONTAIN_THE_CLASS_NAME_OF_THE_COVERED_CLASS =
+      "The I_ClassProbes must contain the class name of the covered class.";
+  public static final String METHOD_NOT_IMPLEMENTED = "Method not implemented";
+  
+  private static boolean[] getEmptyProbes(int pProbeCount) {
+    boolean[] toRet = new boolean[pProbeCount];
+    for (int i = 0; i < toRet.length; i++) {
+      toRet[i] = false;
+    }
+    return toRet;
+  }
+  /** end static start instance */
+  
   /**
 	 * each entry in the list pertains to a different recorder
 	 */
 	private final boolean[] probes_;
-	private final ThreadGroupLocal<CascadingProbeMap> threadGroupProbes_;
-	private final ThreadGroupFilter threadGroupFilter_;
+	private final I_ThreadGroupLocal<CascadingProbeMap> threadGroupProbes_;
+	private final I_ThreadGroupFilter threadGroupFilter_;
 	private final String clazzCovered_;
 	private final int probeCount_;
 	private final long classId_;
-	private final I_Tests4J_Log logger_;
+	private final I_Tests4J_Log log_;
 	private final I_Runtime runtime_;
 	private final MultiContext ctx_;
+	private final I_ThreadingFactory factory_;
+	
+	public MultiProbesMap(I_ClassProbes cp, MultiContext ctx,  I_ThreadingFactory factory) {
+	  ctx_ = ctx;
+	  if (factory == null) {
+	    factory_ = ThreadingFactory.INSTANCE;
+	  } else {
+	    factory_ = factory;
+	  }
+	  runtime_ = ctx_.getRuntime();
+    classId_ = cp.getClassId();
+    log_ = ctx_.getLog();
+    clazzCovered_ = cp.getClassName();
+    if (clazzCovered_ == null) {
+      throw new NullPointerException(THE_I_CLASS_PROBES_MUST_CONTAIN_THE_CLASS_NAME_OF_THE_COVERED_CLASS);
+    }
+    I_Probes pc = cp.getProbes();
+    probeCount_ = pc.size();
+    
+    probes_ = getEmptyProbes(probeCount_);
+    threadGroupFilter_ = factory_.createThreadGroupFilter(Tests4J_ThreadFactory.TRIAL_THREAD_GROUP_PREFIX); 
+    threadGroupProbes_ = factory_.createThreadGroupLocal(threadGroupFilter_,createInitalValueFactory());
+	}
 	
 	/**
 	 * change to have I_FilteredRecorderMemory
@@ -48,58 +83,21 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 	 * @param pReporter
 	 */
 	public MultiProbesMap(I_ClassProbes cp, MultiContext ctx) {
-	  ctx_ = ctx;
-	  runtime_ = ctx_.getRuntime();
-	  classId_ = cp.getClassId();
-		logger_ = ctx_.getLog();
-		clazzCovered_ = cp.getClassName();
-		if (clazzCovered_ == null) {
-			throw new NullPointerException("pClazzToCover can't be null!");
-		}
-		I_Probes pc = cp.getProbes();
-		probeCount_ = pc.size();
-		
-		probes_ = getEmptyProbes(probeCount_);
-		threadGroupFilter_ = new ThreadGroupFilter(Tests4J_ThreadFactory.TRIAL_THREAD_GROUP_PREFIX); 
-		threadGroupProbes_ = 
-				new ThreadGroupLocal<CascadingProbeMap>(
-				    threadGroupFilter_,
-						new I_InitalValueFactory<CascadingProbeMap>() {
-							volatile AtomicBoolean set = new AtomicBoolean(false);
-							volatile CascadingProbeMap first;
-							@Override
-							public synchronized CascadingProbeMap createNew() {
-								if (!set.get()) {
-									//a certain amout of code coverage
-									//can occur on the main thread, before the trial
-									//run, this passes the current code coverage 
-									// (recorded from the main thread)
-									// down to the trial and test threads
-								  if (logger_.isLogEnabled(MultiProbesMap.class)) {
-								    logger_.log("" + this + " " + ThreadLogMessageBuilder.getThreadWithGroupNameForLog() +
-						            "\n created new CascadingProbeMap for " + clazzCovered_);
-						      }
-									first =  new CascadingProbeMap(probes_);
-									return first;
-								} else {
-									//pass the first thread local, to the other
-									//thread locals, since it is from a setup thread;
-									return new CascadingProbeMap(first.get());
-								}
-								
-							}
-					
-						});
+	  this(cp, ctx, null);
 	}
+	
 
 	@Override
 	public int size() {
-		throw new IllegalStateException(METHOD_NOT_IMPLEMENTED);
+		return probes_.length;
 	}
 
 	@Override
 	public boolean isEmpty() {
-		throw new IllegalStateException(METHOD_NOT_IMPLEMENTED);
+		if (probes_.length == 0) {
+		  return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -146,17 +144,8 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
   				CascadingProbeMap local = threadGroupProbes_.getValue();
   				if (local != null) {
     				if (!probes_[key] || !local.get(key)) {
-    					if (logger_.isLogEnabled(MultiProbesMap.class)) {
-    							StringBuilder sb = new StringBuilder();
-    							if (!probes_[key]) {
-    								sb.append(" probes");
-    							}
-    							if (!local.get(key)) {
-    								sb.append(" threadGroupLocalProbes");
-    							}
-    							logger_.log("" + super.toString() + " " + ThreadLogMessageBuilder.getThreadWithGroupNameForLog() +
-    									"\n set the probes " + key + "/" + probeCount_ + " " + value + " on " + clazzCovered_ + "\n" +
-    									sb.toString());
+    					if (log_.isLogEnabled(MultiProbesMap.class)) {
+    							logPut(key, local);
     					}
     				}
     				local.put(key, value);
@@ -170,15 +159,7 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		}
 		return toRet;
 	}
-
-	private static boolean[] getEmptyProbes(int pProbeCount) {
-		boolean[] toRet = new boolean[pProbeCount];
-		for (int i = 0; i < toRet.length; i++) {
-			toRet[i] = false;
-		}
-		return toRet;
-	}
-
+  
 	@Override
 	public Boolean remove(Object key) {
 		throw new IllegalStateException(METHOD_NOT_IMPLEMENTED);
@@ -225,15 +206,15 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 		}
 		if (threadGroupLocalProbes == null) {
 			threadGroupLocalProbes = getEmptyProbes(probeCount_);
-			if (logger_.isLogEnabled(MultiProbesMap.class)) {
-				logger_.log("" + super.toString() + " " + ThreadLogMessageBuilder.getThreadWithGroupNameForLog() +
+			if (log_.isLogEnabled(MultiProbesMap.class)) {
+				log_.log("" + super.toString() + " " + log_.getThreadWithGroupNameMessage() +
 						" is getting empty probes for class \n" +
 						clazzCovered_ + "\n" +
 						threadGroupLocalProbes);
 			}
 		}
-		if (logger_.isLogEnabled(MultiProbesMap.class)) {
-			logger_.log("" + super.toString() + " " + ThreadLogMessageBuilder.getThreadWithGroupNameForLog() +
+		if (log_.isLogEnabled(MultiProbesMap.class)) {
+			log_.log("" + super.toString() + " " + log_.getThreadWithGroupNameMessage() +
 					" is getting threadGropupLocalProbes for class \n" +
 					clazzCovered_ + "\n threadGroupLocalProbes" +
 					probesToString(threadGroupLocalProbes));
@@ -274,5 +255,59 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 
   public long getClassId() {
     return classId_;
+  }
+  
+  public I_ThreadingFactory getThreadingFactory() {
+    return factory_;
+  }
+  
+  private I_InitalValueFactory<CascadingProbeMap> createInitalValueFactory() {
+    return new I_InitalValueFactory<CascadingProbeMap>() {
+      volatile AtomicBoolean set = new AtomicBoolean(false);
+      volatile CascadingProbeMap first;
+      @Override
+      public synchronized CascadingProbeMap createNew() {
+        if (!set.get()) {
+          //a certain amount of code coverage
+          //can occur on the main thread, before the trial
+          //run, this passes the current code coverage 
+          // (recorded from the main thread)
+          // down to the trial and test threads
+          if (log_.isLogEnabled(MultiProbesMap.class)) {
+            log_.log("" + MultiProbesMap.class.getSimpleName() + log_.getLineSeperator() + 
+                log_.getThreadWithGroupNameMessage() + log_.getLineSeperator() + 
+                "\t" + "created new CascadingProbeMap for the following class;"+ log_.getLineSeperator() + 
+                "\t" + clazzCovered_);
+          }
+          first =  new CascadingProbeMap(probes_);
+          set.set(true);
+          return first;
+        } else {
+          //pass the first thread local, to the other
+          //thread locals, since it is from a setup thread;
+          return new CascadingProbeMap(first.get());
+        }
+      }
+    };
+  }
+  
+  @SuppressWarnings("boxing")
+  private void logPut(Integer key, CascadingProbeMap local) {
+    StringBuilder sb = new StringBuilder();
+    if (!probes_[key]) {
+      sb.append("probes");
+    }
+    if (!local.get(key)) {
+      if (sb.length() >= 1) {
+        sb.append(" and ");
+      }
+      sb.append("threadGroupLocalProbes");
+    }
+    sb.append(" ");
+    log_.log("" + MultiProbesMap.class.getSimpleName() + log_.getLineSeperator() +
+        log_.getThreadWithGroupNameMessage() + log_.getLineSeperator() +
+        "\tsetting the " + sb.toString() + key + "/" + probeCount_ + " on the following class;" + log_.getLineSeperator() + 
+        "\t" + clazzCovered_ + log_.getLineSeperator() +
+        "\t" + sb.toString());
   }
 }

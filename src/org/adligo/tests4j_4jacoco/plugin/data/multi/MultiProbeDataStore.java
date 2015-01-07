@@ -8,7 +8,6 @@ import org.adligo.tests4j.models.shared.coverage.ProbesMutant;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBrief;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBriefMutant;
 import org.adligo.tests4j.run.common.ConcurrentQualifiedMap;
-import org.adligo.tests4j.run.helpers.ThreadLogMessageBuilder;
 import org.adligo.tests4j.shared.common.ClassMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageRecorder;
@@ -79,15 +78,18 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 	@Override
 	public Map<Integer, Boolean> get(final Long id, final String name, final int probecount) {
 		if (log_.isLogEnabled(MultiProbeDataStore.class)) {
-			log_.log(ThreadLogMessageBuilder.getThreadWithGroupNameForLog() +
-					"\n is getting probes for class " + name);
+			log_.log(log_.getThreadWithGroupNameMessage() + log_.getLineSeperator() +
+					"\tis getting probes for the following class;" + log_.getLineSeperator() + 
+					"\t" + name);
 		}
 		MultiProbesMap toRet = classIds_.get(id);
 		if (toRet == null) {
 			if (!classIds_.containsKey(id)) {
 			  if (log_.isLogEnabled(MultiProbeDataStore.class)) {
-		      log_.log(ThreadLogMessageBuilder.getThreadWithGroupNameForLog() +
-		          "\n is initalizing probes for class " + name + " " + id + " with probes " + probecount);
+		      log_.log(log_.getThreadWithGroupNameMessage() + log_.getLineSeperator() +
+		          "\tis initalizing probes for the follwing class;" + log_.getLineSeperator() + 
+		          "\t" + name + " " + id + log_.getLineSeperator() + 
+		          "\twith probes " + probecount);
 		    }
 			  ClassProbesMutant cpm = new ClassProbesMutant();
 			  cpm.setClassId(id);
@@ -98,8 +100,9 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 			  String regularName = ClassMethods.fromTypeDescription("L" + name + ";");
 
         if (log_.isLogEnabled(MultiProbeDataStore.class)) {
-          log_.log(ThreadLogMessageBuilder.getThreadWithGroupNameForLog() +
-              "\n is storing class " + regularName + " " + id);
+          log_.log(log_.getThreadWithGroupNameMessage() + log_.getLineSeperator() +
+              "\tis storing the following class;" + log_.getLineSeperator() +
+              "\t" + regularName + " " + id);
         }
         
 			  for (String key: keys) {

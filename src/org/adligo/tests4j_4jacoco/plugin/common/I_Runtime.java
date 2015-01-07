@@ -33,7 +33,8 @@ public interface I_Runtime {
 	/**
 	 * @see #putThreadGroupFilter(String, String)
 	 * @param threadGroupName
-	 * @return
+	 * @return the thread group filter (a java package or class name)
+	 * which this thread group name is filtering on currently.
 	 */
 	public String getThreadGroupFilter(String threadGroupName);
 	/**
