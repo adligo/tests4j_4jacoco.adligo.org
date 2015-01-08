@@ -153,7 +153,7 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 			
 			ClassProbesMutant cpm = new ClassProbesMutant();
 			cpm.setClassId(clazzId);
-			String classCovered = val.getClazzCovered();
+			String classCovered = val.getClassCovered();
 
 			cpm.setClassName(classCovered);
 			cpm.setProbes(new Probes(probeVals));
@@ -183,7 +183,7 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
         Long l = classIds.next();
         MultiProbesMap multiProbes = classIds_.get(l);
         if (multiProbes != null) {
-          String clazzCovered = multiProbes.getClazzCovered();
+          String clazzCovered = multiProbes.getClassCovered();
           //double check the classCovered is part of the sourceFileClassName
           if (sourceFileName.indexOf(clazzCovered) == 0) {
             boolean [] probes = converter.getProbes(multiProbes);
@@ -210,7 +210,7 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
     if (mut.getProbes() == null) {
       Collection<MultiProbesMap> maps = classIds_.values();
       for (MultiProbesMap map: maps) {
-        if (sourceFileName.equals(map.getClazzCovered())) {
+        if (sourceFileName.equals(map.getClassCovered())) {
           mut.setProbes(new ProbesMutant(map.getProbes()));
           mut.setClassId(map.getClassId());
           break;
@@ -254,7 +254,7 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
       }
     }
     MultiProbesMap mpm = classIds_.get(classId);
-    String typeName = mpm.getClazzCovered();
+    String typeName = mpm.getClassCovered();
     Iterator<Long> classIds = classIdList.iterator();
     return getSourceFileBrief(typeName, classIds, converter_);
   }
