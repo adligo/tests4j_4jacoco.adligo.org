@@ -325,6 +325,7 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
       topNames = new HashSet<String>(topNames);
       topNames.addAll(sourceFilePackages);
     }
+    topNames = PackageDiscovery.findTopPackages(topNames);
     return topNames;
   }
 }

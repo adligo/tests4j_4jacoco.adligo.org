@@ -58,13 +58,14 @@ public abstract class BasePluginFactory implements I_Tests4J_CoveragePluginFacto
     
     CoveragePluginMemory memory = toRet.getMemory();
     memory.setCanThreadGroupLocalRecord(pluginParams.isCanThreadLocalGroupRecord());
+    
     boolean writeOutClasses = pluginParams.isWriteOutInstrumentedClasses();
-    
-    memory.setWriteOutInstrumentedClassFiles(pluginParams.isWriteOutInstrumentedClasses());
-    String output = pluginParams.getInstrumentedClassOutputFolder();
-    memory.setInstrumentedClassFileOutputFolder(output);
-    
     if (writeOutClasses) {
+      memory.setWriteOutInstrumentedClassFiles(pluginParams.isWriteOutInstrumentedClasses());
+      
+      String output = pluginParams.getInstrumentedClassOutputFolder();
+      memory.setInstrumentedClassFileOutputFolder(output);
+    
       File file = system_.newFile(output);
       if (file.exists()) {
         File[] files = file.listFiles();

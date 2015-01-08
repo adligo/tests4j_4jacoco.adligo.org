@@ -11,9 +11,7 @@ import org.adligo.tests4j.models.shared.coverage.PackageCoverageBriefMutant;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBrief;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBriefMutant;
 import org.adligo.tests4j.run.discovery.I_PackageDiscovery;
-import org.adligo.tests4j.run.discovery.PackageDiscovery;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
-import org.adligo.tests4j.shared.common.ClassMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageRecorder;
 import org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory;
@@ -31,18 +29,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 public class Recorder implements I_Tests4J_CoverageRecorder {
 	protected I_Tests4J_Log log_;
 	protected I_CoveragePluginMemory memory_;
 	private boolean main_ = false;
 	private I_Runtime runtime_;
-	private boolean jacocoInitOnFirstRecording_ = true;
 	private String threadGroupName_;
 	private String filter_;
 	private boolean started_ = false;
@@ -166,23 +161,8 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
     if (log_.isMainLog()) {
       log_.log("getAllCoverage");
     }
-    Set<String> packageNames = memory_.getAllPackageScopes();
-    Set<String> topNames = PackageDiscovery.findTopPackages(new HashSet<String>(packageNames));
+    Set<String> topNames = memory_.getTopPackageNames();
     
-    Set<String> sourceFiles = memory_.getAllSourceFileScopes();
-    Set<String> sourceFilePackages = new HashSet<String>();
-    
-    for (String source: sourceFiles) {
-      String packageName = ClassMethods.getPackageName(source);
-      if (!packageNames.contains(packageName)) {
-        sourceFilePackages.add(packageName);
-      }
-    }
-    if (sourceFilePackages.size() >= 1) {
-      topNames = new HashSet<String>(topNames);
-      topNames.addAll(sourceFilePackages);
-    }
-    topNames = PackageDiscovery.findTopPackages(topNames);
     Map<String,PackageCoverageBriefMutant> pkgBriefs = new HashMap<String,PackageCoverageBriefMutant>();
     Map<String,Map<String,SourceFileCoverageBriefMutant>> packagesToSourceClasses = 
         new HashMap<String,Map<String,SourceFileCoverageBriefMutant>>();
