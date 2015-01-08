@@ -6,6 +6,7 @@ import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBrief;
 import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBrief;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBriefMutant;
+import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePlugin;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageRecorder;
@@ -170,6 +171,18 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
       mainInstrumenter_ = factory.create(memory_);
     }
     mainInstrumenter_.instrumentClass(clazz);
+  }
+
+  @Override
+  public boolean isInstrumented(String className) {
+    I_CachedClassBytesClassLoader classLoader = memory_.getCachedClassLoader();
+    List<String> list = classLoader.getAllCachedClasses();
+    return list.contains(className);
+  }
+
+  @Override
+  public Set<String> getTopPackageScopes() {
+    return memory_.getTopPackageNames();
   }
 
 }

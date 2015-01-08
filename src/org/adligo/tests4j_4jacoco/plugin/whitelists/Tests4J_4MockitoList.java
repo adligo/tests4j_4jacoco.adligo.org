@@ -25,7 +25,6 @@ public class Tests4J_4MockitoList extends BaseClassList {
 	  toRet.add("org.adligo.tests4j_4mockito.MockitoApiTrial");
 	  toRet.add("org.adligo.tests4j_4mockito.MockitoSourceFileTrial");
 	  toRet.add("org.adligo.tests4j_4mockito.MockitoUseCaseTrial");
-	  toRet.add("org.adligo.tests4j_4mockito.ReturnCount");
 	  
 	  return Collections.unmodifiableSet(toRet);
 	}

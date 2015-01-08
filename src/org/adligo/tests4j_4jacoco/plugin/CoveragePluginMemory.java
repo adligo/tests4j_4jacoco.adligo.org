@@ -10,6 +10,7 @@ import org.adligo.tests4j.run.helpers.ClassFilterMutant;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.I_ClassFilter;
 import org.adligo.tests4j.shared.common.CacheControl;
+import org.adligo.tests4j.shared.common.ClassMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.common.I_ClassInstrumenterFactory;
 import org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory;
@@ -69,6 +70,7 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 	private boolean concurrentRecording = true;
 	private Set<String> whitelist_;
 	private ConcurrentSkipListSet<String> allSourceFiles_ = new ConcurrentSkipListSet<String>();
+	private ConcurrentSkipListSet<String> allPackageScopes_ = new ConcurrentSkipListSet<String>();
 	private ConcurrentSkipListSet<String> nonResultPackageParts_ = new ConcurrentSkipListSet<String>();
 	
 	@SuppressWarnings("unchecked")
@@ -290,11 +292,39 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
     return true;
   }
   
-  public Set<String> getAllSourceFileTrials() {
+  public Set<String> getAllSourceFileScopes() {
     return allSourceFiles_;
   }
   
-  public void addSourceFileTrial(String className) {
+  public void addSourceFileScope(String className) {
     allSourceFiles_.add(className);
+  }
+  
+  public Set<String> getAllPackageScopes() {
+    return allPackageScopes_;
+  }
+  
+  public void addPackageScope(String className) {
+    allPackageScopes_.add(className);
+  }
+  
+  public Set<String> getTopPackageNames() {
+    Set<String> packageNames = getAllPackageScopes();
+    Set<String> topNames = PackageDiscovery.findTopPackages(packageNames);
+    
+    Set<String> sourceFiles = getAllSourceFileScopes();
+    Set<String> sourceFilePackages = new HashSet<String>();
+    
+    for (String source: sourceFiles) {
+      String packageName = ClassMethods.getPackageName(source);
+      if (!packageNames.contains(packageName)) {
+        sourceFilePackages.add(packageName);
+      }
+    }
+    if (sourceFilePackages.size() >= 1) {
+      topNames = new HashSet<String>(topNames);
+      topNames.addAll(sourceFilePackages);
+    }
+    return topNames;
   }
 }

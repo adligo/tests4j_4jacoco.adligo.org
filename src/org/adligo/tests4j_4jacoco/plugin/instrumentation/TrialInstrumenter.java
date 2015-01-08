@@ -78,7 +78,7 @@ public class TrialInstrumenter extends ClassAndDependenciesInstrumenter implemen
       */
 			sourceClass = sourceScope.sourceClass();
 			String sourceClassName = sourceClass.getName();
-			pluginMemory_.addSourceFileTrial(sourceClassName);
+			pluginMemory_.addSourceFileScope(sourceClassName);
 			I_InstrumentedClassDependencies icd = instrumentClass(sourceClass);
 			sourceClassDependencies = icd.getClassDependencies();
 			
@@ -88,6 +88,7 @@ public class TrialInstrumenter extends ClassAndDependenciesInstrumenter implemen
 			
 			if (packageScope != null) {
 				packageName = packageScope.packageName();
+				pluginMemory_.addPackageScope(packageName);
 			}
 		}	
 		

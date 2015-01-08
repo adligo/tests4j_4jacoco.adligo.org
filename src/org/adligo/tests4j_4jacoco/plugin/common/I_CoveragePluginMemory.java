@@ -119,7 +119,12 @@ public interface I_CoveragePluginMemory {
 	
 	public boolean isResultPackage(String packageName);
 	
-	public Set<String> getAllSourceFileTrials();
+	public Set<String> getAllSourceFileScopes();
   
-  public void addSourceFileTrial(String className);
+  public void addSourceFileScope(String className);
+  
+  public Set<String> getAllPackageScopes();
+  
+  public void addPackageScope(String packageName);
+  public Set<String> getTopPackageNames();
 }

@@ -10,6 +10,8 @@ import org.adligo.tests4j.models.shared.coverage.PackageCoverageBrief;
 import org.adligo.tests4j.models.shared.coverage.PackageCoverageBriefMutant;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBrief;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBriefMutant;
+import org.adligo.tests4j.run.discovery.I_PackageDiscovery;
+import org.adligo.tests4j.run.discovery.PackageDiscovery;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.shared.common.ClassMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
@@ -161,85 +163,42 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
 
   @Override
   public List<I_PackageCoverageBrief> getAllCoverage() {
-    I_CachedClassBytesClassLoader classLoader = memory_.getCachedClassLoader();
-    List<String> classesCopy = new ArrayList<String>(classLoader.getAllCachedClasses());
+    if (log_.isMainLog()) {
+      log_.log("getAllCoverage");
+    }
+    Set<String> packageNames = memory_.getAllPackageScopes();
+    Set<String> topNames = PackageDiscovery.findTopPackages(new HashSet<String>(packageNames));
     
-    Set<String> sourceFiles = memory_.getAllSourceFileTrials();
-    classesCopy.addAll(sourceFiles);
+    Set<String> sourceFiles = memory_.getAllSourceFileScopes();
+    Set<String> sourceFilePackages = new HashSet<String>();
     
+    for (String source: sourceFiles) {
+      String packageName = ClassMethods.getPackageName(source);
+      if (!packageNames.contains(packageName)) {
+        sourceFilePackages.add(packageName);
+      }
+    }
+    if (sourceFilePackages.size() >= 1) {
+      topNames = new HashSet<String>(topNames);
+      topNames.addAll(sourceFilePackages);
+    }
+    topNames = PackageDiscovery.findTopPackages(topNames);
     Map<String,PackageCoverageBriefMutant> pkgBriefs = new HashMap<String,PackageCoverageBriefMutant>();
-    Set<String> allPackages = new HashSet<String>();
     Map<String,Map<String,SourceFileCoverageBriefMutant>> packagesToSourceClasses = 
         new HashMap<String,Map<String,SourceFileCoverageBriefMutant>>();
     
-    I_ClassInstrumentationMetadataStoreMutant store = memory_.getClassInstrumentationInfoStore();
-    
-    Iterator<String> it = classesCopy.iterator();
-    while (it.hasNext()) {
-      String className = it.next();
-      if (memory_.isFiltered(className)) {
-        it.remove();
-      } else {
-        I_ClassInstrumentationMetadata info = store.getClassInstrumentation(className);
-        if (info == null) {
-          throw new IllegalStateException("No instrumentation info found for class " + System.lineSeparator() +
-              className);
-        }
-        runtime_.ensureProbesInitialized(info);
-        String packageName = ClassMethods.getPackageName(className);
-        
-        if (memory_.isResultPackage(packageName)) {
-          PackageCoverageBriefMutant bm = pkgBriefs.get(packageName);
-          if (bm == null) {
-            allPackages.add(packageName);
-            bm = new PackageCoverageBriefMutant();
-            bm.setPackageName(packageName);
-            pkgBriefs.put(packageName, bm);
-            
-          } 
-        }
-      }
+    Set<String> topNamesWithClasses = new HashSet<String>();
+    for (String topName: topNames) {
+      I_PackageDiscovery pd = memory_.getPackage(topName);
+      
+      PackageCoverageBriefMutant pm = new PackageCoverageBriefMutant();
+      pm.setPackageName(topName);
+      recurseIntoChildren(packagesToSourceClasses, pm, pd, topNamesWithClasses, pkgBriefs);
+      pkgBriefs.put(topName, pm);
     }
-    //note all classes must have ensureProbesInitialized 
-    //before we can get the source file coverage,
-    //since ensureProbesInitialized may discover parent child inner class relationships
-    for (String className: classesCopy) {
-      String packageName = ClassMethods.getPackageName(className);
-      PackageCoverageBriefMutant bm = pkgBriefs.get(packageName);
-      Map<String,SourceFileCoverageBriefMutant> classBriefs = packagesToSourceClasses.get(packageName);
-      if (classBriefs == null) {
-        classBriefs = new HashMap<String,SourceFileCoverageBriefMutant>();
-      }
-      I_SourceFileCoverageBrief brief = runtime_.getSourceFileCoverage(className);
-      classBriefs.put(className, new SourceFileCoverageBriefMutant(brief));
-      packagesToSourceClasses.put(packageName, classBriefs);
-    }
-    //create a PackageDiscovery for each, merges in the children
-    Iterator<String> pkgs = allPackages.iterator();
-    while (pkgs.hasNext()) {
-      Set<String> copy = new HashSet<String>(allPackages);
-      String pkg = pkgs.next();
-      copy.remove(pkg);
-      boolean remove = false;
-      for (String op: copy) {
-        int index = op.indexOf(pkg);
-        if (index == 0) {
-          remove = true;
-          normalizeCoverageRelations(pkgBriefs, pkg, op);
-        }
-        index = pkg.indexOf(op);
-        if (index == 0) {
-          remove = true;
-          normalizeCoverageRelations(pkgBriefs, op, pkg);
-        }
-      }
-      if (remove) {
-        pkgs.remove();
-      }
-    }
-    
+
     List<I_PackageCoverageBrief> toRet = new ArrayList<I_PackageCoverageBrief>();
-    for (String pkg: allPackages) {
+    for (String pkg: topNamesWithClasses) {
       PackageCoverageBriefMutant pm = pkgBriefs.get(pkg);
       recurseChildPackages(pm, packagesToSourceClasses);
       toRet.add(new PackageCoverageBrief(pm));
@@ -247,50 +206,59 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
     if (log_.isLogEnabled(Recorder.class)) {
       log_.log("returning package coverages " + toRet);
     }
+    
     return toRet;
   }
 
-  public void normalizeCoverageRelations(Map<String, PackageCoverageBriefMutant> pkgBriefs,
-      String pkg, String op) {
-    PackageCoverageBriefMutant top = pkgBriefs.get(pkg);
-    String nextPackages = op.substring(pkg.length() + 1, op.length());
-    StringTokenizer names = new StringTokenizer(nextPackages, ".");
-    StringBuilder soFar = new StringBuilder();
-    soFar.append(pkg);
-    PackageCoverageBriefMutant parent = top;
-    while (names.hasMoreTokens()) {
-      String next = names.nextToken();
-      soFar.append("." + next);
-      String name = soFar.toString();
-      
-      List<PackageCoverageBriefMutant> children = parent.getChildren();
-      boolean found = false;
-      //search the current instance
-      for (PackageCoverageBriefMutant child: children) {
-        if (name.equals(child.getPackageName())) {
-          parent = child;
-          found = true;
-          break;
+  private void recurseIntoChildren(
+      Map<String, Map<String, SourceFileCoverageBriefMutant>> packagesToSourceClasses,
+      PackageCoverageBriefMutant parent, I_PackageDiscovery pd, Set<String> topNamesWithClasses,
+      Map<String,PackageCoverageBriefMutant> pkgBriefs) {
+    
+    I_ClassInstrumentationMetadataStoreMutant store = memory_.getClassInstrumentationInfoStore();
+    
+    String packageName = parent.getPackageName();
+    List<String> classNames = pd.getClassNames();
+    Map<String,SourceFileCoverageBriefMutant> classBriefs = new HashMap<String, SourceFileCoverageBriefMutant>();
+    for (String clazz: classNames) {
+      I_ClassInstrumentationMetadata info = store.getClassInstrumentation(clazz);
+      if (info == null) {
+        if (log_.isLogEnabled(Recorder.class)) {
+          log_.log("No instrumentation info found for class " + System.lineSeparator() +
+            clazz);
         }
-      }
-      
-      if (!found) {
-      //search the cache instance
-        PackageCoverageBriefMutant pm = pkgBriefs.get(name);
-        if (pm != null) {
-          parent.addChild(pm);
-          found = true;
-          break;
-        } else {
-          pm = new PackageCoverageBriefMutant();
-          pm.setPackageName(pkg);
-          parent.addChild(pm);
-          pkgBriefs.put(pkg, pm);
-          parent = pm;
-        }
+      } else {
+        runtime_.ensureProbesInitialized(info);
+        I_SourceFileCoverageBrief brief = runtime_.getSourceFileCoverage(clazz);
+        classBriefs.put(clazz, new SourceFileCoverageBriefMutant(brief));
       }
     }
+    if (classNames.size() >= 1) {
+      boolean add = true;
+      //check if this package already has a parent
+      for (String pkgName: topNamesWithClasses) {
+        if (packageName.indexOf(pkgName) == 0) {
+          add = false;
+        }
+      }
+      if (add) {
+        topNamesWithClasses.add(packageName);
+      }
+    }
+    packagesToSourceClasses.put(packageName, classBriefs);
+    parent.setSourceFiles(classBriefs);
+    
+    List<I_PackageDiscovery> subs = pd.getSubPackages();
+    for (I_PackageDiscovery sub: subs) {
+      String subPackageName = sub.getPackageName();
+      PackageCoverageBriefMutant child = new PackageCoverageBriefMutant();
+      child.setPackageName(subPackageName);
+      recurseIntoChildren(packagesToSourceClasses, child, sub, topNamesWithClasses,pkgBriefs);
+      parent.addChild(child);
+    }
+    pkgBriefs.put(packageName, parent);
   }
+
   
   /**
    * must return the coverage units (covered[0], all[1])
