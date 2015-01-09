@@ -39,14 +39,16 @@ public abstract class BasePluginFactory implements I_Tests4J_CoveragePluginFacto
     }
     Map<String,Object> input = new HashMap<String,Object>();
     input.put(CoveragePluginMapParams.LOGGER, log_);
-    input.put(CoveragePluginMapParams.WHITELIST, getWhitelist());
+    Set<String> whiteList = new HashSet<String>(getWhitelist());
     if (params != null) {
+      whiteList.addAll(params.getAdditionalNonInstrumentedClasses());
       List<String> nonResult = params.getAdditionalNonResultPackages();
       if (nonResult != null) {
         input.put(CoveragePluginMapParams.NON_RESULT_PACKAGES, 
             new HashSet<String>(nonResult));
       }
     }
+    input.put(CoveragePluginMapParams.WHITELIST, whiteList);
     Set<String> nonInstrumentedPackages_ = new HashSet<String>();
     if (params != null) {
       nonInstrumentedPackages_.addAll(params.getAdditionalNonInstrumentedPackages());
