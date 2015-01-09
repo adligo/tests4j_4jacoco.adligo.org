@@ -33,6 +33,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * @diagram_sync on 1/8/2015 with Coverage_Overview.seq
+ * @author scott
+ *
+ */
 public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 	private CoveragePluginMemory memory_;
 	private I_Tests4J_Log log_;
@@ -78,7 +83,9 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 		return result;
 	}
 	
-	
+	/**
+	 * @diagram_sync on 1/8/2015 with Coverage_Overview.seq
+	 */
 	@Override
 	public synchronized I_Tests4J_CoverageRecorder createRecorder() {
 	  Recorder rec = new Recorder(memory_, log_);
@@ -127,6 +134,9 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 		return progress.getPctDone();
 	}
 
+	/**
+	 * @diagram_sync on 1/8/2015 with Coverage_Overview.seq
+	 */
   @Override
   public I_Tests4J_CoverageRecorder createRecorder(String threadGroup, String javaFilter) {
     return new Recorder(memory_, log_, threadGroup, javaFilter);

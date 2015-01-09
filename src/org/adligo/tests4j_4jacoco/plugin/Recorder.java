@@ -157,6 +157,9 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
     return null;
   }
 
+  /**
+   * @diagram_sync on 1/8/2015 with Coverage_Overview.seq
+   */
   @Override
   public List<I_PackageCoverageBrief> getAllCoverage(Set<String> trialPackages) {
     
