@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -157,12 +158,14 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
   }
 
   @Override
-  public List<I_PackageCoverageBrief> getAllCoverage() {
-    if (log_.isMainLog()) {
-      log_.log("getAllCoverage");
-    }
-    Set<String> topNames = memory_.getTopPackageNames();
+  public List<I_PackageCoverageBrief> getAllCoverage(Set<String> trialPackages) {
     
+    Set<String> topNames = memory_.getTopPackageNames();
+    if (log_.isLogEnabled(Recorder.class)) {
+      if (log_.isMainLog()) {
+        log_.log("getAllCoverage with top pakage names " + topNames);
+      }
+    }
     Map<String,PackageCoverageBriefMutant> pkgBriefs = new HashMap<String,PackageCoverageBriefMutant>();
     Map<String,Map<String,SourceFileCoverageBriefMutant>> packagesToSourceClasses = 
         new HashMap<String,Map<String,SourceFileCoverageBriefMutant>>();
@@ -176,12 +179,21 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
       recurseIntoChildren(packagesToSourceClasses, pm, pd, topNamesWithClasses, pkgBriefs);
       pkgBriefs.put(topName, pm);
     }
-
+    //quick fix for trials of references like  
+    // org.adligo.tests4j_v1_tests.gwt_refs.v2_6.annotation
+    topNamesWithClasses.removeAll(trialPackages);
+    
     List<I_PackageCoverageBrief> toRet = new ArrayList<I_PackageCoverageBrief>();
     for (String pkg: topNamesWithClasses) {
       PackageCoverageBriefMutant pm = pkgBriefs.get(pkg);
       recurseChildPackages(pm, packagesToSourceClasses);
-      toRet.add(new PackageCoverageBrief(pm));
+      PackageCoverageBrief pcb = new PackageCoverageBrief(pm);
+      toRet.add(pcb);
+      if (log_.isLogEnabled(Recorder.class)) {
+        if (log_.isMainLog()) {
+          log_.log("getAllCoverage returning " + pcb);
+        }
+      }
     }
     if (log_.isLogEnabled(Recorder.class)) {
       log_.log("returning package coverages " + toRet);
