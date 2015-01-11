@@ -146,6 +146,7 @@ public class RequiredList extends BaseClassList {
 		
 		toRet.add("org.adligo.tests4j.shared.asserts.common.I_AssertListener");
 		toRet.add("org.adligo.tests4j.shared.asserts.common.I_AssertType");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_MatchType");
 		toRet.add("org.adligo.tests4j.shared.asserts.common.I_TestFailure");
 		toRet.add("org.adligo.tests4j.shared.asserts.common.I_TestFailureType");
 		toRet.add("org.adligo.tests4j.shared.asserts.common.I_ThrowableInfo");
