@@ -8,9 +8,9 @@ import org.adligo.tests4j.run.common.I_ThreadGroupLocal;
 import org.adligo.tests4j.run.common.I_ThreadingFactory;
 import org.adligo.tests4j.run.common.ThreadingFactory;
 import org.adligo.tests4j.run.memory.Tests4J_ThreadFactory;
-import org.adligo.tests4j.shared.common.Tests4J_Constants;
 import org.adligo.tests4j.shared.i18n.I_Tests4J_Constants;
 import org.adligo.tests4j.shared.i18n.I_Tests4J_LogMessages;
+import org.adligo.tests4j.shared.i18n.I_Tests4J_ReportMessages;
 import org.adligo.tests4j.shared.output.DefaultLog;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.common.I_Runtime;
@@ -34,7 +34,7 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 	public static final String THE_I_CLASS_PROBES_MUST_CONTAIN_THE_CLASS_NAME_OF_THE_COVERED_CLASS =
       "The I_ClassProbes must contain the class name of the covered class.";
   public static final String METHOD_NOT_IMPLEMENTED = "Method not implemented";
-  private static final I_Tests4J_Constants CONSTANTS = Tests4J_Constants.CONSTANTS;
+  private final I_Tests4J_Constants constants_;
   
   private static boolean[] getEmptyProbes(int pProbeCount) {
     boolean[] toRet = new boolean[pProbeCount];
@@ -61,6 +61,10 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 	
 	public MultiProbesMap(I_ClassProbes cp, MultiContext ctx,  I_ThreadingFactory factory) {
 	  ctx_ = ctx;
+	  constants_ = ctx_.getConstants();
+	  if (constants_ == null) {
+	    throw new NullPointerException();
+	  }
 	  if (factory == null) {
 	    factory_ = ThreadingFactory.INSTANCE;
 	  } else {
@@ -215,16 +219,21 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
 			threadGroupLocalProbes = getEmptyProbes(probeCount_);
 		}
 		if (log_.isLogEnabled(MultiProbesMap.class)) {
-		  I_Tests4J_LogMessages messages = CONSTANTS.getLogMessages();
-			log_.log(DefaultLog.orderLine(MultiProbesMap.class.getSimpleName() + " " +
-			    log_.getThreadWithGroupNameMessage()) + log_.getLineSeperator() + 
-					DefaultLog.orderLine("\t", messages.getIsGettingTheFollowingThreadGroupLocalProbes()) + 
+		  I_Tests4J_LogMessages messages = constants_.getLogMessages();
+		  I_Tests4J_ReportMessages reportMessages = constants_.getReportMessages();
+		  log_.log(DefaultLog.orderLine(constants_.isLeftToRight(), 
+			    MultiProbesMap.class.getSimpleName(), " ", log_.getThreadWithGroupNameMessage()) + log_.getLineSeperator() + 
+					DefaultLog.orderLine(constants_.isLeftToRight(),
+					    reportMessages.getIndent(), messages.getIsGettingTheFollowingThreadGroupLocalProbes()) + 
+					    log_.getLineSeperator() + 
+			    DefaultLog.orderLine(constants_.isLeftToRight(),
+              reportMessages.getIndent(),  probesToString(threadGroupLocalProbes)) + 
+              log_.getLineSeperator() + 
+					DefaultLog.orderLine(constants_.isLeftToRight(),
+              reportMessages.getIndent(), messages.getForTheFollowingClass()) + 
 					log_.getLineSeperator() + 
-			    DefaultLog.orderLine("\t", probesToString(threadGroupLocalProbes)) + 
-			    log_.getLineSeperator() + 
-					DefaultLog.orderLine("\t", messages.getForTheFollowingClass()) + 
-					log_.getLineSeperator() + 
-					DefaultLog.orderLine("\t", clazzCovered_));
+					DefaultLog.orderLine(constants_.isLeftToRight(),
+              reportMessages.getIndent(), clazzCovered_));
 		}
 		return threadGroupLocalProbes;
 	}
@@ -281,13 +290,17 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
           // (recorded from the main thread)
           // down to the trial and test threads
           if (log_.isLogEnabled(MultiProbesMap.class)) {
-            I_Tests4J_LogMessages messages = CONSTANTS.getLogMessages();
-            log_.log(DefaultLog.orderLine(MultiProbesMap.class.getSimpleName(), " ",
+            I_Tests4J_LogMessages messages = constants_.getLogMessages();
+            I_Tests4J_ReportMessages reportMessages = constants_.getReportMessages();
+            log_.log(DefaultLog.orderLine(constants_.isLeftToRight(),
+                MultiProbesMap.class.getSimpleName(), " ",
                 log_.getThreadWithGroupNameMessage()) + 
                 log_.getLineSeperator() + 
-                DefaultLog.orderLine("\t", messages.getIsCreatingNewProbesForTheFollowingClass()) + 
+                DefaultLog.orderLine(constants_.isLeftToRight(),
+                    reportMessages.getIndent(), messages.getIsCreatingNewProbesForTheFollowingClass()) + 
                 log_.getLineSeperator() + 
-                DefaultLog.orderLine("\t", clazzCovered_));
+                DefaultLog.orderLine(constants_.isLeftToRight(),
+                    reportMessages.getIndent(), clazzCovered_));
           }
           first =  new CascadingProbeMap(probes_);
           set.set(true);
@@ -316,13 +329,17 @@ public class MultiProbesMap implements Map<Integer, Boolean>{
       }
     }
     int whichProbe = key + 1;
-    I_Tests4J_LogMessages messages = CONSTANTS.getLogMessages();
-    log_.log(DefaultLog.orderLine(MultiProbesMap.class.getSimpleName(), " ",
+    I_Tests4J_LogMessages messages = constants_.getLogMessages();
+    I_Tests4J_ReportMessages reportMessages = constants_.getReportMessages();
+    log_.log(DefaultLog.orderLine(constants_.isLeftToRight(),MultiProbesMap.class.getSimpleName(), " ",
         log_.getThreadWithGroupNameMessage()) + log_.getLineSeperator() +
-        DefaultLog.orderLine("\t", messages.getDetectedTheFollowingProbeHit()) + 
+        DefaultLog.orderLine(constants_.isLeftToRight(),
+            reportMessages.getIndent(),messages.getDetectedTheFollowingProbeHit()) + 
         log_.getLineSeperator() + 
-        DefaultLog.orderLine("\t", clazzCovered_) + log_.getLineSeperator() +
-        DefaultLog.orderLine("\t", sb.toString(), " ", whichProbe + "/" + probeCount_));
+        DefaultLog.orderLine(constants_.isLeftToRight(),
+            reportMessages.getIndent(), clazzCovered_) + log_.getLineSeperator() +
+        DefaultLog.orderLine(constants_.isLeftToRight(),
+            reportMessages.getIndent(), sb.toString(), " ", whichProbe + "/" + probeCount_));
   }
   
   @SuppressWarnings("boxing")

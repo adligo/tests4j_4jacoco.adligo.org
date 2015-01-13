@@ -7,6 +7,7 @@ import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverage;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBrief;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBriefMutant;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
+import org.adligo.tests4j.shared.i18n.I_Tests4J_Constants;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePlugin;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageRecorder;
@@ -58,10 +59,12 @@ public class CoveragePlugin implements I_Tests4J_CoveragePlugin {
 		memory_.setProbeDataAccessorFactory(factory);
 		memory_.setInstrumenterFactory(new MapClassInstrumenterFactory());
 		
+		I_Tests4J_Constants constants = (I_Tests4J_Constants) input.get(CoveragePluginMapParams.CONSTANTS);
+		
 		SimpleLoggerRuntime runtime = new SimpleLoggerRuntime(factory);
 		runtime.setup(
 		    new MultiProbeDataStoreAdaptor(
-		    new MultiContext(log_, runtime)));
+		    new MultiContext(constants, log_, runtime)));
 		memory_.setRuntime(runtime);
 	}
 	

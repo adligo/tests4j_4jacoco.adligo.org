@@ -1,6 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin.factories;
 
 import org.adligo.tests4j.run.common.I_JseSystem;
+import org.adligo.tests4j.shared.i18n.I_Tests4J_Constants;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePlugin;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePluginFactory;
@@ -19,6 +20,7 @@ import java.util.Set;
 
 public abstract class BasePluginFactory implements I_Tests4J_CoveragePluginFactory {
 
+  public static final String NO_CONSTANTS = "No Constants.";
   public static final String NO_SYSTEM = "No System";
   private static final String NO_LOG = "No Log";
 
@@ -27,6 +29,10 @@ public abstract class BasePluginFactory implements I_Tests4J_CoveragePluginFacto
   
   @Override
   public I_Tests4J_CoveragePlugin create(I_Tests4J_Params params, I_Tests4J_CoveragePluginParams pluginParams, Map<String,Object> runtimeParams) {
+    I_Tests4J_Constants constants = (I_Tests4J_Constants) runtimeParams.get(I_Tests4J_CoveragePluginFactory.CONSTANTS);
+    if (constants == null) {
+      throw new NullPointerException(NO_CONSTANTS);
+    }
     I_Tests4J_Log log_ = (I_Tests4J_Log)
         runtimeParams.get(I_Tests4J_CoveragePluginFactory.LOG);
     if (log_ == null) {
@@ -38,6 +44,7 @@ public abstract class BasePluginFactory implements I_Tests4J_CoveragePluginFacto
       throw new NullPointerException(NO_SYSTEM);
     }
     Map<String,Object> input = new HashMap<String,Object>();
+    input.put(CoveragePluginMapParams.CONSTANTS, constants);
     input.put(CoveragePluginMapParams.LOGGER, log_);
     Set<String> whiteList = new HashSet<String>(getWhitelist());
     if (params != null) {

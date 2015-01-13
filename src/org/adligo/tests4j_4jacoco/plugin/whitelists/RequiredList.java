@@ -139,7 +139,7 @@ public class RequiredList extends BaseClassList {
 		toRet.add("org.adligo.tests4j.shared.asserts.common.I_CompareAssertCommand");
 		toRet.add("org.adligo.tests4j.shared.asserts.common.I_CompareAssertionData");
 		
-		toRet.add("org.adligo.tests4j.shared.asserts.common.I_ExpectedThrownData");
+		toRet.add("org.adligo.tests4j.shared.asserts.common.I_ExpectedThrowable");
 		
 		toRet.add("org.adligo.tests4j.shared.asserts.common.I_SimpleAssertCommand");
 		toRet.add("org.adligo.tests4j.shared.asserts.common.I_SimpleCompareAssertCommand");

@@ -10,6 +10,10 @@ package org.adligo.tests4j_4jacoco.plugin;
  */
 public class CoveragePluginMapParams {
   /**
+   * key which points to a I_Tests4J_Constants value
+   */
+  public static final String CONSTANTS = "constants";
+  /**
    * key which points to a I_Tests4J_Log value
    */
   public static final String LOGGER = "logger";
