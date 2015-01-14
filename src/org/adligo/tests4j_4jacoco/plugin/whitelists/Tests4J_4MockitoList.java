@@ -19,8 +19,7 @@ public class Tests4J_4MockitoList extends BaseClassList {
 	private static Set<String> getSharedClassWhitelist() {
 		Set<String> toRet = new HashSet<String>();
 	
-		toRet.add("org.adligo.tests4j_4mockito.I_MockitoAsserts");
-	  toRet.add("org.adligo.tests4j_4mockito.I_MockitoMatchers");
+	  toRet.add("org.adligo.tests4j_4mockito.I_ReturnFactory");
 	  
 	  toRet.add("org.adligo.tests4j_4mockito.MockitoApiTrial");
 	  toRet.add("org.adligo.tests4j_4mockito.MockitoSourceFileTrial");
