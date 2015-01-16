@@ -60,15 +60,17 @@ public class ClassAndDependenciesInstrumenter  {
 					" instrumenting class " + className);
 		}
 		I_OrderedClassDependencies ocd = null;
+		List<String> order = null;
+		String whichDep = null;
 		try {
 			//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
 			ocd = orderedClassDiscovery.findOrLoad(c);
-			List<String> order = ocd.getOrder();
+			order = ocd.getOrder();
 			if (classStart.get()) {
 				todo.addAndGet(order.size());
 			}
 			for (String dep: order) {
-				
+			  whichDep = dep;
 				if ( !classFilter.isFiltered(dep)) {
 					if ( !instrumentedClassLoader.hasCache(dep)) {
 						if (log_.isLogEnabled(ClassAndDependenciesInstrumenter.class)) {
@@ -96,7 +98,17 @@ public class ClassAndDependenciesInstrumenter  {
 				done.addAndGet(1);
 			}
 		} catch (Exception e) {
-			throw new IOException("problem in instrumentClass " + c.getName() ,e);
+		  /*
+		  StringBuilder ob = new StringBuilder();
+		  if (order != null) {
+		    for(String dep: order) {
+		      ob.append(dep);
+		      ob.append(System.lineSeparator());
+		    }
+		  }
+		  */
+			throw new IOException("problem in instrumentClass " + System.lineSeparator() +
+			    c.getName() + " for dependency " + whichDep,e);
 		}
 		Class<?> instrClass = instrumentedClassLoader.getCachedClass(c.getName());
 		InstrumentedClassDependencies deps = new InstrumentedClassDependencies(instrClass, ocd.getClassDependencies());

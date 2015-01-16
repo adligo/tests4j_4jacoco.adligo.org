@@ -137,102 +137,13 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 	 * @return
 	 */
 	private List<String> calculateRefOrder(Class<?> c) {
-		String topName = c.getName();
-		Set<I_Dependency> deps = toDependencies(topName);
-		List<String> toRet = new ArrayList<String>();
-		
-		Iterator<I_Dependency> it = deps.iterator();
-		while (deps.size() >= 1) {
-			while (it.hasNext()) {
-				I_Dependency dep = it.next();
-				I_ClassParentsLocal alias = (I_ClassParentsLocal) dep.getAlias();
-				String depName = alias.getName();
-				
-				List<String> parentNames = alias.getParentNames();
-				if (parentNames.size() == 0 || toRet.containsAll(parentNames)) {
-					Class<?> dc = alias.getTarget();
-					if (classFilter.isFiltered(dc)) {
-						if (!toRet.contains(depName)) {
-							toRet.add(depName);
-						}
-						if (deps.contains(dep)) {
-              it.remove();
-            }
-					} else {
-						I_ClassAssociationsLocal local = refMap.get(alias);
-						if (local == null) {
-							throw new NullPointerException("problem finding refs for " + depName 
-									+ " on " + c);
-						}
-						Set<String> refNames =  local.getDependencyNames();
-						refNames = new HashSet<String>(refNames);
-						if (local.hasCircularDependencies()) {
-							refNames.removeAll(local.getCircularDependenciesNames());
-						} 
-						refNames.remove(depName);
-						if (refNames.size() == 0 || toRet.containsAll(refNames)) {
-							 if (!toRet.contains(depName)) {
-								 toRet.add(depName);
-							 }
-							 if (deps.contains(dep)) {
-                 it.remove();
-               }
-						}
-					}
-				} else {
-					//add the parents
-					//add all of the jse stuff
-					List<I_ClassParentsLocal> parents =  alias.getParentsLocal();
-					for (I_ClassParentsLocal parent: parents) {
-						String parentName = parent.getName();
-						Class<?> pc = parent.getTarget();
-						if (classFilter.isFiltered(pc)) {
-							if (!toRet.contains(parentName)) {
-								 toRet.add(parentName);
-							 }
-						} else {
-							I_ClassAssociationsLocal local = refMap.get(alias);
-							Set<String> refNames =  local.getDependencyNames();
-							refNames = new HashSet<String>(refNames);
-							if (local.hasCircularDependencies()) {
-								refNames.removeAll(local.getCircularDependenciesNames());
-							}
-							refNames.remove(depName);
-							if (refNames.size() == 0 || toRet.containsAll(refNames)) {
-								 if (!toRet.contains(depName)) {
-									 toRet.add(depName);
-								 }
-								 if (deps.contains(dep)) {
-								   it.remove();
-								 }
-							}
-						}
-					}
-				}
-			}
-			it = deps.iterator();
-		}
-		
-		boolean adding = true;
-		int count = 1;
-		while (adding) {
-			String inName = topName + "$" + count;
-			if (refMap.containsKey( new ClassAlias(inName))) {
-				if (!toRet.contains(inName)) {
-					toRet.add(inName);
-				}
-			} else {
-				adding = false;
-			}
-			count++;
-		}
-		if (!toRet.contains(topName)) {
-			toRet.add(topName);
-		}
-		return toRet;
+	  String topName = c.getName();
+	  TreeSet<I_Dependency> deps = toDependencies(topName);
+	  ReferenceOrderCalculator calc = new ReferenceOrderCalculator(classFilter, refMap);
+	  return calc.calculateOrder(c, deps);
 	}
 
-	public Set<I_Dependency> toDependencies(String topName) {
+	public TreeSet<I_Dependency> toDependencies(String topName) {
 		Map<String,DependencyMutant> refCounts = new HashMap<String,DependencyMutant>();
 		
 		Set<Entry<I_ClassAliasLocal, I_ClassAssociationsLocal>> refs =  refMap.entrySet();
@@ -248,7 +159,8 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 				
 				for (I_ClassParentsLocal ref: classes) {
 					if (isNotClassOrInnerClass(ref, className)) {
-						count = refCounts.get(ref.getName());
+					  String refName = ref.getName();
+						count = refCounts.get(refName);
 						if (count == null) {
 							count = new DependencyMutant();
 							count.setAlias(ref);
@@ -276,17 +188,38 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 			}
 		}
 		
-		Set<I_Dependency> deps = new TreeSet<I_Dependency>(refCounts.values());
+		TreeSet<I_Dependency> deps = new TreeSet<I_Dependency>(refCounts.values());
 		return deps;
 	}
+
+  public String removeDynamicClassId(I_ClassParentsLocal ref) {
+    String refName = ref.getName();
+    int idx = refName.indexOf("$");
+    if (idx != -1) {
+      String idPart = refName.substring(idx + 1, refName.length());
+      Integer dclassId = null;
+      try {
+        dclassId = new Integer(idPart);
+      } catch (NumberFormatException x) {
+        //eat
+      }
+      if (dclassId != null) {
+        refName = refName.substring(0, idx);
+      }
+    }
+    return refName;
+  }
 	
 	private boolean isNotClassOrInnerClass(I_ClassParentsLocal ref, String topName) {
 		String className = ref.getName();
 		if (className.equals(topName)) {
 			return false;
-		} else if (className.indexOf(topName + "$") == 0) {
+		} 
+		/*
+		else if (className.indexOf(topName + "$") == 0) {
 			return false;
 		}
+		*/
 		return true;
 	}
 
