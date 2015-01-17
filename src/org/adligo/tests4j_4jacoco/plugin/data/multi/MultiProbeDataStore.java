@@ -78,17 +78,17 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 	@Override
 	public Map<Integer, Boolean> get(final Long id, final String name, final int probecount) {
 		if (log_.isLogEnabled(MultiProbeDataStore.class)) {
-			log_.log(log_.getThreadWithGroupNameMessage() + log_.getLineSeperator() +
-					"\tis getting probes for the following class;" + log_.getLineSeperator() + 
+			log_.log(log_.getThreadWithGroupNameMessage() + log_.lineSeparator() +
+					"\tis getting probes for the following class;" + log_.lineSeparator() + 
 					"\t" + name);
 		}
 		MultiProbesMap toRet = classIds_.get(id);
 		if (toRet == null) {
 			if (!classIds_.containsKey(id)) {
 			  if (log_.isLogEnabled(MultiProbeDataStore.class)) {
-		      log_.log(log_.getThreadWithGroupNameMessage() + log_.getLineSeperator() +
-		          "\tis initalizing probes for the follwing class;" + log_.getLineSeperator() + 
-		          "\t" + name + " " + id + log_.getLineSeperator() + 
+		      log_.log(log_.getThreadWithGroupNameMessage() + log_.lineSeparator() +
+		          "\tis initalizing probes for the follwing class;" + log_.lineSeparator() + 
+		          "\t" + name + " " + id + log_.lineSeparator() + 
 		          "\twith probes " + probecount);
 		    }
 			  ClassProbesMutant cpm = new ClassProbesMutant();
@@ -100,8 +100,8 @@ public class MultiProbeDataStore implements I_MultiRecordingProbeDataStore {
 			  String regularName = ClassMethods.fromTypeDescription("L" + name + ";");
 
         if (log_.isLogEnabled(MultiProbeDataStore.class)) {
-          log_.log(log_.getThreadWithGroupNameMessage() + log_.getLineSeperator() +
-              "\tis storing the following class;" + log_.getLineSeperator() +
+          log_.log(log_.getThreadWithGroupNameMessage() + log_.lineSeparator() +
+              "\tis storing the following class;" + log_.lineSeparator() +
               "\t" + regularName + " " + id);
         }
         

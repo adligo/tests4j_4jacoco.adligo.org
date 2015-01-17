@@ -11,6 +11,7 @@ import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.I_ClassFilter;
 import org.adligo.tests4j.shared.common.CacheControl;
 import org.adligo.tests4j.shared.common.ClassMethods;
+import org.adligo.tests4j.shared.i18n.I_Tests4J_Constants;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.common.I_ClassInstrumenterFactory;
 import org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory;
@@ -64,6 +65,7 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 	private I_ProbeDataAccessorFactory probeDataAccessorFactory;
 	private I_ClassInstrumenterFactory instrumenterFactory;
 	private I_Tests4J_Log log;
+	private I_Tests4J_Constants constants;
 	private boolean canThreadGroupLocalRecord = true;
 	private String instrumentedClassFileOutputFolder = "instrumentedClasses";
 	private boolean writeOutInstrumentedClassFiles = false;
@@ -76,6 +78,13 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
 	@SuppressWarnings("unchecked")
   protected CoveragePluginMemory(Map<String,Object> input) {
 		log = (I_Tests4J_Log) input.get(CoveragePluginMapParams.LOGGER);
+		if (log == null) {
+		  throw new NullPointerException();
+		}
+		constants = (I_Tests4J_Constants) input.get(CoveragePluginMapParams.CONSTANTS);
+		if (constants == null) {
+      throw new NullPointerException();
+    }
 		
 		Set<String> packagesNotRequired = (Set<String>) input.get(
 		    CoveragePluginMapParams.NON_INSTRUMENTED_PACKAGES);
@@ -327,5 +336,10 @@ public class CoveragePluginMemory implements I_CoveragePluginMemory {
     }
     topNames = PackageDiscovery.findTopPackages(topNames);
     return topNames;
+  }
+
+  @Override
+  public I_Tests4J_Constants getConstants() {
+    return constants;
   }
 }

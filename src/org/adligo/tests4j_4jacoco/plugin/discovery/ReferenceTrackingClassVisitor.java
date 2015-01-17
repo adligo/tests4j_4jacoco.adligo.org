@@ -69,7 +69,7 @@ public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClas
 			sb.append(super.toString() + " in class " + name + 
 					" signature is " + signature);
 			for (int i = 0; i < interfaces.length; i++) {
-				sb.append(log.getLineSeperator());
+				sb.append(log.lineSeparator());
 				sb.append(interfaces[i]);
 			}
 			log.log(sb.toString());
@@ -96,7 +96,7 @@ public class ReferenceTrackingClassVisitor extends AbstractReferenceTrackingClas
 					"." + name + " signature is " + signature);
 			if (exceptions != null) {
 				for (int i = 0; i < exceptions.length; i++) {
-					sb.append(log.getLineSeperator());
+					sb.append(log.lineSeparator());
 					sb.append(exceptions[i]);
 				}
 			}

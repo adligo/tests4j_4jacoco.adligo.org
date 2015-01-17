@@ -7,6 +7,11 @@ import org.adligo.tests4j.shared.asserts.reference.ClassAlias;
 import org.adligo.tests4j.shared.asserts.reference.I_ClassAlias;
 import org.adligo.tests4j.shared.asserts.reference.I_ClassAliasLocal;
 import org.adligo.tests4j.shared.asserts.reference.I_Dependency;
+import org.adligo.tests4j.shared.common.StringMethods;
+import org.adligo.tests4j.shared.i18n.I_Tests4J_Constants;
+import org.adligo.tests4j.shared.i18n.I_Tests4J_CoveragePluginMessages;
+import org.adligo.tests4j.shared.i18n.I_Tests4J_ReportMessages;
+import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,29 +23,67 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class ReferenceOrderCalculator {
+/**
+ * This class was extracted from OrderedClassDependencies
+ * to make it easier to test, since it was the cause of 
+ * a more then a few late night debugging sessions.
+ * 
+ * @author scott
+ *
+ */
+public class OrderedReferenceCalculator {
   private final I_ClassFilter classFilter_;
-  private final Map<I_ClassAliasLocal, I_ClassAssociationsLocal> refMap_;
+  private final HashMap<I_ClassAliasLocal, I_ClassAssociationsLocal> refMap_;
   private Class<?> clazz_;
   private String topName_;
   private Set<I_Dependency> deps_;
+  private HashMap<String,I_Dependency> depsMap_;
+  private I_Tests4J_Constants constants_;
+  private I_Tests4J_Log log_;
   
-  public ReferenceOrderCalculator(I_ClassFilter filter, Map<I_ClassAliasLocal, I_ClassAssociationsLocal> refMap) {
+  public OrderedReferenceCalculator(I_ClassFilter filter, I_Tests4J_Log log, I_Tests4J_Constants constants,
+      HashMap<I_ClassAliasLocal, I_ClassAssociationsLocal> refMap, Class<?> clazz) {
+    if (filter == null) {
+      throw new NullPointerException();
+    }
     classFilter_ = filter;
+    if (log == null) {
+      throw new NullPointerException();
+    }
+    log_ = log;
+    
+    if (constants == null) {
+      throw new NullPointerException();
+    }
+    constants_ = constants;
+    
+    if (refMap == null) {
+      throw new NullPointerException();
+    }
     refMap_ = refMap;
+    
+    clazz_ = clazz;
+    topName_ = clazz.getName();
   }
   
-  public List<String> calculateOrder(Class<?> c, TreeSet<I_Dependency> deps) {
-    clazz_ = c;
+  /**
+   * Calculate the reference order to load classes 
+   * into the class loader.
+   * @param c
+   * @param deps
+   * @return
+   */
+  public List<String> calculateOrder(TreeSet<I_Dependency> deps) {
     deps_ = deps;
-    topName_ = c.getName();
+    
     List<String> toRet = new ArrayList<String>();
-    Map<String,I_Dependency> depsMap = new HashMap<String,I_Dependency>();
+    depsMap_ = new HashMap<String,I_Dependency>();
+    
     Iterator<I_Dependency> depsIt = deps_.iterator();
     while (depsIt.hasNext()) {
       I_Dependency dep = depsIt.next();
       I_ClassAlias alias =  dep.getAlias();
-      depsMap.put(alias.getName(), dep);
+      depsMap_.put(alias.getName(), dep);
     }
     HashSet<I_Dependency> hashDeps = new HashSet<I_Dependency>(deps_);
     Map<String,Set<String>> lastMissing = new HashMap<String,Set<String>>();
@@ -49,7 +92,9 @@ public class ReferenceOrderCalculator {
     while (deps.size() >= 1 && orderTry <= 10000) {
       orderTry++;
       //use tree set for ordering
-      deps = new TreeSet<I_Dependency>(hashDeps);
+      if (orderTry >= 1) {
+        deps = new TreeSet<I_Dependency>(hashDeps);
+      }
       Iterator<I_Dependency> it = deps.iterator();
       while (it.hasNext()) {
         I_Dependency classDep = it.next();
@@ -87,7 +132,7 @@ public class ReferenceOrderCalculator {
                    toRet.add(parentName);
                  }
               } else {
-                I_Dependency pdep = depsMap.get(parentName);
+                I_Dependency pdep = depsMap_.get(parentName);
                 Set<String> depDepsNotInResult = addClassWithDependenciesAlreadyInResult(toRet, hashDeps, pdep);  
                 if (!depDepsNotInResult.isEmpty()) {
                   lastMissing.put(parentName, depDepsNotInResult);
@@ -100,26 +145,7 @@ public class ReferenceOrderCalculator {
     }
     
     if (hashDeps.size() >= 1) {
-      StringBuilder sb = new StringBuilder();
-      sb.append("Unable to find dependency order for the following class;" + System.lineSeparator() +
-          clazz_.getName() + System.lineSeparator());
-      Iterator<I_Dependency> dit = hashDeps.iterator();
-      sb.append("The inital dependencies are;" + System.lineSeparator());
-      sb.append("\t" + depsMap.keySet() +  System.lineSeparator());
-      sb.append("The remaining dependencies are;" + System.lineSeparator());
-      while (dit.hasNext()) {
-        I_Dependency dep = dit.next();
-        I_ClassAliasLocal ca = (I_ClassAliasLocal) dep.getAlias();
-        String name = ca.getName();
-        sb.append("\t" + name + "   " + lastMissing.get(name) + System.lineSeparator());
-        I_ClassAssociationsLocal associations = refMap_.get(ca);
-        if (associations != null) {
-          sb.append("\t\t" + associations.getDependencyNames() + System.lineSeparator());
-        }
-      }
-      sb.append("The dependency order not returned at exception time is as follows;" + System.lineSeparator() +
-          toRet);
-      throw new IllegalStateException(sb.toString());
+      throwUnableToCalculateOrderException(toRet, hashDeps, lastMissing, depsMap_.keySet());
     }
     boolean adding = true;
     int count = 1;
@@ -141,6 +167,54 @@ public class ReferenceOrderCalculator {
   }
 
   /**
+   * This method is public for ease of testing only.
+   * @param toRet
+   * @param hashDeps
+   * @param lastMissing
+   */
+  public void throwUnableToCalculateOrderException(List<String> toRet,
+      Set<? extends I_Dependency> hashDeps, Map<String, Set<String>> lastMissing,
+          Set<String> initialDeps) {
+    
+    I_Tests4J_CoveragePluginMessages messages =  constants_.getCoveragePluginMessages();
+    I_Tests4J_ReportMessages reportMessages = constants_.getReportMessages();
+    StringBuilder sb = new StringBuilder();
+    sb.append(messages.getUnableToFineDependencyOrderForTheFollowingClass() + log_.lineSeparator() +
+        clazz_.getName() + log_.lineSeparator());
+    Iterator<? extends I_Dependency> dit = hashDeps.iterator();
+    sb.append(messages.getTheDependenciesAreAsFollows() + log_.lineSeparator());
+
+    String toAdd = StringMethods.orderLine(constants_.isLeftToRight(), reportMessages.getIndent(),
+        "" + initialDeps) + log_.lineSeparator();
+    sb.append(toAdd);
+    
+    toAdd = StringMethods.orderLine(constants_.isLeftToRight(), reportMessages.getIndent(),
+        messages.getTheFollowingDependenciesCouldNotBeOrdered()) + log_.lineSeparator();
+    sb.append(toAdd);
+    while (dit.hasNext()) {
+      I_Dependency dep = dit.next();
+      I_ClassAliasLocal ca = (I_ClassAliasLocal) dep.getAlias();
+      String name = ca.getName();
+      toAdd = StringMethods.orderLine(constants_.isLeftToRight(), reportMessages.getIndent(),
+          name, "   ", "" + lastMissing.get(name)) + log_.lineSeparator();
+      sb.append(toAdd);
+      I_ClassAssociationsLocal associations = refMap_.get(ca);
+      if (associations != null) {
+        toAdd = StringMethods.orderLine(constants_.isLeftToRight(), reportMessages.getIndent(),
+            reportMessages.getIndent(),
+            "" + associations.getDependencyNames()) + log_.lineSeparator();
+      }
+    }
+    toAdd = StringMethods.orderLine(constants_.isLeftToRight(), reportMessages.getIndent(),
+        messages.getTheFollowingDependenciesWereOrderedSuccessfully()) + log_.lineSeparator();
+    sb.append(toAdd);
+    toAdd = StringMethods.orderLine(constants_.isLeftToRight(), reportMessages.getIndent(),
+        "" + toRet) + log_.lineSeparator();
+    sb.append(toAdd);
+    throw new IllegalStateException(sb.toString());
+  }
+
+  /**
    * @param result
    * @param it
    * @param dependency
@@ -149,14 +223,12 @@ public class ReferenceOrderCalculator {
    * set then the dependency was added to the result.
    */
   public Set<String> addClassWithDependenciesAlreadyInResult(List<String> result, 
-      HashSet<I_Dependency> hashDeps,
-      I_Dependency dependency) {
+      HashSet<I_Dependency> hashDeps, I_Dependency dependency) {
     I_ClassParentsLocal classDepAlias = (I_ClassParentsLocal) dependency.getAlias();
     String classDepName = classDepAlias.getName();
     I_ClassAssociationsLocal local = refMap_.get(classDepAlias);
     if (local == null) {
-      throw new NullPointerException("problem finding refs for " + classDepName 
-          + " on " + clazz_);
+      throw new NullPointerException(classDepName + log_.lineSeparator() + clazz_);
     }
     Set<String> refNames =  local.getDependencyNames();
     refNames = new HashSet<String>(refNames);

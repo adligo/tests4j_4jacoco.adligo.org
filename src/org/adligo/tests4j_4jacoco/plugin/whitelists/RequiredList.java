@@ -194,15 +194,16 @@ public class RequiredList extends BaseClassList {
 		
 		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_AnnotationMessages");
 		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_AssertionInputMessages");
-		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_ResultMessages");
 		
 		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_Constants");
+		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_CoveragePluginMessages");
 		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_EclipseErrors");
 		
 		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_LineDiffTextDisplayMessages");
 		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_LogMessages");
 		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_ParamsReaderMessages");
 		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_ReportMessages");
+		toRet.add("org.adligo.tests4j.shared.i18n.I_Tests4J_ResultMessages");
 		
 		toRet.add("org.adligo.tests4j.shared.output.I_ConcurrentOutputDelegator");
 		toRet.add("org.adligo.tests4j.shared.output.I_OutputBuffer");

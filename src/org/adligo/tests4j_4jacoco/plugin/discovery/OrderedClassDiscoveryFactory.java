@@ -4,6 +4,7 @@ import org.adligo.tests4j.models.shared.association.I_ClassAssociationsCache;
 import org.adligo.tests4j.models.shared.association.I_ClassParentsCache;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.I_ClassFilter;
+import org.adligo.tests4j.shared.i18n.I_Tests4J_Constants;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory;
 import org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscovery;
@@ -14,14 +15,18 @@ public class OrderedClassDiscoveryFactory implements I_OrderedClassDiscoveryFact
 
 	@Override
 	public I_OrderedClassDiscovery create(I_CoveragePluginMemory memory) {
-		OrderedClassDiscovery ocd = new OrderedClassDiscovery();
+	  I_Tests4J_Log log = memory.getLog();
+	   
 		I_ClassAssociationsCache dependencyCache = memory.getDependencyCache();
-		I_Tests4J_Log log = memory.getLog();
+		
 		I_ClassFilter basicClassFilter = memory.getBasicClassFilter();
 		I_ClassFilter classFilter = memory.getClassFilter();
 		I_CachedClassBytesClassLoader classLoaderCache = memory.getCachedClassLoader();
 		I_ClassParentsCache parentsCache = memory.getParentsCache();
+		I_Tests4J_Constants constants = memory.getConstants();
 		
+		OrderedClassDiscovery ocd = new OrderedClassDiscovery();
+	  ocd.setConstants(constants);
 		ocd.setCache(dependencyCache);
 		ocd.setLog(log);
 		ocd.setClassFilter(classFilter);

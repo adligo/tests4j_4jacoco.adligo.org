@@ -5,6 +5,7 @@ import org.adligo.tests4j.models.shared.association.I_ClassParentsCache;
 import org.adligo.tests4j.run.discovery.I_PackageDiscovery;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.I_ClassFilter;
+import org.adligo.tests4j.shared.i18n.I_Tests4J_Constants;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePlugin;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoveragePluginParams;
@@ -22,6 +23,8 @@ public interface I_CoveragePluginMemory {
 	 * @return a I_Tests4J_Log
 	 */
 	public I_Tests4J_Log getLog();
+	
+	public I_Tests4J_Constants getConstants();
 	
 	public I_Runtime getRuntime();
 	/**

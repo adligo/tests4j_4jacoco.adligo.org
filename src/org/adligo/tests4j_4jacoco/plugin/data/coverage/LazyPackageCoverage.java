@@ -74,7 +74,7 @@ public class LazyPackageCoverage implements I_PackageCoverageBrief {
 				String classShortName = className.substring(lastDot+1, className.length());
 				classNames.add(classShortName);
 				if (log.isLogEnabled(LazyPackageCoverage.class)) {
-					sb.append(log.getLineSeperator());
+					sb.append(log.lineSeparator());
 					sb.append(this.getClass().getSimpleName() + " " +   className);
 				}
 			} else if (pkgName.indexOf(packageName) == 0) {
@@ -91,8 +91,8 @@ public class LazyPackageCoverage implements I_PackageCoverageBrief {
 		}
 		
 		if (log.isLogEnabled(LazyPackageCoverage.class)) {
-			sb.append(log.getLineSeperator());
-			sb.append(log.getLineSeperator());
+			sb.append(log.lineSeparator());
+			sb.append(log.lineSeparator());
 			log.log(sb.toString());
 		}
 		

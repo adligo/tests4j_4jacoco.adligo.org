@@ -33,7 +33,7 @@ public class TrialInstrumenter extends ClassAndDependenciesInstrumenter implemen
 	public I_Tests4J_CoverageTrialInstrumentation instrument(Class<? extends I_AbstractTrial> trial) throws IOException {
 		if (log_.isLogEnabled(TrialInstrumenter.class)) {
 			log_.log(this.getClass().getSimpleName() + 
-					log_.getCurrentThreadName() + log_.getLineSeperator() +
+					log_.getCurrentThreadName() + log_.lineSeparator() +
 					" instrumenting trial " + trial);
 		}
 		/**

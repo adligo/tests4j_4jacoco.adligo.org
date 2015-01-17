@@ -20,6 +20,7 @@ import org.adligo.tests4j.shared.asserts.reference.ClassAliasLocal;
 import org.adligo.tests4j.shared.asserts.reference.DependencyMutant;
 import org.adligo.tests4j.shared.asserts.reference.I_ClassAliasLocal;
 import org.adligo.tests4j.shared.asserts.reference.I_Dependency;
+import org.adligo.tests4j.shared.i18n.I_Tests4J_Constants;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDependencies;
 import org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscovery;
@@ -42,14 +43,17 @@ import org.adligo.tests4j_4jacoco.plugin.common.I_OrderedClassDiscovery;
  *
  */
 public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
-	private I_Tests4J_Log log;
-	private I_ClassFilter classFilter;
-	private I_ClassAssociationsCache cache;
-	private Map<I_ClassAliasLocal, I_ClassAssociationsLocal> refMap = new HashMap<I_ClassAliasLocal,I_ClassAssociationsLocal>();
-	private I_ClassDependenciesDiscovery fullDependenciesDiscovery;
-	private I_ClassDependenciesDiscovery circularDependenciesDiscovery;
+  private I_Tests4J_Constants constants_;
+	private I_Tests4J_Log log_;
+	private I_ClassFilter classFilter_;
+	private I_ClassAssociationsCache cache_;
+	private OrderedCalculatorFactory orderedCalculatorFactory_ = new OrderedCalculatorFactory();
+	private HashMap<I_ClassAliasLocal, I_ClassAssociationsLocal> refMap_ = new HashMap<I_ClassAliasLocal,I_ClassAssociationsLocal>();
+	private I_ClassDependenciesDiscovery fullDependenciesDiscovery_;
+	private I_ClassDependenciesDiscovery circularDependenciesDiscovery_;
 	
-	public OrderedClassDiscovery() {}
+	public OrderedClassDiscovery() {
+	}
 	
 	/**
 	 * @diagram_sync with InstrumentationOverview.seq on 8/20/2014
@@ -59,14 +63,14 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 	 */
 	@Override
 	public I_OrderedClassDependencies findOrLoad(Class<?> c) throws IOException, ClassNotFoundException {
-		if (log.isLogEnabled(OrderedClassDiscovery.class)) {
-			log.log("ClassReferencesDiscovery.discoverAndLoad " + c.getName());
+		if (log_.isLogEnabled(OrderedClassDiscovery.class)) {
+			log_.log("ClassReferencesDiscovery.discoverAndLoad " + c.getName());
 		}
 		String className = c.getName();
-		refMap.clear();
-		I_ClassAssociationsLocal crefs =  cache.getDependencies(className);
+		refMap_.clear();
+		I_ClassAssociationsLocal crefs =  cache_.getDependencies(className);
 		if (crefs != null) {
-			refMap.put(new ClassAliasLocal(crefs), crefs);
+			refMap_.put(new ClassAliasLocal(crefs), crefs);
 			fillRefMapFromFullRef(crefs);
 		} else {
 			crefs = fillRefMapFromClass(c);
@@ -79,8 +83,8 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 	private void fillRefMapFromFullRef(I_ClassAssociationsLocal full) throws ClassNotFoundException, IOException {
 		Set<I_ClassParentsLocal> refs = full.getDependenciesLocal();
 		for (I_ClassParentsLocal ref: refs) {
-			I_ClassAssociationsLocal refLoc = circularDependenciesDiscovery.findOrLoad(ref.getTarget());
-			refMap.put(refLoc, refLoc);
+			I_ClassAssociationsLocal refLoc = circularDependenciesDiscovery_.findOrLoad(ref.getTarget());
+			refMap_.put(refLoc, refLoc);
 		}
 	}
 
@@ -92,13 +96,13 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 	 */
 	private I_ClassAssociationsLocal fillRefMapFromClass(Class<?> c) throws ClassNotFoundException, IOException {
 		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
-		I_ClassAssociationsLocal initial = fullDependenciesDiscovery.findOrLoad(c);
+		I_ClassAssociationsLocal initial = fullDependenciesDiscovery_.findOrLoad(c);
 		
 		List<I_ClassParentsLocal> parents =  initial.getParentsLocal();
 		for (I_ClassParentsLocal cpl : parents) {
 			//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
-			I_ClassAssociationsLocal parentFull = circularDependenciesDiscovery.findOrLoad(cpl.getTarget());
-			refMap.put(parentFull, parentFull);
+			I_ClassAssociationsLocal parentFull = circularDependenciesDiscovery_.findOrLoad(cpl.getTarget());
+			refMap_.put(parentFull, parentFull);
 		}
 		
 		Set<I_ClassParentsLocal> refs = initial.getDependenciesLocal();
@@ -106,21 +110,21 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 		refsCopy.removeAll(parents);
 		for (I_ClassParentsLocal ref : refsCopy) {
 			//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
-			I_ClassAssociationsLocal refFull = circularDependenciesDiscovery.findOrLoad(ref.getTarget());
-			refMap.put(refFull, refFull);
+			I_ClassAssociationsLocal refFull = circularDependenciesDiscovery_.findOrLoad(ref.getTarget());
+			refMap_.put(refFull, refFull);
 		}
 		
 		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
-		I_ClassAssociationsLocal full = circularDependenciesDiscovery.findOrLoad(c);
-		refMap.put(full, full);
+		I_ClassAssociationsLocal full = circularDependenciesDiscovery_.findOrLoad(c);
+		refMap_.put(full, full);
 		Set<I_ClassParentsLocal> fullRefs = full.getDependenciesLocal();
 		Set<I_ClassParentsLocal> fullRefsCopy = new HashSet<I_ClassParentsLocal>(fullRefs);
 		fullRefsCopy.removeAll(parents);
 		fullRefsCopy.removeAll(refsCopy);
 		for (I_ClassParentsLocal ref : fullRefsCopy) {
 			//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
-			I_ClassAssociationsLocal refFull = circularDependenciesDiscovery.findOrLoad(ref.getTarget());
-			refMap.put(refFull, refFull);
+			I_ClassAssociationsLocal refFull = circularDependenciesDiscovery_.findOrLoad(ref.getTarget());
+			refMap_.put(refFull, refFull);
 		}
 		return full;
 	}
@@ -139,92 +143,15 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 	private List<String> calculateRefOrder(Class<?> c) {
 	  String topName = c.getName();
 	  TreeSet<I_Dependency> deps = toDependencies(topName);
-	  ReferenceOrderCalculator calc = new ReferenceOrderCalculator(classFilter, refMap);
-	  return calc.calculateOrder(c, deps);
+	  OrderedReferenceCalculator calc = orderedCalculatorFactory_.createReferenceOrderCalculator(
+	      classFilter_, log_, constants_, refMap_, c);
+	  return calc.calculateOrder(deps);
 	}
 
 	public TreeSet<I_Dependency> toDependencies(String topName) {
-		Map<String,DependencyMutant> refCounts = new HashMap<String,DependencyMutant>();
-		
-		Set<Entry<I_ClassAliasLocal, I_ClassAssociationsLocal>> refs =  refMap.entrySet();
-		for (Entry<I_ClassAliasLocal,I_ClassAssociationsLocal> e: refs) {
-			I_ClassAliasLocal key = e.getKey();
-			String className = key.getName();
-			I_ClassAssociationsLocal crs = e.getValue();
-			Set<I_ClassParentsLocal> classes = crs.getDependenciesLocal();
-			
-			DependencyMutant count = null;
-			if (isNotClassOrInnerClass(crs, topName)) {
-				
-				
-				for (I_ClassParentsLocal ref: classes) {
-					if (isNotClassOrInnerClass(ref, className)) {
-					  String refName = ref.getName();
-						count = refCounts.get(refName);
-						if (count == null) {
-							count = new DependencyMutant();
-							count.setAlias(ref);
-							count.addReference();
-						} else {
-							count.addReference();
-						}
-						refCounts.put(ref.getName(), count);
-					}
-				}
-			} else {
-				for (I_ClassParentsLocal ref: classes) {
-					if (isNotClassOrInnerClass(ref, className)) {
-						count = refCounts.get(ref.getName());
-						if (count == null) {
-							count = new DependencyMutant();
-							count.setAlias(ref);
-							count.addReference();
-						} else {
-							count.addReference();
-						}
-						refCounts.put(ref.getName(), count);
-					}
-				}
-			}
-		}
-		
-		TreeSet<I_Dependency> deps = new TreeSet<I_Dependency>(refCounts.values());
-		return deps;
+	  OrderedDependenciesCalculator odc = orderedCalculatorFactory_.createOrderedDependenciesCalculator();
+    return odc.count(topName, refMap_);
 	}
-
-  public String removeDynamicClassId(I_ClassParentsLocal ref) {
-    String refName = ref.getName();
-    int idx = refName.indexOf("$");
-    if (idx != -1) {
-      String idPart = refName.substring(idx + 1, refName.length());
-      Integer dclassId = null;
-      try {
-        dclassId = new Integer(idPart);
-      } catch (NumberFormatException x) {
-        //eat
-      }
-      if (dclassId != null) {
-        refName = refName.substring(0, idx);
-      }
-    }
-    return refName;
-  }
-	
-	private boolean isNotClassOrInnerClass(I_ClassParentsLocal ref, String topName) {
-		String className = ref.getName();
-		if (className.equals(topName)) {
-			return false;
-		} 
-		/*
-		else if (className.indexOf(topName + "$") == 0) {
-			return false;
-		}
-		*/
-		return true;
-	}
-
-
-	
 	/**
 	 * @diagram_sync with Discovery_ClassReferenceDiscovery.seq on 8/1/2014
 	 * @diagram_sync with Discovery_ClassInstrumenter.seq on 8/1/2014
@@ -233,49 +160,57 @@ public class OrderedClassDiscovery implements I_OrderedClassDiscovery {
 	 * @return
 	 */
 	public I_ClassAssociationsLocal getReferences(I_ClassAliasLocal alias) {
-		return refMap.get(alias);
+		return refMap_.get(alias);
 	}
 
 	public I_Tests4J_Log getLog() {
-		return log;
+		return log_;
 	}
 
 	public I_ClassFilter getClassFilter() {
-		return classFilter;
+		return classFilter_;
 	}
 
 	public I_ClassAssociationsCache getCache() {
-		return cache;
+		return cache_;
 	}
 
 	public I_ClassDependenciesDiscovery getFullDependenciesDiscovery() {
-		return fullDependenciesDiscovery;
+		return fullDependenciesDiscovery_;
 	}
 
 	public I_ClassDependenciesDiscovery getCircularDependenciesDiscovery() {
-		return circularDependenciesDiscovery;
+		return circularDependenciesDiscovery_;
 	}
 
 	public void setLog(I_Tests4J_Log log) {
-		this.log = log;
+		this.log_ = log;
 	}
 
 	public void setClassFilter(I_ClassFilter classFilter) {
-		this.classFilter = classFilter;
+		this.classFilter_ = classFilter;
 	}
 
 	public void setCache(I_ClassAssociationsCache cache) {
-		this.cache = cache;
+		this.cache_ = cache;
 	}
 
 	public void setFullDependenciesDiscovery(
 			I_ClassDependenciesDiscovery classDependenciesDiscovery) {
-		this.fullDependenciesDiscovery = classDependenciesDiscovery;
+		this.fullDependenciesDiscovery_ = classDependenciesDiscovery;
 	}
 
 	public void setCircularDependenciesDiscovery(
 			I_ClassDependenciesDiscovery circularDependenciesDiscovery) {
-		this.circularDependenciesDiscovery = circularDependenciesDiscovery;
+		this.circularDependenciesDiscovery_ = circularDependenciesDiscovery;
 	}
+
+  public I_Tests4J_Constants getConstants() {
+    return constants_;
+  }
+
+  public void setConstants(I_Tests4J_Constants constants) {
+    this.constants_ = constants;
+  }
 
 }
