@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="var" path="FAB_REPO/org.ow2.asm/asm-debug-all-5.0.3.jar" sourcepath="/ASM_SOURCE"/>
-	<classpathentry kind="var" path="FAB_REPO/org.jacoco/org.jacoco.core-0.7.0.201403182114.jar" sourcepath="/JACOCO_CORE_SRC"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/tests4j.adligo.org"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="SERVER_REPO/org/jacoco/org.jacoco.core/0.7.0.201403182114/org.jacoco.core-0.7.0.201403182114.jar"/>
+	<classpathentry kind="var" path="SERVER_REPO/org/ow2/asm/asm-debug-all/5.0.3/asm-debug-all-5.0.3.jar" sourcepath="/ASM_SRC"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

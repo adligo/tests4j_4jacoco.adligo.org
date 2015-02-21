@@ -100,20 +100,24 @@ public class InitialDependenciesDiscovery implements I_ClassDependenciesDiscover
 		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
 		ClassAssociationsLocalMutant crm = new ClassAssociationsLocalMutant(cps);
 		//add references from ASM, byte code inspection
-		InputStream in = classLoader.getCachedBytesStream(className);
-		ClassReader classReader=new ClassReader(in);
-		classVisitor.reset();
-		classReader.accept(classVisitor, 0);
-		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
-		List<ClassAttributes> asmRefs = classVisitor.getClassReferences();
-		addAsmRefs(crm, asmRefs);
-		//@diagram_sync with DiscoveryOverview.seq on 9/2/2014
-		readReflectionReferences(c, crm);
-		
-		ClassAssociationsLocal result = new ClassAssociationsLocal(crm);
-		
-		cache.putDependenciesIfAbsent(result);
-		return result;
+		try {
+  		InputStream in = classLoader.getCachedBytesStream(className);
+  		ClassReader classReader=new ClassReader(in);
+  		classVisitor.reset();
+  		classReader.accept(classVisitor, 0);
+  		//@diagram_sync with DiscoveryOverview.seq on 8/17/2014
+  		List<ClassAttributes> asmRefs = classVisitor.getClassReferences();
+  		addAsmRefs(crm, asmRefs);
+  		//@diagram_sync with DiscoveryOverview.seq on 9/2/2014
+  		readReflectionReferences(c, crm);
+  		
+  		ClassAssociationsLocal result = new ClassAssociationsLocal(crm);
+  		
+  		cache.putDependenciesIfAbsent(result);
+  		return result;
+		} catch (Exception x) {
+		  throw new IllegalStateException("loadInitalReferences had a problem loading class " + className, x);
+		}
 	}
 
 	public void addAsmRefs(ClassAssociationsLocalMutant crm,

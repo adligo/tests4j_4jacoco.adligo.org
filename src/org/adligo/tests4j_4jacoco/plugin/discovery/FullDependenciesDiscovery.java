@@ -17,6 +17,7 @@ import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
 import org.adligo.tests4j.run.helpers.I_ClassFilter;
 import org.adligo.tests4j.shared.asserts.reference.ClassAliasLocal;
 import org.adligo.tests4j.shared.asserts.reference.I_ClassAliasLocal;
+import org.adligo.tests4j.shared.common.ClassMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 
 /**
@@ -139,7 +140,7 @@ public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 		Set<I_ClassParentsLocal> refs =   initalRefs.getDependenciesLocal();
 		if (refs != null) {
 			for (I_ClassParentsLocal ref: refs){
-				initalRefsToIdentify.add(ref);
+			  initalRefsToIdentify.add(ref);
 			}
 		}
 		while (initalRefsToIdentify.size() >= 1) {
@@ -161,7 +162,7 @@ public class FullDependenciesDiscovery implements I_ClassDependenciesDiscovery {
 				if (delRefsRefs != null) {
 					for (I_ClassParentsLocal cpl: delRefsRefs) {
 						if (!fullRefsFound.contains(cpl)) {
-							initalRefsToIdentify.add(cpl);
+						  initalRefsToIdentify.add(cpl);
 						}
 					}
 				}
