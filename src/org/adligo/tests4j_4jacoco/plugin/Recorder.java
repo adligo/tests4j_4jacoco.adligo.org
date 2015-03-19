@@ -12,6 +12,7 @@ import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBrief;
 import org.adligo.tests4j.models.shared.coverage.SourceFileCoverageBriefMutant;
 import org.adligo.tests4j.run.discovery.I_PackageDiscovery;
 import org.adligo.tests4j.run.helpers.I_CachedClassBytesClassLoader;
+import org.adligo.tests4j.shared.common.StringMethods;
 import org.adligo.tests4j.shared.output.I_Tests4J_Log;
 import org.adligo.tests4j.system.shared.api.I_Tests4J_CoverageRecorder;
 import org.adligo.tests4j_4jacoco.plugin.common.I_CoveragePluginMemory;
@@ -57,6 +58,12 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
     runtime_ = memory_.getRuntime();
     threadGroupName_ = threadGroupName;
     filter_ = filter;
+    if (StringMethods.isEmpty(threadGroupName)) {
+      throw new IllegalArgumentException("threadGroupName '" + threadGroupName + "'");
+    }
+    if (StringMethods.isEmpty(filter)) {
+      throw new IllegalArgumentException("filter '" + filter + "'");
+    }
     runtime_.putThreadGroupFilter(threadGroupName, filter);
     runtime_.clearClassesCovered(threadGroupName);
   }
