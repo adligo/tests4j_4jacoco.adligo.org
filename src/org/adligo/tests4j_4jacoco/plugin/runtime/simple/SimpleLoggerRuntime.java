@@ -1,6 +1,7 @@
 package org.adligo.tests4j_4jacoco.plugin.runtime.simple;
 
 import org.adligo.tests4j.models.shared.coverage.I_SourceFileCoverageBrief;
+import org.adligo.tests4j.shared.common.StringMethods;
 import org.adligo.tests4j_4jacoco.plugin.common.I_LoggerDataAccessorFactory;
 import org.adligo.tests4j_4jacoco.plugin.common.I_Runtime;
 import org.adligo.tests4j_4jacoco.plugin.data.common.I_ProbesDataStore;
@@ -98,7 +99,11 @@ public class SimpleLoggerRuntime implements I_Runtime {
 
   @Override
   public void putThreadGroupFilter(String threadGroupName, String javaProbeFilter) {
-    threadGroupsToProbeModificationFilters_.put(threadGroupName, javaProbeFilter);
+    if (!StringMethods.isEmpty(javaProbeFilter)) {
+      threadGroupsToProbeModificationFilters_.put(threadGroupName, javaProbeFilter);
+    } else {
+      threadGroupsToProbeModificationFilters_.put(threadGroupName, "");
+    }
   }
 
   @Override

@@ -27,7 +27,8 @@ public interface I_Runtime {
 	 * @param probeJavaFilter this is either a java package name, 
 	 *    or java class name which the threadGroup is paying attention to.
 	 *    It comes from the @PackageScope or @SourceFileScope annotation
-	 *    for the trial.
+	 *    for the trial. Or it may be null if there is NO filter for use case trials.
+	 *    
 	 */
 	public void putThreadGroupFilter(String threadGroupName, String probeJavaFilter);
 	/**

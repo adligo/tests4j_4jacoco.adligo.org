@@ -61,9 +61,6 @@ public class Recorder implements I_Tests4J_CoverageRecorder {
     if (StringMethods.isEmpty(threadGroupName)) {
       throw new IllegalArgumentException("threadGroupName '" + threadGroupName + "'");
     }
-    if (StringMethods.isEmpty(filter)) {
-      throw new IllegalArgumentException("filter '" + filter + "'");
-    }
     runtime_.putThreadGroupFilter(threadGroupName, filter);
     runtime_.clearClassesCovered(threadGroupName);
   }
